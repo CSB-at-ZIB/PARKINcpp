@@ -10,7 +10,7 @@
 #include "linalg/Vector.h"
 #include "system/Expression.h"
 #include "system/BioSystem.h"
-#include "system/BioPOE.h"
+#include "system/BioPAR.h"
 
 #include "nonlin/GaussNewton.h"
 
@@ -293,7 +293,7 @@ int testsystem_aux()
 
 
     biosys.setODESystem(emap);
-    biosys.setSpecies(species);
+    // biosys.setSpecies(species);
     biosys.setParameters(param);
     //biosys.setAuxiliary(aux);
     //biosys.setAuxExpressions(auxilist);
@@ -433,7 +433,7 @@ int testsystem_aux()
     invBiosys.setSolverATol( solverATol );
 
     invBiosys.setODESystem(emap);
-    invBiosys.setSpecies(species);
+    // invBiosys.setSpecies(species);
     invBiosys.setParameters(param);
 
     for (unsigned j = 0; j < species.size(); ++j)
@@ -513,7 +513,7 @@ int testsystem_aux()
     IOpt           iopt;
     GaussNewtonWk  wk;
     GaussNewton    gn;
-    BioPOE         prob( &invBiosys, par1 );
+    BioPAR         prob( &invBiosys, par1 );
 
     iopt.mode      = 0;   // 0:normal run, 1:single step
     iopt.jacgen    = 3;   // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
