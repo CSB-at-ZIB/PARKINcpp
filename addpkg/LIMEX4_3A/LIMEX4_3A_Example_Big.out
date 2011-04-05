@@ -1,0 +1,101 @@
+
+                -------------------------------------------
+                |                                         |
+                |           L I M E X  V. 4.3A            |
+                |                                         |
+                | Copyright (C) 2004, Konrad-Zuse-Zentrum |
+                |  fuer Informationstechnik Berlin (ZIB)  |
+                -------------------------------------------
+
+         ---------------------------------------------------------
+         |                                                       |
+         | Integration options:                                  |
+         |                                                       |
+         | Enhanced integration monitor on unit  6               |
+         | Output of initial and solution values on unit 10      |
+         | Number of equations:  3531                            |
+         | Integration between  0.000000D+00 and  0.280000D+02   |
+         | Matrix B may be singular                              |
+         | Determination of consistent initial values            |
+         | Numerical difference approximation for the Jacobian   |
+         | Lower bandwidth of the Jacobian:   11                 |
+         | Upper bandwidth of the Jacobian:   11                 |
+         | Reuse of the Jacobian, ThMin = 0.2D-01                |
+         | rTol, aTol used as scalars: 0.100D-02   0.100D-02     |
+         | One step mode is off                                  |
+         | No dense output                                       |
+         | Integration for t > t_End disabled                    |
+         | PostScript plot of the Jacobian in step     12        |
+         | Maximum stepsize:  0.28000D+02                        |
+         |                                                       |
+         ---------------------------------------------------------
+
+
+   Step-Nr.     F-calls         t            Stepsize     used/aimed stage
+ -------------------------------------------------------------------------
+
+        0 *         0      0.00000D+00      0.10000D-06        4       4
+    CIVs computed in  1 steps, scaled res.:  0.00000D+00, step/stage: 1 1
+        0          24      0.00000D+00      0.10000D-04        0       4
+        1          28      0.10000D-04      0.36367D-04        2       3
+        2          32      0.46367D-04      0.12743D-03        2       3
+        3          36      0.17379D-03      0.68109D-03        2       3
+        4          40      0.85488D-03      0.17528D-02        2       3
+        5          44      0.26077D-02      0.49383D-02        2       3
+        6          51      0.75460D-02      0.10162D-01        3       4
+        7          58      0.17708D-01      0.18580D-01        3       4
+        8          65      0.36288D-01      0.31685D-01        3       4
+        9          72      0.67973D-01      0.51736D-01        3       4
+       10          83      0.11971D+00      0.44024D-01        4       4
+       11          90      0.16373D+00      0.81982D-01        3       4
+       12 *        97      0.24572D+00      0.29818D+00        3       4
+       13 *       127      0.54389D+00      0.13313D+01        3       4
+       14 *       157      0.18752D+01      0.27873D+01        3       4
+       15 *       191      0.46624D+01      0.28449D+01        4       4
+       16 *       225      0.75073D+01      0.30040D+01        4       4
+       17 *       255      0.10511D+02      0.51528D+01        3       4
+       18 *       289      0.15664D+02      0.46294D+01        4       4
+       19 *       323      0.20294D+02      0.46428D+01        4       4
+       20 *       357      0.24936D+02      0.36578D+01        4       4
+
+      1. Stepsize reduction (no conv.in extrap.) by  0.415D+00
+
+       21 *       393      0.26207D+02      0.12638D+01        3       3
+       22 *       427      0.27470D+02      0.11678D+01        4       4
+
+      1. Stepsize reduction (no conv.in extrap.) by  0.153D+00
+
+       23         463      0.27552D+02      0.19971D+00        3       3
+       24 *       470      0.27751D+02      0.14457D+00        3       3
+
+      1. Stepsize reduction (no conv.in extrap.) by  0.118D+00
+
+       25         500      0.27768D+02      0.40580D-01        2       2
+       26 *       504      0.27809D+02      0.35275D-01        2       2
+       27         531      0.27844D+02      0.10100D+00        2       3
+
+      1. Stepsize reduction (no conv.in extrap.) by  0.185D+00
+
+       28         561      0.27863D+02      0.24056D-01        2       2
+       29 *       565      0.27887D+02      0.23112D-01        2       2
+       30         592      0.27910D+02      0.75643D-01        2       3
+
+      1. Stepsize reduction (no conv.in extrap.) by  0.193D+00
+
+       31         622      0.27925D+02      0.19597D-01        2       2
+       32 *       626      0.27944D+02      0.15471D-01        2       2
+       33         653      0.27960D+02      0.55816D-01        2       3
+
+      1. Stepsize reduction (no conv.in extrap.) by  0.211D+00
+
+       34         686      0.27968D+02      0.15192D-01        2       2
+       35 *       690      0.27983D+02      0.16317D-01        2       2
+       36         717      0.28000D+02      0.16625D-01        2       2
+       37 *       719      0.28000D+02      0.30841D-03        1       1
+
+ Nr. of F-Evaluations (Int) :      259
+ Nr. of F-Evaluations (Jac) :      460
+             Nr. of LU-Dec. :      158
+        Nr. of solver calls :      646
+               Nr. of steps :       37
+     Nr. of Jac. evaluation :       20

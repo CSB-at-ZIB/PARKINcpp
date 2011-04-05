@@ -1,0 +1,128 @@
+-----------------------------------------------------------------------
+
+                          L I M E X Version 4.3A
+ 
+-----------------------------------------------------------------------
+
+     Extrapolation integrator  for the solution of  linearly-implicit
+     differential-algebraic systems of the form
+
+          B (t,y) * y' (t) = f (t,y)
+
+     with B a (n,n)-matrix of rank less or equal n.
+
+-----------------------------------------------------------------------
+
+     Copyright (C) 2000 - 2004,
+     Konrad-Zuse-Zentrum fuer Informationstechnik Berlin (ZIB)
+     ALL RIGHTS RESERVED
+
+     Written by:
+
+     R. Ehrig, U. Nowak,
+     Konrad-Zuse-Zentrum fuer Informationstechnik Berlin (ZIB)
+     Takustrasse 7
+     D-14195 Berlin-Dahlem
+
+     phone : +49-30-84185-0
+     fax   : +49-30-84185-125
+     e-mail: ehrig@zib.de, nowak@zib.de
+     URL   : http://www.zib.de
+
+-----------------------------------------------------------------------
+
+     Overview of current versions:
+
+     4.3A   Non-sparse dense  or  banded  Jacobians. Direct  solvers:
+            LAPACK routines. Based on BLAS and LAPACK routines.
+
+     4.3B   Sparse Jacobians. Direct  solvers: MA28 routines from the
+            Harwell  library, iterative  solvers: GMRES and  BICGSTAB
+            with  a variable ILU  preconditioner. Based  on BLAS  and
+            LAPACK routines.
+
+     Versions with other solver routines are available on request.
+
+-----------------------------------------------------------------------
+
+     NOTICE: "The LIMEX  program may be used SOLELY  for educational,
+     research, and benchmarking  purposes by no-profit organizations.
+     Commercial and other organizations  may make use of LIMEX SOLELY
+     for benchmarking  purposes only. LIMEX may  be modified by or on
+     behalf of the user for  such use but  at no time  shall LIMEX or
+     any such  modified version  of LIMEX become the  property of the
+     user. LIMEX  is provided  without warranty  of any  kind, either
+     expressed  or implied.  Neither the  authors nor their employers
+     shall be liable  for any direct or consequential  loss or damage
+     whatsoever  arising out  of the  use or  misuse of  LIMEX by the
+     user. LIMEX  must not  be sold. You  may make  copies  of LIMEX,
+     but  this NOTICE  and the  Copyright notice  must appear  in all
+     copies. Any  other  use  of LIMEX  requires written  permission.
+     Your use of LIMEX is an implicit agreement to these conditions."
+
+     LIMEX is also  available for commercial use. Contact the authors
+     who will provide details of price and condition of use.
+
+-----------------------------------------------------------------------
+
+     The LIMEX 4.3A installation needs the following files:
+
+     LIMEX4_3A.f               The main solver routine
+
+     LIMEX4_3_Dense.f          Routines for Hermite interpolation
+
+     LIMEX4_3_Auxiliaries.f    BLAS and  LAPACK routines used within
+                               the  LIMEX  versions 4.3A  and  4.3B. 
+                               This file is not  needed, if own BLAS
+                               and LAPACK libraries are available.
+
+     LIMEX4_3_Size_definitions.h 
+                               Include  file, all  problem dependent 
+                               dimension  statements in  LIMEX refer
+                               to the  parameter definitions in this
+                               file.
+
+     Furthermore the distribution contains the sources of two sample
+     applications:
+
+     LIMEX4_3A_Example_Small.f 
+                              A small example for the application of
+                              LIMEX 4.3A with 3 equations.
+
+     LIMEX4_3A_Example_Big.f  Larger  example for the application of
+                              LIMEX 4.3A with 3531 equations.
+
+     The output of these sample programs is included in the files:
+
+     LIMEX4_3A_Example_Small-1.out (simple call, one step mode off, 
+                                    no continuation)
+     LIMEX4_3A_Example_Small-2.out (one step mode)
+     LIMEX4_3A_Example_Small-3.out (continuation calls)
+
+     LIMEX4_3A_Example_Big.out
+  
+-----------------------------------------------------------------------
+
+     To compile LIMEX 4.3A you  will first modify the makefile which
+     is part  of the  distribution, to  your environment. Always use
+     vendor optimized BLAS and LAPACK routines  when available. Then
+     you  should be  able to run the test  examples and  compare the 
+     output of your computations with the ouput  files in this LIMEX
+     distribution. If no significant  differences  are recognizable,
+     you have to write the following problem dependent subroutines:
+
+     Fcn       computes  the right-hand side of the  DAE and the non
+               zero entries in the left-hand side matrix.
+     
+     Only if analytical derivatives are desired:
+
+     Jacobian  computes the Jacobian matrix.
+
+     For more information about these subroutines, see the source of
+     LIMEX4_3A.f.
+
+-----------------------------------------------------------------------
+
+     Please report any problems, suggestions, etc. to the authors.
+
+-----------------------------------------------------------------------

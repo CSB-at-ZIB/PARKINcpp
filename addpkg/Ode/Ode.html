@@ -1,0 +1,157 @@
+<!-- automatically generated from Ode.html-in - do not edit -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HEAD>
+<META name="description" content="Ode">
+<META name="keywords" content="ordinary differential equations">
+<title>The Ode homepage</title>
+</HEAD>
+<body  bgcolor="#ffffff">
+<IMG SRC="updated.gif" alt="updated" ALIGN="TOP"> 2005 Jul 04 (Monday) 11:02<br>
+<!--- IMG SRC="Ode.jpg" alt="Ode banner" ALIGN="TOP" -->
+
+<H3>Ode</H3>
+<H4>Overview</H4>
+This is a Unix command-line ordinary differential equation solver.   It is intended for use as
+a filter in pipelines, in the spirit of statistics and data-processing codes like 
+<A HREF="http://www.mpipks-dresden.mpg.de/~tisean/">TISEAN</a> 
+and 
+<A HREF="http://www.acm.org/~perlman/statinfo.html">|stat</a>.
+<p>
+There are two interfaces:<br> <p>
+1. the dumb C program interface <A HREF="Ode.c.html">Ode</a> uses a very abbreviated syntax where 
+dependent variables (20 maximum)
+must be named a,b,c,..., the independent variable is named x, and the order of arguments is significant;<br><p>
+2. the friendly <A HREF="http://www.python.org">python</a> interface <A HREF="ode.py.html">ode.py</a> which accepts meaningful dependent variable names (20 maximum), the independent variable is anonymous (but could be named <tt>t</tt>, for example, by including the equations <tt><FONT color=#a52a2a>t.=1 t=0</FONT></tt>),
+and the order of arguments is not significant.<p>
+
+The output is a table of values suitable for piping to a plotting utility 
+(for example, <tt><FONT color=#a52a2a>graph -TX -C</FONT></tt>).
+
+Ode was designed as a friendlier and more robust version of <tt>ode</tt> in
+<A HREF="http://www.gnu.org/software/plotutils/">GNU plotutils</a> (hence the O to distinguish it).
+It also aims for the highest possible accuracy.
+
+<H3>Author</H3>
+<A HREF="http://keithbriggs.info">Keith Briggs</A> 
+
+<H4>How does it work?</H4>
+
+It uses the 
+<A HREF="http://www.cs.brandeis.edu/~hhelf/formu/formulc.html">formulc</a>
+expression parser by Helfgott and a slightly modified version of the
+<A HREF="http://www.unige.ch/math/folks/hairer/software.html">
+eighth-order Runge-Kutta code dop853.c</a> by Hairer.
+(All required source files are included in the Ode package.)
+Special compensated summation tricks are used to enable high accuracy by reducing roundoff error effects.   I also make use of the continuous interpolation
+facility of Hairer's code to produce the output table.
+The python interface <tt>ode.py</tt> just translates its input arguments and then calls <tt>Ode</tt>; thus, there
+is no loss of efficiency.
+
+<H4>Download</H4>
+<A HREF="Ode.tgz">Ode.tgz</A>
+
+<H4>Installation</H4>
+
+1. <tt><FONT color=#a52a2a>tar zvxf Ode.tgz</FONT></tt><br>
+2. <tt><FONT color=#a52a2a>cd Ode</FONT></tt><br>
+3. Edit the top lines of <tt>makefile</tt> to choose your C compiler and set the X86 option for Intel x86 processors (including Pentium).<br>
+4. Edit the top line of <tt>ode.py</tt> to point to your python interpreter. <br>
+5. <tt><FONT color=#a52a2a>make</FONT></tt><br>
+
+<H4>Usage</H4>
+
+The dumb interface (for experts, or those without python installed):<br><p>
+<tt><FONT color=#a52a2a>Ode </FONT></tt>[<FONT color=#a52a2a>-reps1</FONT></tt>] </FONT></tt>[<FONT color=#a52a2a>-aeps2</FONT></tt>] <FONT color=#a52a2a>rhs1 rhs2 ... iv1 iv2 ... t_start t_end number_of_steps</FONT></tt><br><p>
+Here eps1 and eps2 are relative and absolute error tolerances, <tt>rhsx</tt>  are righthand-side expressions (so that rhs1 implicitly means a'=rhs1) and <tt>ivx</tt> are initial value constants.  The order of arguments must be strictly as above.   The number of differential equations is (number of arguments-3)/2 (not counting the optional -r -a arguments).<p>
+The friendly interface (recommended):<br><p>
+<tt><FONT color=#a52a2a>ode.py var1.=rhs1 var2.=rhs2 ... var1=iv1 var2=iv2 ... 
+           </FONT></tt>[<FONT color=#a52a2a>t_start:</FONT></tt>[<FONT color=#a52a2a>number_of_steps</FONT></tt>]<FONT color=#a52a2a>:t_end</FONT></tt>] [<FONT color=#a52a2a>plotvar1,plotvar2,...</FONT></tt>]<br></FONT></tt>
+(<tt><FONT color=#a52a2a>var'=rhs</FONT></tt> is also accepted for an ode specification)<br><p>
+Initial values can be python expressions which must evaluate to a Float constant.
+Default plotvars: all (including the independent variable as column 1); default t_start=0, t_end=1, number_of_steps=100.
+<p>
+Note that equations containing parentheses or using the <tt><FONT color=#a52a2a>'=</FONT></tt> notation must be quoted (using <tt><FONT color=#a52a2a>"</FONT></tt>) to protect
+them from the shell.   Arguments may be in any order.   The special syntax for
+the plot variable list <tt><FONT color=#a52a2a>0,pv1,pv2,...</FONT></tt> means that the independent variable should NOT be output.
+
+
+<H4>Examples</H4>
+
+Some of these examples make use of a <A HREF="http://www.acm.org/~perlman/stat/doc/colex.txt">column extraction utility</a> and a <A HREF="http://www.gnu.org/software/plotutils/">graph</a>ing utility.<br>
+<p>
+Exponential growth:<br>
+     <tt><FONT color=#a52a2a>Ode a 2 0 1 100</FONT></tt><br>
+or<br>
+     <tt><FONT color=#a52a2a>ode.py y.=2*y y=1</FONT></tt><br>
+thus, to compute e:<br>
+     <tt><FONT color=#a52a2a>Ode a 1 0 1 1</FONT></tt>
+<p>
+Logistic growth:<BR>
+     <tt><FONT color=#a52a2a>Ode "a*(1-a)" 0.1 0 5 100</FONT></tt>
+<p>
+Richards growth:<br>
+     <tt><FONT color=#a52a2a>Ode "1.5*a*(1-a^2/16)" 0.1 0 4 100</FONT></tt>
+<p>
+How to integrate backwards from 1 to 0: compute LambertW0(1):<br>
+      <tt><FONT color=#a52a2a>Ode "a/(1+a)" 1 1 0 1</FONT></tt>
+<p>
+<A HREF="http://www.orcca.on.ca/TechReports/2000/TR-00-12.html">Wright <font face=symbol>w</font> function</a> (iv is LambertW0(1)):<br>
+      <tt><FONT color=#a52a2a>Ode "a/(1+a)" 0.5671432904097838730 0 10 100</FONT></tt>
+<p>
+Sine: <br>
+     <tt><FONT color=#a52a2a>Ode b -a 0 1 0 6.3 100</FONT></tt><br>
+or<br>
+     <tt><FONT color=#a52a2a>ode.py sin.=cos cos.=-sin sin=0 cos=1 sin 0:100:6.3</FONT></tt><br>
+<p>
+Damped sine: <br>
+     <tt><FONT color=#a52a2a>ode.py x.=y-x/5 y.=-x x=0 y=1 x 0:100:100</FONT></tt><br>
+<p>
+Pendulum:<br>
+     <tt><FONT color=#a52a2a>ode.py theta.=omega "omega.=-sin(theta)" theta=0 omega=2 theta 0::100</FONT></tt>
+<p>
+Atwood machine:<br>
+     <tt><FONT color=#a52a2a>ode.py "ldot'=(l*adot*adot-1.0625*9.8+9.8*cos(a))/2.0625" "l'=ldot" "adot'=(-1/l)*(9.8*sin(a)+2*adot*ldot)" "a'=adot" a=0.5 adot=0 l=10 ldot=0 l,ldot 0:1000:100</FONT></tt>
+<p>
+Airy:<br>
+     <tt><FONT color=#a52a2a>ode.py x.=1 y.=z z.=-x*y x=0 y=1 z=-1 y 0::15</FONT></tt>
+<p>
+Lotka-Volterra: <br>
+     <tt><FONT color=#a52a2a>ode.py "hares'=hares-1.3*hares*foxes" "foxes'=1.5*hares*foxes-2*foxes" hares=1 foxes=2 0::20 hares</FONT></tt><br>
+<p>
+Duffing:<br>
+     <tt><FONT color=#a52a2a>ode.py x=1 v=0 t=0 x.=v/6.28 "v.=(-x^3+x-v/4+0.3*cos(t))/6.28" t.=1 0::100 x</FONT></tt>
+<p>
+Lorenz:<br>
+     <tt><FONT color=#a52a2a>ode.py x.=3*y-3*x y.=-x*z+26*x-y z.=x*y-z x=0 y=1 z=10 0,x,y 0:1000:30 | graph -TX -C</FONT></tt>
+<p>
+Roessler:<br>
+     <tt><FONT color=#a52a2a>ode.py x.=-y-z y.=x+0.2*y z.=0.2+x*z-4*z x=1 y=0 z=0 0:200:200 x</FONT></tt>
+<p>
+Geisel's 2d diffusive chaotic system (Phys. Rev. Lett. 59, 2503 (1988)):<br>
+     <tt><FONT color=#a52a2a>ode.py "x'=vx" "y'=vy" "vx'=(1.5+0.5*cos(y))*sin(x)" "vy'=(1.5+0.5*cos(x))*sin(y)" x=0 y=0 vx=1 vy=0.5 0,x,y 0:500:200 | graph -TX -C</FONT></tt>
+<p>
+Example of how to solve a non-autonomous system:<br>
+     <tt><FONT color=#a52a2a>ode.py "y.= cos(3.14159*t*y)" y=1 t.=1 t=0</FONT></tt>
+<p>
+Planet around binary star system:<br>
+     <tt><FONT color=#a52a2a>ode.py x.=vx y.=vy "vx.=-x/cub(sqrt(sqr(x)+sqr(y)))-(x+5)/cub(sqrt(sqr(x+5)+sqr(y)))" "vy.=-y/cub(sqrt(sqr(x)+sqr(y)))-y/cub(sqrt(sqr(x+5)+sqr(y)))" x=1 y=0 vx=0 vy=1.1 x 0:1000:50</FONT></tt><br>
+or, using shell variables to simplify expressions:<br>
+     <tt><FONT color=#a52a2a>denom1="cub(sqrt(sqr(x)+sqr(y)))"; denom2="cub(sqrt(sqr(x+5)+sqr(y)))"; ode.py x.=vx y.=vy "vx.=-x/$denom1-(x+5)/$denom2" "vy.=-y/$denom1-y/$denom2" x=1 y=0 vx=0 vy=1.15 0,x,y 0:1000:50 | graph -TX -C</FONT></tt>
+<p>
+Using shell variables to set a parameter:<br>
+     <tt><FONT color=#a52a2a>rate=0.021; ode.py co2.=-$rate*co2 co2=1</FONT></tt><br>
+<p>
+Using backticks to set a parameter from output of another program:<br>
+     <tt><FONT color=#a52a2a>ode.py co2.=-`echo 0.021`*co2 co2=1</FONT></tt><br>
+<p>
+Setting initial values from output of another program through a pipe:<br>
+     <tt><FONT color=#a52a2a>echo position=1 velocity=2 | xargs ode.py position.=velocity velocity.=-1/position^2 position 0::100</FONT></tt>
+<p>
+Bead sliding on a smooth circular wire:<br>
+     <tt><FONT color=#a52a2a>ode.py "theta'= vtheta" "vtheta'=100*sin(theta)*cos(theta)-10*sin(theta)" theta=0.1 vtheta=0 theta 0::5</FONT></tt>
+<p>
+Chemical kinetics with four species (a+2b<=>c->d, all rates=1):<br>
+     <tt><FONT color=#a52a2a>Ode c-a*b^2 c-a*b^2 a*b^2-c-c c 0.1 1 0 0 0 10 100</FONT></tt>
+<p>
+Example of a more complicated ode:<br>
+     <tt><FONT color=#a52a2a>Ode "-0.05*sin(2*pi()*x/18.2)-0.06*sin(2*pi()*x/19)-0.05*sin(2*pi()*x/23)+0.6*a-4*a^3" 0.4 40 56 100</FONT></tt>

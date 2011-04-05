@@ -1,0 +1,39 @@
+In the following, 'p' is a plot utility.    (Using GNU plotutils, alias p='graph -Tx -C')
+'cols' is a column extracter.
+
+Ode examples:
+
+   Exponential growth:
+     Ode a 1 0 1 100 | p
+   Sine: 
+     Ode b -a 0 1 0 6.28 100 | cols -c1,2 | p
+   Damped sine: 
+     Ode b-a/5 -a 0 1 0 62.8 100 | cols -c1,2 | p
+   Logistic:
+     Ode "a*(1-a)" 0.1 0 5 100 | p
+   Richards: nu=2 beta=3 kappa=4 y0=0.1
+     Ode "1.5*a*(1-a^2/16)" 0.1 0 4 100 | p
+   Lotka-Volterra: 
+     Ode "a-1.3*a*b" "1.5*a*b-2*b" 1 2 0 20 100 | cols -c1,2 | p
+   Gause:
+     Ode "a*(0.8-0.00016*a-0.00048*b)" "b*(0.6-0.0003*b-0.00015*a)" 20 20 0 20 100 | colex 1 3 | p
+   Lorenz: 
+     Ode "3*(b-a)" "-a*c+26*a-b" "a*b-c" 0 1 0 0 30 100 | cols -c1,3 | p
+     Ode "16*(b-a)" "a*(45.92-c)-b" "a*b-4*c" 0 1 0 0 30 100 | cols -c1,2 | p # dlia
+   Adam's model:
+     Ode "-0.05*sin(2*pi()*x/18.2)-0.06*sin(2*pi()*x/19)-0.05*sin(2*pi()*x/23)+0.6*a-4*a^3" 0.4 4000 5600 100 | p
+
+ode.py examples:
+
+   Exponential growth:
+     ode.py y.=y y=1 | p
+   Sine: 
+     ode.py "x'=y" "y'=-x" x=0 y=1 x 0:100:6.3 | p
+   Damped sine: 
+     ode.py "x'=y-x/5" "y'=-x" x=0 y=1 x 0:100:100 | p
+   Lotka-Volterra: 
+     ode.py "a'=a-1.3*a*b" "b'=1.5*a*b-2*b" a=1 b=2 0::20 a | p
+   Lorenz: 
+     ode.py "x.=3*(y-x)" y.=-x*z+26*x-y z.=x*y-z x=0 y=1 z=0 0:100:30 x
+   Binary star system:
+     ode.py x.=vx y.=vy "vx.=-x/cub(sqrt(sqr(x)+ sqr(y)))-(x+5)/cub(sqrt(sqr(x+5)+sqr(y)))" "vy.=-y/cub(sqrt(sqr(x)+sqr(y)))-y/cub(sqrt(sqr(x+5)+sqr(y)))" x=1 y=0 vx=0 vy=1.5 vx,vy 0::20
