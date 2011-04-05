@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="4" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />
@@ -37,9 +38,12 @@
 				<Option object_output="obj/SharedLib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
+				<Option parameters="-e /usr/bin/python -i testbioparkin_aux.py" />
+				<Option host_application="xterm" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
+					<Add option="-fPIC" />
 					<Add directory="/usr/include/python2.6" />
 				</Compiler>
 				<Linker>

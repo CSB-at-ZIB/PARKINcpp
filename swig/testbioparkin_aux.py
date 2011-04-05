@@ -122,7 +122,7 @@ par1 = StringList()
 par1.push_back( "compartment" )
 par1.push_back( "k1" )
 
-prob = BioPOE( invbiosys, par1 )
+prob = BioPAR( invbiosys, par1 )
 # prob.setParameter(par1)
 
 gn = GaussNewton()

@@ -555,8 +555,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     BioSystem::MeasurementList  newMeas;
     Vector                      newtp;
-    Real                        sigma = 0.0; // 0.015;   // add 1.5% white noise ...
-    unsigned                    sampleSize = 1;
+    Real                        sigma = 0.015;   // add 1.5% white noise ...
+    unsigned                    sampleSize = 3;
 
     newMeas.clear();
     newtp.zeros( sampleSize*meastp.nr() );

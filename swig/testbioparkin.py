@@ -23,7 +23,7 @@ biosys = BioSystem(tstart, tend)
 # set names / identifies of species
 species.push_back("x1")
 species.push_back("x2")
-biosys.setSpecies(species)
+# biosys.setSpecies(species)
 
 # set names / identifies of parameters
 parameter.push_back("a")
@@ -89,7 +89,7 @@ par1 = StringList()
 par1.push_back("a")
 par1.push_back("b")
 
-prob = BioPOE(biosys)
+prob = BioPAR(biosys)
 prob.setParameter(par1)
 
 gn = GaussNewton()
