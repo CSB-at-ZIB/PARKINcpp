@@ -64,6 +64,51 @@
 			<Add library="blas" />
 			<Add library="lapack" />
 		</Linker>
+		<Unit filename="addpkg/ExprEval35/defs.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/except.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/except.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/expr.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/expr.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/expreval.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/func.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/funclist.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/funclist.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/node.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/node.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/parser.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/parser.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/vallist.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/ExprEval35/vallist.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="addpkg/LIMEX4_3A/LIMD.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.h" />
@@ -78,6 +123,108 @@
 		</Unit>
 		<Unit filename="addpkg/Ode/sum.h" />
 		<Unit filename="addpkg/dlib/all/source.cpp" />
+		<Unit filename="addpkg/newmat11/bandmat.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/cholesky.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/controlw.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/evalue.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/fft.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/hholder.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/include.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/jacobi.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/myexcept.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newfft.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat1.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat2.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat3.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat4.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat5.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat6.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat7.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat8.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmat9.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatap.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatex.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatio.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatnl.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatnl.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatrc.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/newmatrm.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/nm_misc.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/precisio.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/solution.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/solution.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/sort.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/submat.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="addpkg/newmat11/svd.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="common/Constants.h" />
 		<Unit filename="common/PARKINLog.cpp" />
 		<Unit filename="common/PARKINLog.h" />
