@@ -766,6 +766,11 @@ int YeOldeParkinCore::approximate_negative_jacobian()
 		}
 	}
 
+std::cerr << "\n ***** YeOldeParkinCore::approximate_negative_jacobian() *****\n";
+std::cerr << " _A = " << std::endl;
+std::cerr << _A;
+std::cerr << "\n *************************************************************\n";
+
 	return 0;
 }
 

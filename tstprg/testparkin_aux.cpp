@@ -28,11 +28,11 @@ int testparkin_aux()
 
     /// define and solve forward problem first
     ///
-    /// taken from SBML example files / cases
-    /// cyclin: BIOMD0000000008.xml
+    /// taken from old PARK11 example files / cases
+    /// pyridine: chemin.pyex (chemin.xml)
 
-    Real                        tstart = 1.0;
-    Real                        tend   = 100.0;
+    Real                        tstart = 0.0;
+    Real                        tend   = 6.0;
     Expression::Param           var, par;
 
     BioSystem::Species          species;
@@ -45,257 +45,183 @@ int testparkin_aux()
 
     //
 
+    species.push_back("A");
+    species.push_back("B");
     species.push_back("C");
-    species.push_back("X");
-    species.push_back("M");
-    species.push_back("Y");
-    species.push_back("Z");
+    species.push_back("D");
+    species.push_back("E");
+    species.push_back("F");
+    species.push_back("G");
 
     //
 
-    // param.push_back("V1");      var["V1"]  = 0.0;
-    param.push_back("V1p");     var["V1p"] = 0.75;
-    param.push_back("K1");      var["K1"]  = 0.1;
-
-    param.push_back("V2");      var["V2"]  = 0.25;
-    param.push_back("K2");      var["K2"]  = 0.1;
-
-    // param.push_back("V3");      var["V3"]  = 0.0;
-    param.push_back("V3p");     var["V3p"] = 0.3;
-    param.push_back("K3");      var["K3"]  = 0.2;
-
-    param.push_back("V4");      var["V4"]  = 0.1;
-    param.push_back("K4");      var["K4"]  = 0.1;
-
-    param.push_back("K5");      var["K5"]  = 0.02;
-    param.push_back("K6");      var["K6"]  = 0.3;
-
-    param.push_back("vi");      var["vi"]  = 0.1;
-    param.push_back("k1");      var["k1"]  = 0.5;
-    param.push_back("kd");      var["kd"]  = 0.02;
-    param.push_back("a1");      var["a1"]  = 0.05;
-    param.push_back("a2");      var["a2"]  = 0.05;
-    param.push_back("d1");      var["d1"]  = 0.05;
-    param.push_back("vs");      var["vs"]  = 0.2;
-    param.push_back("alpha");   var["alpha"] = 0.1;
-
-    //
-
-    // Assignment:
-    //
-    //      V1 := C * V1p * pow( C + K6 , -1 )
-    //      V3 := V3p * M
-
-    aux["V1"] = Expression(
-                    TIMES,
-                    "C",
-                    Expression(
-                        TIMES,
-                        "V1p",
-                        Expression(
-                            POWER,
-                            Expression(PLUS, "C", "K6"),
-                            -1.0
-                        )
-                    )
-                );
-
-    aux["V3"] = Expression(TIMES, "V3p", "M");
+    param.push_back("p1");      var["p1"]  =  0.1806040385e+1;      //  1.0;
+    param.push_back("p2");      var["p2"]  =  0.8935523699e+0;      //  0.494;
+    param.push_back("p3");      var["p3"]  =  0.2939611589e+2;      // 29.0;
+    param.push_back("p4");      var["p4"]  =  0.9217335023e+1;      //  9.0;
+    param.push_back("p5");      var["p5"]  =  0.5812799976e-1;      //  0.053;
+    param.push_back("p6");      var["p6"]  =  0.2428563221e+1;      //  2.0;
+    param.push_back("p7");      var["p7"]  =  0.6410427954e-1;      //  0.06;
+    param.push_back("p8");      var["p8"]  =  0.5560335128e+1;      //  5.0;
+    param.push_back("p9");      var["p9"]  =  0.2009778604e-1;      //  0.02;
+    param.push_back("p10");     var["p10"] =  0.5772851642e+0;      //  0.5;
+    param.push_back("p11");     var["p11"] =  0.2150523182e+1;      //  1.19;
 
     //
 
     // Reaction / rule:
     //
-    //      r1  :  vi
-    //      r2  :  C * k1 * X * pow( C + K5, -1 )
-    //      r3  :  C * kd
-    //      r4  :  (1 + -M) * V1 * pow( K1 + -M + 1, -1 )
-    //      r5  :  M * V2 * pow( K2 + M, -1 )
-    //      r6  :  V3 * (1 + -X) * pow( K3 + -X + 1, -1 )
-    //      r7  :  V4 * X * pow( K4 + X, -1 )
-    //      r8  :  a1 * C * Y
-    //      r9  :  a2 * Z
-    //      r10 :  alpha * d1 * Z
-    //      r11 :  alpha * kd * Z
-    //      r12 :  vs
-    //      r13 :  d1 * Y
+    //      r1  :  p1 * A
+    //      r2  :  p2 * B
+    //      r3  :  p3 * B * C
+    //      r4  :  p4 * C * C
+    //      r5  :  p5 * D
+    //      r6  :  p6 * C
+    //      r7  :  p7 * D
+    //      r8  :  p8 * E
+    //      r9  :  p9 * B
+    //      r10 :  p10 * D * F
+    //      r11 :  p11 * E * F
 
-    aux["r1"] = Expression("vi");
+    aux["r1"] = Expression(TIMES, "p1", "A");
 
-    aux["r2"] = Expression(
-                    TIMES,
-                    "C",
-                    Expression(
-                        TIMES,
-                        "k1",
-                        Expression(
-                            TIMES,
-                            "X",
-                            Expression(
-                                POWER,
-                                Expression(PLUS, "C", "K5"),
-                                -1.0
-                            )
-                        )
-                    )
-                );
+    aux["r2"] = Expression(TIMES, "p2", "B");
 
-    aux["r3"] = Expression(TIMES, "C", "kd");
+    aux["r3"] = Expression(TIMES, "p3", Expression(TIMES, "B", "C"));
 
-    aux["r4"] = Expression(
-                    TIMES,
-                    Expression(PLUS, 1.0, Expression(MINUS, "M")),
-                    Expression(
-                        TIMES,
-                        aux["V1"],
-                        Expression(
-                            POWER,
-                            Expression(PLUS, "K1", Expression(PLUS, Expression(MINUS, "M"), 1.0)),
-                            -1.0
-                        )
-                    )
-                );
+    aux["r4"] = Expression(TIMES, "p4", Expression(TIMES, "C", "C"));
 
-    aux["r5"] = Expression(
-                    TIMES,
-                    "M",
-                    Expression(
-                        TIMES,
-                        "V2",
-                        Expression(
-                            POWER,
-                            Expression(PLUS, "K2", "M"),
-                            -1.0
-                        )
-                    )
-                );
+    aux["r5"] = Expression(TIMES, "p5", "D");
 
-    aux["r6"] = Expression(
-                    TIMES,
-                    aux["V3"],
-                    Expression(
-                        TIMES,
-                        Expression(PLUS, 1.0, Expression(MINUS, "X")),
-                        Expression(
-                            POWER,
-                            Expression(PLUS, "K3", Expression(PLUS, Expression(MINUS, "X"), 1.0)),
-                            -1.0
-                        )
-                    )
-                );
+    aux["r6"] = Expression(TIMES, "p6", "C");
 
-    aux["r7"] = Expression(
-                    TIMES,
-                    "V4",
-                    Expression(
-                        TIMES,
-                        "X",
-                        Expression(
-                            POWER,
-                            Expression(PLUS, "K4", "X"),
-                            -1.0
-                        )
-                    )
-                );
+    aux["r7"] = Expression(TIMES, "p7", "D");
 
-    aux["r8"] = Expression(TIMES, "a1", Expression(TIMES, "C", "Y"));
+    aux["r8"] = Expression(TIMES, "p8", "E");
 
-    aux["r9"] = Expression(TIMES, "a2", "Z");
+    aux["r9"] = Expression(TIMES, "p9", "B");
 
-    aux["r10"] = Expression(TIMES, "alpha", Expression(TIMES, "d1", "Z"));
+    aux["r10"] = Expression(TIMES, "p10", Expression(TIMES, "D", "F"));
 
-    aux["r11"] = Expression(TIMES, "alpha", Expression(TIMES, "kd", "Z"));
-
-    aux["r12"] = Expression("vs");
-
-    aux["r13"] = Expression(TIMES, "d1", "Y");
+    aux["r11"] = Expression(TIMES, "p11", Expression(TIMES, "E", "F"));
 
     //
 
     // ODEs:
     //
-    //      C' = ( 1*r1) + (-1*r2) + (-1*r3) + (-1*r8) + ( 1*r9) + ( 1*r10)
-    //         = (vi) + (- C * k1 * X * pow(K5 + C,-1)) + (- C * kd) +
-    //           (- a1 * C * Y) + (a2 * Z) + (alpha * d1 * Z)
+    //      A' = -r1 + r9
+    //         = - (p1 * A) + (p9 * B)
     //
-    //      X' = ( 1*r6) + (-1*r7)
-    //         = (V3p * M * (1 - X) * pow(K3 - X + 1, -1)) + (- V4 * X * pow(K4 + X, -1))
+    //      B' = r1 - r2 - r3 + r7 - r9 + r10
+    //         = (p1 * A) - (p2 * B) - (p3 * B * C) + (p7 * D) - (p9 * B) + (p10 * D * F)
     //
-    //      M' = ( 1*r4) + (-1*r5)
-    //         = (C * V1p * (1 - M) * pow(K6 + C, -1) * pow(K1 - M + 1, -1)) +
-    //           (- M * V2 * pow(K2 + X, -1))
+    //      C' = r2 - r3 - (2*r4) - r6 + r8 + r10 + (2*r11)
+    //         = (p2 * B) - (p3 * B * C) - 2*(p4 * C * C) - (p6 * C) + (p8 * E) + (p10 * D * F) + 2*(p11 * E * F)
     //
-    //      Y' = (-1*r8) + ( 1*r9) + ( 1*r11) + ( 1*r12) + (-1*r13)
-    //         = (- a1 * C * Y) + (a2 * Z) + (alpha *kd * Z) + (vs) + (- d1 * Y)
+    //      D' = r3 - r5 - r7 - r10
+    //         = (p3 * B * C) - (p5 * D) - (p7 * D) - (p10 * D * F)
     //
-    //      Z' = ( 1*r8) + (-1*r9) + (-1*r10) + (-1*r11)
-    //           (a1 * C * Y) + (- a2 * Z) + (- alpha * d1 * Z) + (- alpha * kd * Z)
+    //      E' = r4 + r5 - r8 - r11
+    //         = (p4 * C * C) + (p5 * D) - (p8 * E) - (p11 * E * F)
+    //
+    //      F' = r3 + r4 + r6 - r10 - r11
+    //         = (p3 * B * C) + (p4 * C * C) + (p6 * C) - (p10 * D * F) - (p11 * E * F)
+    //
+    //      G' = r6 + r7 + r8
+    //         = (p6 * C) + (p7 * D) + (p8 * E)
+
+    emap["A"] = Expression(
+                            PLUS,
+                            Expression(MINUS, aux["r1"]),
+                            aux["r9"]
+                          );
+
+    emap["B"] = Expression(
+                            PLUS,
+                            Expression( PLUS,
+                                        Expression( PLUS,
+                                                    aux["r1"],
+                                                    Expression(MINUS, aux["r2"])
+                                                  ),
+                                        Expression( MINUS, aux["r3"] )
+                                      ),
+                            Expression( PLUS,
+                                        Expression( PLUS,
+                                                    aux["r7"],
+                                                    Expression(MINUS, aux["r9"])
+                                                  ),
+                                        aux["r10"]
+                                      )
+                          );
 
     emap["C"] = Expression(
                             PLUS,
-                            Expression(TIMES, 1.0, aux["r1"]),
-                            Expression(
-                                PLUS,
-                                Expression(MINUS, aux["r2"]),
-                                Expression(
-                                    PLUS,
-                                    Expression(MINUS, aux["r3"]),
-                                    Expression(
-                                        PLUS,
+                            Expression( PLUS,
+                                        Expression( PLUS,
+                                                    aux["r2"],
+                                                    Expression(MINUS, aux["r3"])
+                                                  ),
+                                        Expression( PLUS,
+                                                    Expression(TIMES, -2.0, aux["r4"]),
+                                                    Expression(MINUS, aux["r6"])
+                                                  )
+                                      ),
+                            Expression( PLUS,
+                                        Expression( PLUS,
+                                                    aux["r8"],
+                                                    aux["r10"]
+                                                  ),
+                                        Expression( TIMES, 2.0, aux["r11"] )
+                                      )
+                          );
+
+    emap["D"] = Expression(
+                            PLUS,
+                            Expression( PLUS,
+                                        aux["r3"],
+                                        Expression(MINUS, aux["r5"])
+                                      ),
+                            Expression( PLUS,
+                                        Expression(MINUS, aux["r7"]),
+                                        Expression(MINUS, aux["r10"])
+                                      )
+                          );
+
+    emap["E"] = Expression(
+                            PLUS,
+                            Expression( PLUS,
+                                        aux["r4"],
+                                        aux["r5"]
+                                      ),
+                            Expression( PLUS,
                                         Expression(MINUS, aux["r8"]),
-                                        Expression(
-                                            PLUS,
-                                            Expression(TIMES, 1.0, aux["r9"]),
-                                            Expression(TIMES, 1.0, aux["r10"])
-                                        )
-                                    )
-                                )
-                            )
-                        );
+                                        Expression(MINUS, aux["r11"])
+                                      )
+                          );
 
-    emap["X"] = Expression(
+    emap["F"] = Expression(
                             PLUS,
-                            Expression(TIMES, 1.0, aux["r6"]),
-                            Expression(MINUS, aux["r7"])
-                        );
+                            Expression( PLUS,
+                                        Expression( PLUS,
+                                                    aux["r3"],
+                                                    aux["r4"]
+                                                  ),
+                                        aux["r6"]
+                                      ),
+                            Expression( PLUS,
+                                        Expression(MINUS, aux["r10"]),
+                                        Expression(MINUS, aux["r11"])
+                                      )
+                          );
 
-    emap["M"] = Expression(
-                            PLUS,
-                            Expression(TIMES, 1.0, aux["r4"]),
-                            Expression(MINUS, aux["r5"])
-                        );
 
-    emap["Y"] = Expression(
+    emap["G"] = Expression(
                             PLUS,
-                            Expression(MINUS, aux["r8"]),
-                            Expression(
-                                PLUS,
-                                Expression(TIMES, 1.0, aux["r9"]),
-                                Expression(
-                                    PLUS,
-                                    Expression(TIMES, 1.0, aux["r11"]),
-                                    Expression(
-                                        PLUS,
-                                        Expression(TIMES, 1.0, aux["r12"]),
-                                        Expression(MINUS, aux["r13"])
-                                    )
-                                )
-                            )
-                        );
-
-    emap["Z"] = Expression(
-                            PLUS,
-                            Expression(TIMES, 1.0, aux["r8"]),
-                            Expression(
-                                PLUS,
-                                Expression(MINUS, aux["r9"]),
-                                Expression(
-                                    PLUS,
-                                    Expression(MINUS, aux["r10"]),
-                                    Expression(MINUS, aux["r11"])
-                                )
-                            )
-                        );
+                            Expression( PLUS,
+                                        aux["r6"],
+                                        aux["r7"]),
+                            aux["r8"]
+                          );
 
 
     biosys.setODESystem(emap);
@@ -304,21 +230,23 @@ int testparkin_aux()
     biosys.setParameters(param);
 
 
+    biosys.setInitialValue("A", 1.0);
+    biosys.setInitialValue("B", 0.0);
     biosys.setInitialValue("C", 0.0);
-    biosys.setInitialValue("X", 0.0);
-    biosys.setInitialValue("M", 0.0);
-    biosys.setInitialValue("Y", 1.0);
-    biosys.setInitialValue("Z", 1.0);
+    biosys.setInitialValue("D", 0.0);
+    biosys.setInitialValue("E", 0.0);
+    biosys.setInitialValue("F", 0.0);
+    biosys.setInitialValue("G", 0.0);
 
-    Vector meastp(58);
-    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/59.0;
+    Vector meastp(11);
+    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/12.0;
     biosys.setMeasurementTimePoints( meastp );
 
     // Breakpoints / Event Management:
     //
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
-    Vector breaktp;
+//    Vector breaktp;
 //    breaktp.zeros(4);
 //    for (long j=1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/3.0;
 //    biosys.setBreakpoints( breaktp );
@@ -397,46 +325,6 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 
 
-    Matrix Jac;
-    long   n = species.size();
-    long   T = meastp.nr();
-    long   j = 0;
-
-    utmp.zeros(3);
-
-    par["K3"] = var["K3"];      utmp(1) = ( par["K3"] );
-    par["K4"] = var["K4"];      utmp(2) = ( par["K4"] );
-    par["K5"] = var["K5"];      utmp(3) = ( par["K5"] );
-
-    Jac.zeros( n*T, 7 );
-
-
-TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
-
-    Jac.set_colm( 1, 3 ) =
-        biosys.computeJacobian( par ) * utmp.diag();  // ... * exp( u=log(par) ).diag()
-
-, std::cerr )
-
-
-    for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
-    {
-        Real   h = sqrt(1e-10), ptmp;
-        Vector vtmp;
-
-        ptmp = par[it->first];
-        par[it->first] = exp( log(ptmp) + h );
-        vtmp = biosys.computeModel(par);
-        par[it->first] = ptmp;
-
-        Jac.set_colm( 5+j++ ) = (1.0/h)*(vtmp - vref);
-    }
-
-    std::cout << " Jacobian Jac (" << Jac.nr() << " x " << Jac.nc() << ") = " << std::endl;
-    std::cout << Jac << std::endl;
-
-
-
 // exit(42);
 
 
@@ -486,25 +374,33 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     Vector x3( biosys.getOdeTrajectory(2) );
     Vector x4( biosys.getOdeTrajectory(3) );
     Vector x5( biosys.getOdeTrajectory(4) );
+    Vector x6( biosys.getOdeTrajectory(5) );
+    Vector x7( biosys.getOdeTrajectory(6) );
 
     std::cout << "=====================" << std::endl;
     std::cout << " t = " << std::endl;
     std::cout << tp.t();
     std::cout << "=====================" << std::endl;
-    std::cout << " C [a.u] = " << std::endl;
+    std::cout << " A [a.u] = " << std::endl;
     std::cout << x1.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " X [a.u] = " << std::endl;
+    std::cout << " B [a.u] = " << std::endl;
     std::cout << x2.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " M [a.u] = " << std::endl;
+    std::cout << " C [a.u] = " << std::endl;
     std::cout << x3.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " Y [a.u] = " << std::endl;
+    std::cout << " D [a.u] = " << std::endl;
     std::cout << x4.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " Z [a.u] = " << std::endl;
+    std::cout << " E [a.u] = " << std::endl;
     std::cout << x5.t();
+    std::cout << "---------------------" << std::endl;
+    std::cout << " F [a.u] = " << std::endl;
+    std::cout << x6.t();
+    std::cout << "---------------------" << std::endl;
+    std::cout << " G [a.u] = " << std::endl;
+    std::cout << x7.t();
     std::cout << "=====================" << std::endl;
 
     ///
@@ -585,11 +481,11 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     std::ofstream out;
 
-    out.open("testsystem_aux.csv");
+    out.open("testparkin_aux.csv");
 
     if ( !out.is_open() )
     {
-        std::cerr << "### ERROR: Could not open data file 'testsystem_aux.csv'.\n";
+        std::cerr << "### ERROR: Could not open data file 'testparkin_aux.csv'.\n";
         return -3;
     }
 
@@ -637,17 +533,34 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     // Initial guess for GaussNewton
     //
 
-    p.zeros(3);
-    p(1) = 0.5;         // true: 0.2
-    p(2) = 0.5;         // true: 0.1
-    p(3) = 0.05;        // true: 0.02
-    pscal.zeros(3);
+    p.zeros(11);
+    p(1)  =  0.1000e+1;        // true:
+    p(2)  =  0.4940e+0;        // true:
+    p(3)  =  0.2900e+2;        // true:
+    p(4)  =  0.9000e+1;        // true:
+    p(5)  =  0.5300e-1;        // true:
+    p(6)  =  0.2000e+1;        // true:
+    p(7)  =  0.6000e-1;        // true:
+    p(8)  =  0.5000e+1;        // true:
+    p(9)  =  0.2000e-1;        // true:
+    p(10) =  0.5000e+0;        // true:
+    p(11) =  0.1190e+1;        // true:
+
+    pscal.zeros(11);
 
     var.clear();
 
-    par1.push_back( "K3" );         var[ "K3" ] = p(1);
-    par1.push_back( "K4" );         var[ "K4" ] = p(2);
-    par1.push_back( "K5" );         var[ "K5" ] = p(3);
+    par1.push_back( "p1" );         var[ "p1" ]  = p(1);
+    par1.push_back( "p2" );         var[ "p2" ]  = p(2);
+    par1.push_back( "p3" );         var[ "p3" ]  = p(3);
+    par1.push_back( "p4" );         var[ "p4" ]  = p(4);
+    par1.push_back( "p5" );         var[ "p5" ]  = p(5);
+    par1.push_back( "p6" );         var[ "p6" ]  = p(6);
+    par1.push_back( "p7" );         var[ "p7" ]  = p(7);
+    par1.push_back( "p8" );         var[ "p8" ]  = p(8);
+    par1.push_back( "p9" );         var[ "p9" ]  = p(9);
+    par1.push_back( "p10" );        var[ "p10" ] = p(10);
+    par1.push_back( "p11" );        var[ "p11" ] = p(11);
 
     IOpt                iopt;
     YeOldeParkinWk      wk;
@@ -667,8 +580,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
 
     // if ( iopt.jacgen > 1 )
-        wk.cond = 1.0 / sqrt(solverRTol);
-    // wk.itmax = 150;
+        wk.cond = 15000; // 1.0 / sqrt(solverRTol);
+    wk.itmax = 15;
 
 
     parkin.setProblem( &prob );
