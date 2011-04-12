@@ -387,7 +387,7 @@ YeOldeParkinCore::call_FCN(Vector const& x, int& ifail)
         long   n = x.nr();
         Vector y(n);
 
-        for(long j = 1; j <= n; ++j) y(j) = std::exp( x(j) );
+        for(long k = 1; k <= n; ++k) y(k) = std::exp( x(k) );
 
         return _fun -> fcn( y, ifail );
     }
@@ -405,11 +405,21 @@ YeOldeParkinCore::call_JAC(Vector const& x, int& ifail)
         long   n = x.nr();
         Vector y(n);
 
-        for(long j = 1; j <= n; ++j) y(j) = std::exp( x(j) );
+        for(long k = 1; k <= n; ++k) y(k) = std::exp( x(k) );
 
         Matrix J = _fun -> jac( y, ifail );
 
         return J * y.diag();
+    }
+
+    if ( _iscal == 2 )
+    {
+        long   n = x.nr();
+        Matrix J = _fun -> jac( x, ifail );
+
+        for (long k = 1; k <= n; ++k) J.set_colm(k) = J.colm(k) * _xw(k);
+
+        return J;
     }
 
     return _fun -> jac( x, ifail );
@@ -745,6 +755,11 @@ int YeOldeParkinCore::approximate_negative_jacobian()
 		return 25;
 	}
 
+//std::cerr << "\n ***** YeOldeParkinCore::approximate_negative_jacobian() *****\n";
+//std::cerr << " _A = " << std::endl;
+//std::cerr << _A;
+//std::cerr << "\n *************************************************************\n";
+
 	for (unsigned j = 1; j <= _m; ++j)
 	{
 		for (unsigned k = 1; k <= _n; ++k)
@@ -766,11 +781,6 @@ int YeOldeParkinCore::approximate_negative_jacobian()
 		}
 	}
 
-std::cerr << "\n ***** YeOldeParkinCore::approximate_negative_jacobian() *****\n";
-std::cerr << " _A = " << std::endl;
-std::cerr << _A;
-std::cerr << "\n *************************************************************\n";
-
 	return 0;
 }
 
@@ -788,6 +798,12 @@ int YeOldeParkinCore::solve_linear_system()
 
 	// deccon();  // Householder triangularisation
     _qrA = _A.factorQR( _irank, _cond, 0 );
+
+//std::cerr << "\n ***** YeOldeParkinCore::solve_linear_system() ***** \n";
+//std::cerr << " _qrA.getRank() = " << _qrA.getRank() << std::endl;
+//std::cerr << " _qrA.getMatH() = " << std::endl;
+//std::cerr << _qrA.getMatH();
+//std::cerr << "\n *************************************************** \n";
 
     ++_ndecom;
 
@@ -922,6 +938,13 @@ int YeOldeParkinCore::predict_damping_factor()
 		    _v(l) = _dx1a(k) / _xw(k);
 		}
 
+        _AH = _qrA.getMatH();
+
+//std::cerr << "\n ***** YeOldeParkinCore::predict_damping_factor() ***** \n";
+//std::cerr << " _AH =  (" << _AH.nr() << " x " << _AH.nc() << ")" << std::endl;
+//std::cerr << _AH;
+//std::cerr << "\n ****************************************************** \n";
+
         Real     t = 0.0;
         unsigned rk1 = _irank + 1;
 
@@ -1008,6 +1031,14 @@ int YeOldeParkinCore::optimise_rank_sub621()
                  // _irank = _qrA.getRank();
                  // _cond  = _qrA.getSubCond();
                  _AH    = _qrA.getMatH();
+
+//std::cerr << "\n ***** YeOldeParkinCore::optimise_rank_sub621() ***** \n";
+//std::cerr << " entry          = " << entry << std::endl;
+//std::cerr << " _irank         = " << _irank << std::endl;
+//std::cerr << " _qrA.getRank() = " << _qrA.getRank() << std::endl;
+//std::cerr << " _qrA.getMatH() = " << std::endl;
+//std::cerr << _qrA.getMatH() << std::endl;
+//std::cerr << "\n **************************************************** \n";
 
 		case 2 : _d1 = std::fabs( _diag(1) );
                  _sk = _d1 / std::fabs( _diag(_irank) );

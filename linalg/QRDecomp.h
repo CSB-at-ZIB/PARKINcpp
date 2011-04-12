@@ -96,7 +96,8 @@ namespace PARKIN
             { return _qrA; }
 
             // Copy constructor
-            QRDecomp(QRDecomp const& qrdcmp)
+            QRDecomp(QRDecomp const& qrdcmp) :
+                GenericDecomp(qrdcmp)
             {
                 if (this != &qrdcmp)
                 {
@@ -123,6 +124,8 @@ namespace PARKIN
                 // if (_pinv == 0) { _pinv = new QRCholesky(); }
                 if (this != &qrdcmp)
                 {
+                    _valid = qrdcmp._valid;
+
                     _qrA   = qrdcmp._qrA;
                     // _qrAH  = qrdcmp._qrAH;
                     _diag  = qrdcmp._diag;

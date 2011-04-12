@@ -39,7 +39,7 @@ namespace PARKIN
 
             //
 
-            Matrix const& getMat() { return _qrAH; }
+            Matrix const& getMat() const { return _qrAH; }
 
         protected:
             Matrix  _qrAH;

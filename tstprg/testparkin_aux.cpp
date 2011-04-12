@@ -55,18 +55,31 @@ int testparkin_aux()
 
     //
 
-    param.push_back("p1");      var["p1"]  =  0.1806040385e+1;      //  1.0;
-    param.push_back("p2");      var["p2"]  =  0.8935523699e+0;      //  0.494;
-    param.push_back("p3");      var["p3"]  =  0.2939611589e+2;      // 29.0;
-    param.push_back("p4");      var["p4"]  =  0.9217335023e+1;      //  9.0;
-    param.push_back("p5");      var["p5"]  =  0.5812799976e-1;      //  0.053;
-    param.push_back("p6");      var["p6"]  =  0.2428563221e+1;      //  2.0;
-    param.push_back("p7");      var["p7"]  =  0.6410427954e-1;      //  0.06;
-    param.push_back("p8");      var["p8"]  =  0.5560335128e+1;      //  5.0;
-    param.push_back("p9");      var["p9"]  =  0.2009778604e-1;      //  0.02;
-    param.push_back("p10");     var["p10"] =  0.5772851642e+0;      //  0.5;
-    param.push_back("p11");     var["p11"] =  0.2150523182e+1;      //  1.19;
+    param.push_back("p01");     var["p01"]  =  0.1806040385e+1;      //  1.0;
+    param.push_back("p02");     var["p02"]  =  0.8935523699e+0;      //  0.494;
+    param.push_back("p03");     var["p03"]  =  0.2939611589e+2;      // 29.0;
+    param.push_back("p04");     var["p04"]  =  0.9217335023e+1;      //  9.0;
+    param.push_back("p05");     var["p05"]  =  0.5812799976e-1;      //  0.053;
+    param.push_back("p06");     var["p06"]  =  0.2428563221e+1;      //  2.0;
+    param.push_back("p07");     var["p07"]  =  0.6410427954e-1;      //  0.06;
+    param.push_back("p08");     var["p08"]  =  0.5560335128e+1;      //  5.0;
+    param.push_back("p09");     var["p09"]  =  0.2009778604e-1;      //  0.02;
+    param.push_back("p10");     var["p10"]  =  0.5772851642e+0;      //  0.5;
+    param.push_back("p11");     var["p11"]  =  0.2150523182e+1;      //  1.19;
 
+/*
+    param.push_back("p01");     var["p01"]  =  1.0;
+    param.push_back("p02");     var["p02"]  =  0.494;
+    param.push_back("p03");     var["p03"]  = 29.0;
+    param.push_back("p04");     var["p04"]  =  9.0;
+    param.push_back("p05");     var["p05"]  =  0.053;
+    param.push_back("p06");     var["p06"]  =  2.0;
+    param.push_back("p07");     var["p07"]  =  0.06;
+    param.push_back("p08");     var["p08"]  =  5.0;
+    param.push_back("p09");     var["p09"]  =  0.02;
+    param.push_back("p10");     var["p10"]  =  0.5;
+    param.push_back("p11");     var["p11"]  =  1.19;
+*/
     //
 
     // Reaction / rule:
@@ -83,23 +96,23 @@ int testparkin_aux()
     //      r10 :  p10 * D * F
     //      r11 :  p11 * E * F
 
-    aux["r1"] = Expression(TIMES, "p1", "A");
+    aux["r01"] = Expression(TIMES, "p01", "A");
 
-    aux["r2"] = Expression(TIMES, "p2", "B");
+    aux["r02"] = Expression(TIMES, "p02", "B");
 
-    aux["r3"] = Expression(TIMES, "p3", Expression(TIMES, "B", "C"));
+    aux["r03"] = Expression(TIMES, "p03", Expression(TIMES, "B", "C"));
 
-    aux["r4"] = Expression(TIMES, "p4", Expression(TIMES, "C", "C"));
+    aux["r04"] = Expression(TIMES, "p04", Expression(TIMES, "C", "C"));
 
-    aux["r5"] = Expression(TIMES, "p5", "D");
+    aux["r05"] = Expression(TIMES, "p05", "D");
 
-    aux["r6"] = Expression(TIMES, "p6", "C");
+    aux["r06"] = Expression(TIMES, "p06", "C");
 
-    aux["r7"] = Expression(TIMES, "p7", "D");
+    aux["r07"] = Expression(TIMES, "p07", "D");
 
-    aux["r8"] = Expression(TIMES, "p8", "E");
+    aux["r08"] = Expression(TIMES, "p08", "E");
 
-    aux["r9"] = Expression(TIMES, "p9", "B");
+    aux["r09"] = Expression(TIMES, "p09", "B");
 
     aux["r10"] = Expression(TIMES, "p10", Expression(TIMES, "D", "F"));
 
@@ -132,23 +145,23 @@ int testparkin_aux()
 
     emap["A"] = Expression(
                             PLUS,
-                            Expression(MINUS, aux["r1"]),
-                            aux["r9"]
+                            Expression(MINUS, aux["r01"]),
+                            aux["r09"]
                           );
 
     emap["B"] = Expression(
                             PLUS,
                             Expression( PLUS,
                                         Expression( PLUS,
-                                                    aux["r1"],
-                                                    Expression(MINUS, aux["r2"])
+                                                    aux["r01"],
+                                                    Expression(MINUS, aux["r02"])
                                                   ),
-                                        Expression( MINUS, aux["r3"] )
+                                        Expression( MINUS, aux["r03"] )
                                       ),
                             Expression( PLUS,
                                         Expression( PLUS,
-                                                    aux["r7"],
-                                                    Expression(MINUS, aux["r9"])
+                                                    aux["r07"],
+                                                    Expression(MINUS, aux["r09"])
                                                   ),
                                         aux["r10"]
                                       )
@@ -158,17 +171,17 @@ int testparkin_aux()
                             PLUS,
                             Expression( PLUS,
                                         Expression( PLUS,
-                                                    aux["r2"],
-                                                    Expression(MINUS, aux["r3"])
+                                                    aux["r02"],
+                                                    Expression(MINUS, aux["r03"])
                                                   ),
                                         Expression( PLUS,
-                                                    Expression(TIMES, -2.0, aux["r4"]),
-                                                    Expression(MINUS, aux["r6"])
+                                                    Expression(TIMES, -2.0, aux["r04"]),
+                                                    Expression(MINUS, aux["r06"])
                                                   )
                                       ),
                             Expression( PLUS,
                                         Expression( PLUS,
-                                                    aux["r8"],
+                                                    aux["r08"],
                                                     aux["r10"]
                                                   ),
                                         Expression( TIMES, 2.0, aux["r11"] )
@@ -178,11 +191,11 @@ int testparkin_aux()
     emap["D"] = Expression(
                             PLUS,
                             Expression( PLUS,
-                                        aux["r3"],
-                                        Expression(MINUS, aux["r5"])
+                                        aux["r03"],
+                                        Expression(MINUS, aux["r05"])
                                       ),
                             Expression( PLUS,
-                                        Expression(MINUS, aux["r7"]),
+                                        Expression(MINUS, aux["r07"]),
                                         Expression(MINUS, aux["r10"])
                                       )
                           );
@@ -190,11 +203,11 @@ int testparkin_aux()
     emap["E"] = Expression(
                             PLUS,
                             Expression( PLUS,
-                                        aux["r4"],
-                                        aux["r5"]
+                                        aux["r04"],
+                                        aux["r05"]
                                       ),
                             Expression( PLUS,
-                                        Expression(MINUS, aux["r8"]),
+                                        Expression(MINUS, aux["r08"]),
                                         Expression(MINUS, aux["r11"])
                                       )
                           );
@@ -203,10 +216,10 @@ int testparkin_aux()
                             PLUS,
                             Expression( PLUS,
                                         Expression( PLUS,
-                                                    aux["r3"],
-                                                    aux["r4"]
+                                                    aux["r03"],
+                                                    aux["r04"]
                                                   ),
-                                        aux["r6"]
+                                        aux["r06"]
                                       ),
                             Expression( PLUS,
                                         Expression(MINUS, aux["r10"]),
@@ -218,9 +231,9 @@ int testparkin_aux()
     emap["G"] = Expression(
                             PLUS,
                             Expression( PLUS,
-                                        aux["r6"],
-                                        aux["r7"]),
-                            aux["r8"]
+                                        aux["r06"],
+                                        aux["r07"]),
+                            aux["r08"]
                           );
 
 
@@ -324,6 +337,44 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 //std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
 
 
+    Matrix Jac;
+    long   n = species.size();
+    long   T = meastp.nr();
+    long   j = 0;
+
+    utmp.zeros(3);
+
+    par["p01"] = var["p01"];      utmp(1) = ( par["p01"] );
+    par["p02"] = var["p02"];      utmp(2) = ( par["p02"] );
+    par["p03"] = var["p03"];      utmp(3) = ( par["p03"] );
+
+    Jac.zeros( n*T, 7 );
+
+
+TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
+
+    Jac.set_colm( 1, 3 ) =
+        biosys.computeJacobian( par ); //  * utmp.diag();  // ... * exp( u=log(par) ).diag()
+
+, std::cerr )
+
+
+    for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
+    {
+        Real   h = sqrt(1e-10), ptmp;
+        Vector vtmp;
+
+        ptmp = par[it->first];
+        par[it->first] = ptmp + h; // exp( log(ptmp) + h );
+        vtmp = biosys.computeModel(par);
+        par[it->first] = ptmp;
+
+        Jac.set_colm( 5+j++ ) = (1.0/h)*(vtmp - vref);
+    }
+
+    std::cout << " Jacobian Jac (" << Jac.nr() << " x " << Jac.nc() << ") = " << std::endl;
+    std::cout << Jac << std::endl;
+
 
 // exit(42);
 
@@ -362,7 +413,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     emap = biosys.getODEExpr();
 
     std::cout << std::endl;
-    std::cout << emap[species[species.size()-1]].df( param[param.size()-1] );
+    std::cout << emap[species[species.size()-2]].df( param[param.size()-1] );
     std::cout << std::endl;
 
     std::cout << " -=-=-=-=-=-=-=- " << std::endl;
@@ -407,9 +458,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     /// and, subsequently, prepare and solve for the inverse problem
     ///
 
-    Real   rtol       = 1.0e-5;
-    Real   solverRTol = 1.0e-5;
-    Real   solverATol = 1.0e-8;
+    Real   rtol       = 1.0e-3;
+    Real   solverRTol = 1.0e-4;
+    Real   solverATol = 1.0e-9;
     Vector p, pscal;
     // Vector syndata, synscal;
 
@@ -549,16 +600,17 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     pscal.zeros(11);
 
     var.clear();
+    par1.clear();
 
-    par1.push_back( "p1" );         var[ "p1" ]  = p(1);
-    par1.push_back( "p2" );         var[ "p2" ]  = p(2);
-    par1.push_back( "p3" );         var[ "p3" ]  = p(3);
-    par1.push_back( "p4" );         var[ "p4" ]  = p(4);
-    par1.push_back( "p5" );         var[ "p5" ]  = p(5);
-    par1.push_back( "p6" );         var[ "p6" ]  = p(6);
-    par1.push_back( "p7" );         var[ "p7" ]  = p(7);
-    par1.push_back( "p8" );         var[ "p8" ]  = p(8);
-    par1.push_back( "p9" );         var[ "p9" ]  = p(9);
+    par1.push_back( "p01" );        var[ "p01" ] = p(1);
+    par1.push_back( "p02" );        var[ "p02" ] = p(2);
+    par1.push_back( "p03" );        var[ "p03" ] = p(3);
+    par1.push_back( "p04" );        var[ "p04" ] = p(4);
+    par1.push_back( "p05" );        var[ "p05" ] = p(5);
+    par1.push_back( "p06" );        var[ "p06" ] = p(6);
+    par1.push_back( "p07" );        var[ "p07" ] = p(7);
+    par1.push_back( "p08" );        var[ "p08" ] = p(8);
+    par1.push_back( "p09" );        var[ "p09" ] = p(9);
     par1.push_back( "p10" );        var[ "p10" ] = p(10);
     par1.push_back( "p11" );        var[ "p11" ] = p(11);
 
@@ -580,7 +632,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 
     // if ( iopt.jacgen > 1 )
-        wk.cond = 15000; // 1.0 / sqrt(solverRTol);
+        wk.cond = 10000; // 1.0 / sqrt(solverRTol);
     wk.itmax = 15;
 
 
