@@ -8,9 +8,9 @@
 #define __DLIB_MATRIX_IMPL_H
 
 #define DLIB_USE_BLAS
-//#if defined(_WIN32) || defined(_WIN64)
-//    #undef DLIB_USE_BLAS
-//#endif
+#if defined(_WIN32) || defined(_WIN64)
+    #undef DLIB_USE_BLAS
+#endif
 #include <addpkg/dlib/matrix.h>
 
 #include "GenericMatrixImpl.h"

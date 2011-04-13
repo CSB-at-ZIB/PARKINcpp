@@ -81,15 +81,16 @@ c     Current settings for LIMEX distribution examples
 c
 c-----------------------------------------------------------------------
 c
-      parameter ( Max_Nr_of_Equations    =    8000 )
+
+      parameter ( Max_Nr_of_Equations    =    4000 )
 c
-      parameter ( Max_Non_Zeros_Jacobian =   50000 )
+      parameter ( Max_Non_Zeros_Jacobian =   30000 )
 c
-      parameter ( Max_Non_Zeros_B        =    8000 )
+      parameter ( Max_Non_Zeros_B        =    4000 )
 c
-      parameter ( Max_Lower_Diagonals    =    8000 )
+      parameter ( Max_Lower_Diagonals    =    4000 )
 c
-      parameter ( Max_Upper_Diagonals    =    8000 )
+      parameter ( Max_Upper_Diagonals    =    4000 )
 c
       parameter ( Max_It_Vectors         =      50 )
 c
