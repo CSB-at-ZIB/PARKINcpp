@@ -155,6 +155,14 @@ GaussNewton::getWk()
     _wk.nfcn   = _nfcn;
     _wk.nfcnj  = _nfcnj;
 
+    if (_sigma2 > 0.0)
+    {
+        _wk.sigma2 = _sigma2;
+        _wk.xl     = _xl;
+        _wk.xr     = _xr;
+        _wk.vcv    = _vcv;
+    }
+
     return _wk;
 }
 //---------------------------------------------------------------------------
@@ -2047,7 +2055,7 @@ GaussNewton::compute_statistics(
 {
     Matrix rinv;
     Vector res, v;
-    Real   sum1, sigma2;
+    Real   sum1;
     long   m = _A.nr();
     long   n = _A.nc();
 
@@ -2068,7 +2076,7 @@ GaussNewton::compute_statistics(
     sum1 = res.norm("l2");
     sum1 = (sum1*sum1) / (_mfit - (_irank-_mcon));
 
-    sigma2 = sum1;
+    _sigma2 = sum1;
 
     printl( _lumon, dlib::LINFO,
             " %s\n %s\n\n",
@@ -2077,7 +2085,7 @@ GaussNewton::compute_statistics(
           );
     printl( _lumon, dlib::LINFO,
             " sigma2 =%10.3e    sigma =%10.3e\n",
-            sigma2, std::sqrt(sigma2)
+            _sigma2, std::sqrt(_sigma2)
           );
 
     // Computation of covariance matrix
@@ -2100,12 +2108,12 @@ GaussNewton::compute_statistics(
         }
 
         // Product rinv * rinv^t
-        _vcv = sigma2 * ( rinv * rinv.t() );
+        _vcv = _sigma2 * ( rinv * rinv.t() );
     }
     else
     {
         Real d = (_qrA.getDiag())(1);
-        _vcv(1,1) = sigma2 / ( d*d );
+        _vcv(1,1) = _sigma2 / ( d*d );
     }
 
     // Pretty printout of the covariance matrix

@@ -33,9 +33,10 @@ namespace PARKIN
 
     struct GaussNewtonWk
     {
-        Vector  fw;
+        Matrix  vcv;
+        Vector  fw, xl, xr;
         Real    fcbnd, ajdel, ajmin, etadif, etaini;
-        Real    dlevf, sumx, prec, skap;
+        Real    dlevf, sumx, prec, skap, sigma2;
         Real    fcstart, fcmin, sigma, cond;
         long    niter, nitmax, irank;
         long    ncorr, nrejr1, njac, nfcn, nfcnj;
@@ -43,9 +44,10 @@ namespace PARKIN
         bool    qsucc;
 
         GaussNewtonWk() :
-            fw(),
+            vcv(),
+            fw(), xl(), xr(),
             fcbnd(0.0), ajdel(0.0), ajmin(0.0), etadif(0.0), etaini(0.0),
-            dlevf(0.0), sumx(0.0), prec(0.0), skap(0.0),
+            dlevf(0.0), sumx(0.0), prec(0.0), skap(0.0), sigma2(0.0),
             fcstart(0.0), fcmin(0.0), sigma(0.0), cond(0.0),
             niter(0), nitmax(0), irank(0),
             ncorr(0), nrejr1(0), njac(0), nfcn(0), nfcnj(0),
@@ -139,7 +141,7 @@ namespace PARKIN
             // working variables for one run
             unsigned        _n, _m, _mfit, _mcon;
             Vector          _x, _xscal, _fi;
-            Real            _rtol, _tolmin;
+            Real            _rtol, _tolmin, _sigma2;
             unsigned        _nitmax, _nonlin, _irank, _irankc, _ierr;
             unsigned        _maxmn;
             Matrix          _AA, _A;
