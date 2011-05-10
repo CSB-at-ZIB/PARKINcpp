@@ -48,7 +48,7 @@ int testsystem_aux()
     /// cyclin: BIOMD0000000008.xml
 
     Real                        tstart = 1.0;
-    Real                        tend   = 100.0;
+    Real                        tend   = 500.0;
     Expression::Param           var, par;
 
     BioSystem::Species          species;
@@ -335,20 +335,22 @@ int testsystem_aux()
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
     Vector breaktp;
-//    breaktp.zeros(4);
-//    for (long j=1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/3.0;
-//    biosys.setBreakpoints( breaktp );
+    breaktp.zeros(5);
+    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/4.0;
+    biosys.setBreakpoints( breaktp );
 
     // and succinctly some event handling
     //
-/*
-    emap.clear();
-    emap = biosys.getEvent(1);
 
-    emap[species[3]] = Expression(0.5);
+    for (long j = 1; j < breaktp.nr()-1; ++j)
+    {
+        // emap.clear();
+        emap = biosys.getEvent(j);
 
-    biosys.setEvent(1, emap);
+        emap[species[3]] = Expression(0.25);
 
+        biosys.setEvent(j, emap);
+    }
 
     std::cout << std::endl;
     for (long j = 0; j < breaktp.nr(); ++j)
@@ -367,7 +369,7 @@ int testsystem_aux()
         std::cout << std::endl;
     }
     std::cout << std::endl;
-*/
+
 
     emap.clear();
     emap = biosys.getODEExpr();

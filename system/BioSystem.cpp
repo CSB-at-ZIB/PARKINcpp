@@ -961,11 +961,11 @@ BioSystemWrapper::fcnVar(
     Expression::Param&          opt  = _obj->getOptPar();
     // Expression::Param&          sys  = _obj->getSysPar();
     // BioRHS                      ode  = _obj->getODE();
-    BioRHS::Species const&      spe  = _ode.getSpecies();
+    // BioRHS::Species const&      spe  = _ode.getSpecies();
     // BioRHS::Parameter const&    par  = _ode.getParameters();
     // StrIterConst                sBeg = spe.begin();
     // StrIterConst                sEnd = spe.end();
-    long                        n    = spe.size();
+    long                        n    = _ode.getSpecies().size();
     long                        qq   = opt.size();          // ((long)(*nq) - n) / n;
     double*                     yy   = yyu + n;
     // Matrix                      Z(n,qq);

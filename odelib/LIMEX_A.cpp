@@ -118,7 +118,7 @@ LIMEX_A::computeAndSaveLimexTrajectory(double* t, double T, double* y)
                 &_rtol, &_atol, &_h,
                 _iOpt, _rOpt, _iPos,
                 _ifail
-              );
+             );
 
         ztmp = z;
         for (long j = 0; j < _n; ++j)
@@ -130,8 +130,11 @@ LIMEX_A::computeAndSaveLimexTrajectory(double* t, double T, double* y)
         if (*t <= T)
         {
             _solPoints.push_back( *t );
+            ztmp = z;
             for (long j = 0; j < _n; ++j)
-                _solution[j].push_back( z[j] );
+            {
+                _solution[j].push_back( *ztmp++ );
+            }
         }
     }
 
