@@ -335,8 +335,8 @@ int testsystem_aux()
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
     Vector breaktp;
-    breaktp.zeros(5);
-    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/4.0;
+    breaktp.zeros(3);
+    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/2.0;
     biosys.setBreakpoints( breaktp );
 
     // and succinctly some event handling
