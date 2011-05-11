@@ -40,7 +40,7 @@ LIMEX_A::initOpt()
     // iOpt[0] - iOpt[17] must be set by caller on entry.
     // !!! iOpt[15] may be modified; all others are not modified !!!
 
-    _iOpt[0]  =  1;     // Integration monitoring: 0 no output, 1 standard, 2 additional
+    _iOpt[0]  =  0;     // Integration monitoring: 0 no output, 1 standard, 2 additional
     _iOpt[1]  =  0;     // Unit number for monitor ( == 6 if iOpt[0] > 0 )
     _iOpt[2]  =  0;     // Solution output: 0 no output, 1 initial&final vaules, 2 additional
     _iOpt[3]  =  0;     // Unit number for solution ( == 6 if iOpt[2] > 0 )
