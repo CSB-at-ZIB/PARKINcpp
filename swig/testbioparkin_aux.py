@@ -12,7 +12,7 @@ from parkin import *
 #
 
 tstart = 1.0
-tend   = 4.0
+tend   = 14.0
 
 species = StringList()
 parameter = StringList()
@@ -45,11 +45,19 @@ biosys.setInitialValue( species[0], 1.5e-4 )
 biosys.setInitialValue( species[1], 0.0 )
 
 # set the time points of taken measurements
-timepoints = [tstart + j*(tend-tstart)/10.0 for j in range(1, 11)]
+timepoints = [tstart + j*(tend-tstart)/40.0 for j in range(1, 41)]
 print "Timepoints: %s" % timepoints
 meastp = Vector( ValueList(timepoints) )
 biosys.setMeasurementTimePoints( meastp )
-#print meastp.t()
+print meastp.t()
+
+# set breakpoints of events
+breakpoints = [tstart + j*(tend-tstart)/15.0 for j in range(0,16)]
+print "Breakpoints: %s" % breakpoints
+breaktp = Vector( ValueList(breakpoints) )
+biosys.setBreakpoints( breaktp )
+print breaktp.t()
+
 
 biosys.setSolverRTol(1.0e-5)
 biosys.setSolverATol(1.0e-8)
