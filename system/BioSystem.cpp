@@ -273,14 +273,15 @@ BioSystem::setIdentityEvents()
 {
     Species const&      species = _ode.getSpecies();
     Parameter const&    parameter = _ode.getParameters();
+    BioRHS              rhs = BioRHS(species);
 
+    rhs.setParameters(parameter);
     _iniCond.clear();
 
     for (long j = 0; j < (long)_tInterval.size(); ++j)
     {
-        BioRHS rhs = BioRHS(species);
-
-        rhs.setParameters(parameter);
+        // BioRHS rhs = BioRHS(species);
+        // rhs.setParameters(parameter);
 
         _iniCond.push_back( rhs );
     }
