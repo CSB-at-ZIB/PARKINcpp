@@ -22,6 +22,7 @@ namespace PARKIN
 {
     typedef std::map< std::string, std::pair<Real,Real> >    MeasurementPoint;
 
+    class QRconDecomp;
 
     class BioSystem
     {
@@ -168,6 +169,14 @@ namespace PARKIN
             Matrix
             computeJacobian(Expression::Param const& var);
 
+            QRconDecomp
+            computeSensitivity(Expression::Param& var, std::string mode = "init");
+
+            ///
+
+            Matrix
+            getSensitivityMatrix();
+
             ///
 
             typedef MeasurementPoint::const_iterator                    MeasIterConst;
@@ -188,6 +197,7 @@ namespace PARKIN
             MeasurementList                 _measData;        // e.g. _measData[3][species] = pair< value, std.dev >
             MeasurementList                 _synData;
             std::vector<MeasurementPoint>   _jacobian;
+            Matrix                          _jac;
 
             ODESolver*                      _odeSystem;
 

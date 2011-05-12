@@ -7,6 +7,7 @@
 
 #include <addpkg/dlib/time_this.h>
 #include "BioSystem.h"
+#include "linalg/QRconDecomp.h"
 
 using namespace PARKIN;
 
@@ -796,6 +797,62 @@ BioSystem::computeJacobian(Expression::Param const& var)
     delete[] yy;
 
     return jacobian;
+}
+//---------------------------------------------------------------------------
+QRconDecomp
+BioSystem::computeSensitivity(Expression::Param& var, std::string mode)
+{
+    Expression::ParamIterConst  vBeg = var.begin();
+    Expression::ParamIterConst  vEnd = var.end();
+    long                        k = 0;
+    long                        qq = var.size();
+    // Matrix                      jac;
+
+    if ( mode == "inner" )
+    {
+        _jac = computeJacobian(var);
+    }
+    else
+    {
+        Vector fh, f;
+        Real   ajmin = SMALL;
+        Real   ajdelta = sqrtEPMACH;
+        Real   u, w;
+        int    su;
+
+        f = computeModel(var, mode);
+
+        k = 0;
+        _jac.zeros(_totmeasData, qq);
+
+        for (Expression::ParamIterConst itPar = vBeg;
+                                        itPar != vEnd; ++itPar)
+        {
+            w  = itPar->second;
+
+            su = ( w < 0.0 ) ? -1 : 1;
+            u  = // std::max(
+                          std::max(std::fabs(w), ajmin);
+                 // , _xw(k) );
+            u *= ajdelta * su;
+
+            var[itPar->first] = w + u;
+
+            fh = computeModel(var);
+
+            var[itPar->first] = w;
+
+            _jac.set_colm(++k) = (1.0/u) * Matrix(fh - f);
+        }
+    }
+
+    return _jac.factorQRcon();
+}
+//---------------------------------------------------------------------------
+Matrix
+BioSystem::getSensitivityMatrix()
+{
+    return _jac;
 }
 //---------------------------------------------------------------------------
 
