@@ -113,6 +113,7 @@ BioSystem::~BioSystem()
          _measData = s._measData;
          _synData.clear();      // = s._synData;
          _jacobian.clear();     // = s._jacobian;
+         _jac = Matrix();
 
          //$$$ _odeSystem = new DOP853();
          _odeSystem = new LIMEX_A();
@@ -804,8 +805,9 @@ BioSystem::computeSensitivity(Expression::Param& var, std::string mode)
 {
     Expression::ParamIterConst  vBeg = var.begin();
     Expression::ParamIterConst  vEnd = var.end();
-    long                        k = 0;
+    Real                        rtol = _odeSystem->getRTol();
     long                        qq = var.size();
+    long                        k = 0;
     // Matrix                      jac;
 
     if ( mode == "inner" )
@@ -846,7 +848,7 @@ BioSystem::computeSensitivity(Expression::Param& var, std::string mode)
         }
     }
 
-    return _jac.factorQRcon();
+    return _jac.factorQRcon( 0, 0, 1.0/std::sqrt(rtol) );
 }
 //---------------------------------------------------------------------------
 Matrix

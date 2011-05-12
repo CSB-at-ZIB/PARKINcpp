@@ -36,6 +36,9 @@ namespace PARKIN
             void setRTol(Real rtol) { _rtol = rtol; }
             void setATol(Real atol) { _atol = atol; }
 
+            Real getRTol() { return _rtol; }
+            Real getATol() { return _atol; }
+
 
         protected:
             ODESolver() : _atol(10*EPMACH), _rtol(1.0e-12) { }
