@@ -170,7 +170,9 @@ namespace PARKIN
             computeJacobian(Expression::Param const& var);
 
             QRconDecomp
-            computeSensitivity(Expression::Param& var, std::string mode = "init");
+            computeSensitivity(Expression::Param&       var,
+                               Expression::Param const& vscal,
+                               std::string              mode = "init");
 
             ///
 

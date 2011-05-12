@@ -538,7 +538,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     StrIterConst        pEnd = parameter.end();
     ODESolver::Grid     iniValues(n);
     double*             y = new double[n];
-    Vector              model(n*T);
+    Vector              model; // (n*T);
     // long                tmin = std::min( _tpMeas.size(), _measData.size() );
 
     // iniODE();
@@ -623,6 +623,8 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     if ( mode == "init" ) { _measData = _synData; _totmeasData = n*T; }
 
     k = 0;
+    model.zeros(_totmeasData);
+
     for (long tp = 0; tp < T; ++tp)
     {
         MeasIterConst mBeg = _measData[tp].begin();
@@ -801,14 +803,30 @@ BioSystem::computeJacobian(Expression::Param const& var)
 }
 //---------------------------------------------------------------------------
 QRconDecomp
-BioSystem::computeSensitivity(Expression::Param& var, std::string mode)
+BioSystem::computeSensitivity(Expression::Param&        var,
+                              Expression::Param const&  vscal,
+                              std::string               mode)
 {
     Expression::ParamIterConst  vBeg = var.begin();
     Expression::ParamIterConst  vEnd = var.end();
+    Expression::ParamIterConst  scBeg = vscal.begin();
+    Expression::ParamIterConst  scEnd = vscal.end();
     Real                        rtol = _odeSystem->getRTol();
     long                        qq = var.size();
     long                        k = 0;
+    Vector                      pw;
     // Matrix                      jac;
+
+    pw.ones(qq);
+    if ( qq == (long)vscal.size() )
+    {
+        k = 0;
+        for (Expression::ParamIterConst it = scBeg;
+                                        it != scEnd; ++it)
+        {
+            pw(++k) = std::max( std::fabs(it->second), rtol );
+        }
+    }
 
     if ( mode == "inner" )
     {
@@ -825,12 +843,12 @@ BioSystem::computeSensitivity(Expression::Param& var, std::string mode)
         f = computeModel(var, mode);
 
         k = 0;
-        _jac.zeros(_totmeasData, qq);
+        _jac.zeros( f.nr(), qq );
 
-        for (Expression::ParamIterConst itPar = vBeg;
-                                        itPar != vEnd; ++itPar)
+        for (Expression::ParamIterConst itVar = vBeg;
+                                        itVar != vEnd; ++itVar)
         {
-            w  = itPar->second;
+            w  = itVar->second;
 
             su = ( w < 0.0 ) ? -1 : 1;
             u  = // std::max(
@@ -838,15 +856,18 @@ BioSystem::computeSensitivity(Expression::Param& var, std::string mode)
                  // , _xw(k) );
             u *= ajdelta * su;
 
-            var[itPar->first] = w + u;
+            var[itVar->first] = w + u;
 
             fh = computeModel(var);
 
-            var[itPar->first] = w;
+            var[itVar->first] = w;
 
             _jac.set_colm(++k) = (1.0/u) * Matrix(fh - f);
         }
     }
+
+    _jac = _jac * pw.diag();
+    // if ( qScal ) computeRowScaling();
 
     return _jac.factorQRcon( 0, 0, 1.0/std::sqrt(rtol) );
 }
