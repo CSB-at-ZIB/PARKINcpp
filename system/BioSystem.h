@@ -164,15 +164,22 @@ namespace PARKIN
             ///
 
             Vector
-            computeModel(Expression::Param const& var, std::string mode = "");
+            computeModel(Expression::Param const&   var,
+                         std::string                mode = "");
+                         // mode    -   "init"       : generate artificial data in _measData,
+                         //             "any-string" : only _synData is changed
 
             Matrix
             computeJacobian(Expression::Param const& var);
 
+        private:
             QRconDecomp
-            computeSensitivity(Expression::Param&       var,
-                               Expression::Param const& vscal,
-                               std::string              mode = "init");
+            computeSensitivity(Expression::Param&   var,
+                               Expression::Param&   vscal,
+                               std::string          mode = "init");
+                               // mode  -   "inner"  : use variational equation to compute Jacobian
+                               //           "outer"  : use difference quotient
+                               //           "init"   : use difference quotient with newly artificial data
 
             ///
 
@@ -181,6 +188,7 @@ namespace PARKIN
 
             ///
 
+        public:
             typedef MeasurementPoint::const_iterator                    MeasIterConst;
             typedef std::vector< std::string >::const_iterator          StrIterConst;
 
@@ -196,10 +204,11 @@ namespace PARKIN
             double*                         _parValue;
 
             ODESolver::Grid                 _tpMeas;
-            MeasurementList                 _measData;        // e.g. _measData[3][species] = pair< value, std.dev >
+            MeasurementList                 _measData;      // e.g. _measData[3][species] = pair< value, std.dev >
             MeasurementList                 _synData;
             std::vector<MeasurementPoint>   _jacobian;
-            Matrix                          _jac;
+            Matrix                          _jac;           // Jacobian (sensitivity matrix) as stagged blocks of
+                                                            // solutions to the variational equation
 
             ODESolver*                      _odeSystem;
 

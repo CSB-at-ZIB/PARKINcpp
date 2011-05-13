@@ -78,11 +78,17 @@ namespace PARKIN
                             Real const rtol,
                             IOpt const& iopt, GaussNewtonWk const& wk
                           );
+            // int resetObservation(Vector const& fobs, Vector const& fscal);
+
+            // sensitivity analysis (a priori)
+            int         computeSensitivity();
+            QRconDecomp getSensitivity();
+            Matrix      getSensitivityMatrix();
 
             // start iteration
             int run();
 
-            // statistical analysis
+            // statistical analysis (a posteriori)
             int analyse();
 
             // get current iteration information

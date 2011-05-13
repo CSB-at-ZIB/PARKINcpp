@@ -803,14 +803,12 @@ BioSystem::computeJacobian(Expression::Param const& var)
 }
 //---------------------------------------------------------------------------
 QRconDecomp
-BioSystem::computeSensitivity(Expression::Param&        var,
-                              Expression::Param const&  vscal,
-                              std::string               mode)
+BioSystem::computeSensitivity(Expression::Param&    var,
+                              Expression::Param&    vscal,
+                              std::string           mode)
 {
     Expression::ParamIterConst  vBeg = var.begin();
     Expression::ParamIterConst  vEnd = var.end();
-    Expression::ParamIterConst  scBeg = vscal.begin();
-    Expression::ParamIterConst  scEnd = vscal.end();
     Real                        rtol = _odeSystem->getRTol();
     long                        qq = var.size();
     long                        k = 0;
@@ -818,13 +816,14 @@ BioSystem::computeSensitivity(Expression::Param&        var,
     // Matrix                      jac;
 
     pw.ones(qq);
+
     if ( qq == (long)vscal.size() )
     {
         k = 0;
-        for (Expression::ParamIterConst it = scBeg;
-                                        it != scEnd; ++it)
+        for (Expression::ParamIterConst itVar = vBeg;
+                                        itVar != vEnd; ++itVar)
         {
-            pw(++k) = std::max( std::fabs(it->second), rtol );
+            pw(++k) = std::max( std::fabs(vscal[itVar->first]), rtol );
         }
     }
 
@@ -848,21 +847,19 @@ BioSystem::computeSensitivity(Expression::Param&        var,
         for (Expression::ParamIterConst itVar = vBeg;
                                         itVar != vEnd; ++itVar)
         {
+            ++k;
+
             w  = itVar->second;
 
             su = ( w < 0.0 ) ? -1 : 1;
-            u  = // std::max(
-                          std::max(std::fabs(w), ajmin);
-                 // , _xw(k) );
+            u  = std::max( std::max(std::fabs(w), ajmin), pw(k) );
             u *= ajdelta * su;
-
             var[itVar->first] = w + u;
 
             fh = computeModel(var);
 
             var[itVar->first] = w;
-
-            _jac.set_colm(++k) = (1.0/u) * Matrix(fh - f);
+            _jac.set_colm(k) = (1.0/u) * Matrix(fh - f);
         }
     }
 

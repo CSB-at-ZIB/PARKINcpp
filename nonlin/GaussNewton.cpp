@@ -531,6 +531,134 @@ GaussNewton::check_init()
 
 //---------------------------------------------------------------------------
 int
+GaussNewton::computeSensitivity()
+{
+    Real        ajdel, ajmin;
+    Real        epdiff, etadif, etaini, etamax, etamin;
+    unsigned    jacgen, iscal;
+    bool        qsucc, qscale, qinisc = true;
+    int         ifail = 0;
+
+    if ( _fun == 0 )
+    {
+        _ierr = 999;
+        printl( _luerr, dlib::LINFO,
+                " Error: %s\n        %s\n",
+                "No problem (fcn/jac pair) set so far.",
+                "Please use setProblem(&fun) first.");
+        return _ierr;
+    }
+
+    if ( (_n <= 0) || (_m <= 0) )
+    {
+        _ierr = 998;
+        printl( _luerr, dlib::LINFO,
+                " Error: %s\n        %s\n        %s\n",
+                "More input is needed:",
+                "Vector x where to compute, and scaling values.",
+                "Please use initialise(...) first.");
+        return _ierr;
+
+    }
+    qsucc  = _wk.qsucc;
+    qscale = (_iopt.norowscal != true);
+    jacgen = _iopt.jacgen;
+    iscal  = _iopt.iscal;
+
+    _ierr = 0;
+
+    if ( !qsucc )  // computeSensitivity() only available before run() is called
+    {
+        ajdel = ajmin = etadif = etaini = etamax = etamin = 0.0;
+
+        // Numerical differentation related initialisation
+        if ( jacgen == 2 )
+        {
+            ajdel = _wk.ajdel;
+            if ( ajdel <= SMALL ) ajdel = std::sqrt(10.0 * EPMACH);
+            ajmin = _wk.ajmin;
+        }
+        else if ( jacgen == 3 )
+        {
+            etadif = _wk.etadif;
+            if ( etadif <= SMALL ) etadif = 1.0e-6;
+            etaini = _wk.etaini;
+            if ( etaini <= SMALL ) etaini = 1.0e-6;
+            epdiff = std::sqrt(10.0 * EPMACH);
+            etamax = std::sqrt(epdiff);
+            etamin = epdiff*etamax;
+        }
+
+        if ( jacgen == 3 )
+        {
+            Vector v;
+            v.ones(_n); _eta.zeros(_n);
+            _eta = etaini * v;
+        }
+
+        _AA.zeros(_m,_n);
+        _A.zeros(_m,_n);
+
+        _xa = _x;
+
+        compute_scaling_xw(iscal, qinisc);
+
+        //
+        if ( jacgen == 1 )
+        {
+            //_timon(2);
+            _AA = call_JAC( _x, ifail );    // _fun->jac(_x, ifail);
+            //_timoff(2);
+        }
+        else
+        {
+            //_timon(2);
+            if ( jacgen == 3 ) compute_jcf_AA(etamin, etamax, etadif, ifail);
+            if ( jacgen == 2 ) compute_jac_AA(ajdel, ajmin, ifail);
+            //_timoff(2);
+        }
+
+        if ( (jacgen == 1) && (ifail <  0) ) { _ierr = 83; return _ierr; }
+        if ( (jacgen != 1) && (ifail != 0) ) { _ierr = 82; return _ierr; }
+
+        // Copy Jacobian to work matrix _A(_m2,_n)
+        _A = _AA * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
+
+        /*
+        //_A.scale_columns(_xw);
+        for (long k = 1; k <= (long)_n; ++k)
+            for (long j = 1; j <= (long)_m; ++j)
+            {
+                _A(j,k) = _A(j,k) * _xw(k);
+            }
+        */
+
+        // Row scaling of _A(_m,_n)
+        if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);
+
+        _qrA = _A.factorQRcon(_mcon, _irank, _cond);
+    }
+
+    return _ierr;
+}
+//---------------------------------------------------------------------------
+QRconDecomp
+GaussNewton::getSensitivity()
+{
+    return _qrA;
+}
+//---------------------------------------------------------------------------
+Matrix
+GaussNewton::getSensitivityMatrix()
+{
+    return _A;
+}
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+int
 GaussNewton::run()
 {
     Real        ajdel, ajmin, cond1, condco = 0.0;
