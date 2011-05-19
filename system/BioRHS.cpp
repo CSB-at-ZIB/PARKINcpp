@@ -592,7 +592,7 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
                 Zptmp += q;
             }
 
-            *dZ++;
+            dZ++;
         }
 
         Fz += n;
