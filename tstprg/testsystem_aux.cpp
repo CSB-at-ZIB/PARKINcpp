@@ -335,8 +335,8 @@ int testsystem_aux()
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
     Vector breaktp;
-    breaktp.zeros(3);
-    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/4.0;
+    breaktp.zeros(4);
+    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/3.0;
 
 TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::endl;
 
@@ -394,7 +394,13 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     std::cout << std::setw(20) << "Parameter Name" << "   " << "Value" << std::endl;
     std::cout << std::setw(20) << "--------------" << "   " << "-----" << std::endl;
     for (unsigned j = 0; j < param.size(); ++j)
-        std::cout << std::setw(20) << param[j] << "   " << var[param[j]] << std::endl;
+    {
+        biosys.setParamValue(param[j], var[param[j]]);
+
+        std::cout << std::setw(20) << param[j] <<
+                             "   " << biosys.getParamValue(param[j]) <<
+                                      std::endl;
+    }
     std::cout << std::endl;
     std::cout << std::endl;
 
@@ -406,6 +412,91 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     biosys.setSolverATol(1.0e-8);
 
 
+    //-----------------------------------------------------------------------------
+#define SENSI
+#ifdef SENSI
+    double                      rtolS = 1.0e-5;
+    long                        nS    = species.size();
+    long                        TS    = meastp.nr();
+    Vector                      pS, pscalS;
+    Vector                      dummyMeasS, dummyScalS;
+
+    dummyMeasS.zeros(nS*TS);
+    dummyScalS.zeros(nS*TS);
+
+/*
+    BioSystem::MeasurementList  mlistS;
+
+    for (long tp = 0; tp < TS; ++tp)
+    {
+        mlistS.push_back( MeasurementPoint() );
+        for (long j = 0; j < (long)species.size(); ++j)
+        {
+            mlistS[tp][species[j]] = std::make_pair<double,double>(0.0,0.0);
+        }
+    }
+
+    biosys.setMeasurementList( meastp, mlistS );
+*/
+
+    //
+    // Compute sensitivities at initial guess of GaussNewton
+    //
+
+    pS.zeros(3);
+    pS(1) = 0.5;         // true: 0.2
+    pS(2) = 0.5;         // true: 0.1
+    pS(3) = 0.05;        // true: 0.02
+    pscalS.zeros(3);
+
+    par1.clear();
+
+    par1.push_back( "K3" );         // var[ "K3" ] = pS(1);
+    par1.push_back( "K4" );         // var[ "K4" ] = pS(2);
+    par1.push_back( "K5" );         // var[ "K5" ] = pS(3);
+
+    IOpt           ioptS;
+    GaussNewtonWk  wkS;
+    GaussNewton    gnS;
+    BioPAR         probS( &biosys, par1 );
+
+    ioptS.mode      = 0;     // 0:normal run, 1:single step
+    ioptS.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
+    ioptS.qrank1    = false;     // allow Broyden rank-1 updates if __true__
+    ioptS.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
+    ioptS.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
+    ioptS.lpos      = false;      // force solution vector to be positive (all components > 0.0)
+                            //          _mprmon =   0      1      2      3      4       5       6
+                            //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE
+    ioptS.mprmon    = 2;
+    ioptS.mprerr    = 1;
+
+
+    // if ( iopt.jacgen > 1 )
+        // wkS.cond = 1.0 / sqrt(solverRTol);
+    // wkS.nitmax = 15;
+
+
+    gnS.setProblem( &probS );
+    gnS.initialise( dummyMeasS.nr(), pS, pscalS, dummyMeasS, dummyScalS, rtolS, ioptS, wkS );
+
+
+TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::endl;
+    std::cerr << "rc = " << gnS.computeSensitivity();
+, std::cerr)
+
+    std::cout << std::endl;
+    std::cout << "Sensitivity QR diagonal" << std::endl;
+    std::cout << "-----------------------" << std::endl;
+    std::cout << " qrA.getDiag() = " << std::endl;
+    std::cout << gnS.getSensitivity().getDiag().t() << std::endl;
+    std::cout << " A = " << std::endl;
+    std::cout << gnS.getSensitivityMatrix() << std::endl;
+
+#endif
+    //-----------------------------------------------------------------------------
+
+
     Vector syndata, synscal, vref, utmp;
 
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
@@ -415,10 +506,13 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     // syndata = biosys.computeModel(var, "init");
 
 , std::cerr );
+
+//std::cerr << " vref = " << std::endl;
+//std::cerr << vref;
 //std::cerr << std::endl;
 //std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
-
-
+//
+//exit(-999);
 
     Matrix Jac;
     long   n = species.size();
@@ -666,6 +760,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     p(3) = 0.05;        // true: 0.02
     pscal.zeros(3);
 
+    par1.clear();
     var.clear();
 
     par1.push_back( "K3" );         var[ "K3" ] = p(1);
