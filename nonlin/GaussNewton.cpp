@@ -278,7 +278,7 @@ GaussNewton::initialise(
                 "Number of parameters to be estimated (N):",        _n,
                 "Number of data to fit, e.g. observations (MFIT):", _mfit,
                 "Number of equality constraints (MCON): ",          _mcon,
-                "Prescribed relative precision (RTOL): ",           _rtol
+                "Prescribed relative precision (XTOL): ",           _rtol
               );
 
        std::string jacg, rsmode;
@@ -534,7 +534,8 @@ int
 GaussNewton::computeSensitivity()
 {
     Real        ajdel, ajmin;
-    Real        epdiff, etadif, etaini, etamax, etamin;
+    Real        epdiff = std::sqrt(10.0 * EPMACH);
+    Real        etadif, etaini, etamax, etamin;
     unsigned    jacgen, iscal;
     bool        qsucc, qscale, qinisc = true;
     int         ifail = 0;
@@ -584,7 +585,6 @@ GaussNewton::computeSensitivity()
             if ( etadif <= SMALL ) etadif = 1.0e-6;
             etaini = _wk.etaini;
             if ( etaini <= SMALL ) etaini = 1.0e-6;
-            epdiff = std::sqrt(10.0 * EPMACH);
             etamax = std::sqrt(epdiff);
             etamin = epdiff*etamax;
         }
@@ -612,14 +612,20 @@ GaussNewton::computeSensitivity()
         }
         else
         {
+            //_timon(1);
+            _fmodel = call_FCN( _x, ifail );
+            //_timoff(1);
+
+            if (ifail != 0) { _ierr = 182; return _ierr; }
+
             //_timon(2);
             if ( jacgen == 3 ) compute_jcf_AA(etamin, etamax, etadif, ifail);
             if ( jacgen == 2 ) compute_jac_AA(ajdel, ajmin, ifail);
             //_timoff(2);
         }
 
-        if ( (jacgen == 1) && (ifail <  0) ) { _ierr = 83; return _ierr; }
-        if ( (jacgen != 1) && (ifail != 0) ) { _ierr = 82; return _ierr; }
+        if ( (jacgen == 1) && (ifail <  0) ) { _ierr = 183; return _ierr; }
+        if ( (jacgen != 1) && (ifail != 0) ) { _ierr = 182; return _ierr; }
 
         // Copy Jacobian to work matrix _A(_m2,_n)
         _A = _AA * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
@@ -632,6 +638,16 @@ GaussNewton::computeSensitivity()
                 _A(j,k) = _A(j,k) * _xw(k);
             }
         */
+
+//std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
+//std::cerr << " _xw.diag() = " << std::endl;
+//std::cerr << _xw.diag().t() << std::endl;
+//std::cerr << " _AA = " << std::endl;
+//std::cerr << _AA.t() << std::endl;
+//std::cerr << " _A = " << std::endl;
+//std::cerr << _A.t() << std::endl;
+//std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
+//std::cerr << std::endl;
 
         // Row scaling of _A(_m,_n)
         if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);
@@ -959,7 +975,7 @@ GaussNewton::run()
             // Evaluation of scaled natural level function SUMX
             //  scaled max err norm CONV, (scaled) std level function DLEVF,
             //  and computation of ordinary Gauss-Newton correction _dx(_n)
-            _wk.sumx = _sumx;
+            _wk.sumx  = _sumx;
             _wk.dlevf = _dlevf;
             _dx    = compute_levels_and_dx(t2);
             _xa    = _x;
@@ -2074,7 +2090,7 @@ GaussNewton::analyse()
         etadif = _wk.etadif;                                // _wk[Wk::ETADIF];
         if ( etadif <= SMALL ) etadif = 1.0e-6;
         // epdiff = sqrt(10.0 * EPMACH);
-        etamax = sqrt(epdiff);
+        etamax = std::sqrt(epdiff);
         etamin = epdiff*etamax;
     }
 

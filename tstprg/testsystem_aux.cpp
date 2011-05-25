@@ -326,8 +326,8 @@ int testsystem_aux()
     biosys.setInitialValue("Y", 1.0);
     biosys.setInitialValue("Z", 1.0);
 
-    Vector meastp(58);
-    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/59.0;
+    Vector meastp(78);
+    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/79.0;
     biosys.setMeasurementTimePoints( meastp );
 
     // Breakpoints / Event Management:
@@ -335,8 +335,8 @@ int testsystem_aux()
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
     Vector breaktp;
-    breaktp.zeros(30);
-    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/29.0;
+    breaktp.zeros(3);
+    for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/4.0;
 
 TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::endl;
 
@@ -697,6 +697,19 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     gn.setProblem( &prob );
     gn.initialise( syndata.nr(), p, pscal, syndata, synscal, rtol, iopt, wk );
 
+
+TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::endl;
+    std::cerr << "rc = " << gn.computeSensitivity();
+, std::cerr)
+
+    std::cout << std::endl;
+    std::cout << "Sensitivity QR diagonal" << std::endl;
+    std::cout << "-----------------------" << std::endl;
+    std::cout << " qrA.getDiag() = " << std::endl;
+    std::cout << gn.getSensitivity().getDiag().t() << std::endl;
+
+
+    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, rtol, iopt, wk );
     gn.run();
     // gn.analyse();
     gn.printCounter();

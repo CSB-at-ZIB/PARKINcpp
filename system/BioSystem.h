@@ -172,7 +172,14 @@ namespace PARKIN
             Matrix
             computeJacobian(Expression::Param const& var);
 
+            ///
+
+            typedef MeasurementPoint::const_iterator                    MeasIterConst;
+            typedef std::vector< std::string >::const_iterator          StrIterConst;
+
+
         private:
+
             QRconDecomp
             computeSensitivity(Expression::Param&   var,
                                Expression::Param&   vscal,
@@ -187,10 +194,6 @@ namespace PARKIN
             getSensitivityMatrix();
 
             ///
-
-        public:
-            typedef MeasurementPoint::const_iterator                    MeasIterConst;
-            typedef std::vector< std::string >::const_iterator          StrIterConst;
 
         private:
 
