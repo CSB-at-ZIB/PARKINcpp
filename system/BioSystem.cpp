@@ -407,6 +407,18 @@ BioSystem::setParamValue(std::string const& name, Real value)
     _sysPar[name] = value;
 }
 //---------------------------------------------------------------------------
+void
+BioSystem::setParamValues(Expression::Param const& par)
+{
+    Expression::ParamIterConst pBeg = par.begin();
+    Expression::ParamIterConst pEnd = par.end();
+
+    for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
+    {
+        _sysPar[it->first] = it->second;
+    }
+}
+//---------------------------------------------------------------------------
 Real
 BioSystem::getInitialValue(std::string const& name) // const
 {
@@ -417,6 +429,18 @@ void
 BioSystem::setInitialValue(std::string const& name, Real value)
 {
     _iniPar[name] = value;
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::setInitialValues(Expression::Param const& inipar)
+{
+    Expression::ParamIterConst iBeg = inipar.begin();
+    Expression::ParamIterConst iEnd = inipar.end();
+
+    for (Expression::ParamIterConst it = iBeg; it != iEnd; ++it)
+    {
+        _iniPar[it->first] = it->second;
+    }
 }
 //---------------------------------------------------------------------------
 void
@@ -544,11 +568,11 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     // iniODE();
     iniODE(n,y);
 
-    Expression::ParamIterConst vBeg = var.begin();
-    Expression::ParamIterConst vEnd = var.end();
-    for (Expression::ParamIterConst it = vBeg; it != vEnd; ++it)
-        _sysPar[it->first] = it->second;
-
+    //    Expression::ParamIterConst vBeg = var.begin();
+    //    Expression::ParamIterConst vEnd = var.end();
+    //    for (Expression::ParamIterConst it = vBeg; it != vEnd; ++it)
+    //        _sysPar[it->first] = it->second;
+    setParamValues(var);
 
     _optPar = var;
 
@@ -677,11 +701,11 @@ BioSystem::computeJacobian(Expression::Param const& var)
 
     Expression::ParamIterConst vBeg = var.begin();
     Expression::ParamIterConst vEnd = var.end();
-    for (Expression::ParamIterConst it = vBeg; it != vEnd; ++it)
-    {
-        _sysPar[it->first] = it->second;
-    }
-
+    //    for (Expression::ParamIterConst it = vBeg; it != vEnd; ++it)
+    //    {
+    //        _sysPar[it->first] = it->second;
+    //    }
+    setParamValues(var);
 
     _optPar = var;
 

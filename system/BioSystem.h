@@ -134,11 +134,15 @@ namespace PARKIN
             getParamValue(std::string const& name); // const;
             void
             setParamValue(std::string const& name, Real value);
+            void
+            setParamValues(Expression::Param const& par);
 
             Real
             getInitialValue(std::string const& name); // const;
             void
             setInitialValue(std::string const& name, Real value);
+            void
+            setInitialValues(Expression::Param const& inipar);
             void
             setInitialValues(Vector const& val);
 
