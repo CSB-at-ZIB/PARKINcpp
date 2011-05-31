@@ -110,6 +110,7 @@ namespace PARKIN
             Vector call_FCN(Vector const&, int&);   // call needed as trafo (e.g. iopt.lpos) entry point
             Matrix call_JAC(Vector const&, int&);   // call needed as trafo (e.g. iopt.lpos) entry point
             void compute_scaling_xw(unsigned, bool);
+            void compute_scaling_fw(unsigned);
             void compute_jcf_AA(Real, Real, Real, int&);
             void compute_jac_AA(Real, Real, int&);
             void compute_rank1_up_AA();

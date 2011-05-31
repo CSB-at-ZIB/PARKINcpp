@@ -690,7 +690,7 @@ GaussNewton::run()
     Real        skap, sumxa, sumxk, th, dlevxa;
     Real        prec, dxanrm;
     unsigned    iscal, mode, nred, minmn, iterm, jacgen;
-    unsigned    iranka, mfout, modefi, ifccnt, mconh;
+    unsigned    rscal, iranka, mfout, modefi, ifccnt, mconh;
     bool        qsucc, qgenj, qinisc, qjcrfr, qlinit, qredrnk;
     bool        qiter, qrepet, qnext, qredu, qscale, qrank1, qred;
     int         ifail;
@@ -715,6 +715,7 @@ GaussNewton::run()
     qscale = (_iopt.norowscal != true);                     // _iopt[IOpt::NOROWSCAL] != true;
     qrank1 = _iopt.qrank1;                                  // _iopt[IOpt::QRANK1];
     iscal  = _iopt.iscal;                                   // _iopt[IOpt::ISCAL];
+    rscal  = _iopt.rscal;
     mode   = _iopt.mode;                                    // _iopt[IOpt::MODE];
     iterm  = _iopt.iterm;                                   // _iopt[IOpt::ITERM];
     jacgen = _iopt.jacgen;                                  // _iopt[IOpt::JACGEN];
@@ -820,6 +821,12 @@ GaussNewton::run()
             _f.set_row( _mcon+1, _mcon+_mfit ) = _fmodel.row( _mcon+1, _mcon+_mfit ) - _fi.row( 1, _mfit );
             if ( _mcon > 0 ) _f.set_row( 1, _mcon ) = _fmodel.row( 1, _mcon );
         }
+
+        ///
+
+        if ( qscale ) compute_scaling_fw(rscal);
+
+        ///
     }
     else
     {
@@ -1584,6 +1591,37 @@ GaussNewton::compute_scaling_xw(unsigned iscal, bool /*qinisc*/)
             _xw(j) = std::max( _xscal(j),
                                std::max( 0.5*(std::fabs(_x(j)) + std::fabs(_xa(j))), SMALL)
                              );
+        }
+    }
+
+    return;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void
+GaussNewton::compute_scaling_fw(unsigned rscal)
+{
+    if ( rscal == 2 )
+    {
+        for (long j = 1; j <= _fw.nr(); ++j)
+        {
+            Real r = std::fabs( _f(j) );
+
+            _fw(j) = ( (SMALL <= r) && (r <= GREAT)) ?
+                            1.0 / _f(j) :
+                            SMALL;         // 1.0 ???;
+        }
+    }
+    else if ( rscal == 1 )
+    {
+        for (long j = 1; j <= _fw.nr(); ++j)
+        {
+            Real r = std::fabs( _fw(j) / _f(j) );
+
+            _fw(j) = ( (SMALL <= r) && (r <= GREAT) ) ?
+                            _fw(j) / _f(j) :
+                            _fw(j);
         }
     }
 

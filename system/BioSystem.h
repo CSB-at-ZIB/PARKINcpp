@@ -176,6 +176,7 @@ namespace PARKIN
             Matrix
             computeJacobian(Expression::Param const& var);
 
+
             ///
 
             typedef MeasurementPoint::const_iterator                    MeasIterConst;
@@ -196,6 +197,10 @@ namespace PARKIN
 
             Matrix
             getSensitivityMatrix();
+
+        public:
+            BioSystem::MeasurementList const&
+            getSensitivityList();
 
             ///
 
