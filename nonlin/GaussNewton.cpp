@@ -213,6 +213,7 @@ GaussNewton::initialise(
     bool        qrank1 = iopt.qrank1;
     bool        qfcstr = (wk.fcstart > 0.0);
     int         jacgen = iopt.jacgen;
+    int         rscal = iopt.rscal;
     unsigned    minmn;
 
     _m = m;
@@ -269,7 +270,9 @@ GaussNewton::initialise(
     _maxmn = std::max(_m, _n);
     // minmn = std::min(_m,_n);
 
+    if ( rscal == 0 )  _iopt.rscal = 1;
     if ( jacgen == 0 ) _iopt.jacgen = 2;
+
 
     if ( !qsucc )
     {
@@ -1602,7 +1605,7 @@ GaussNewton::compute_scaling_xw(unsigned iscal, bool /*qinisc*/)
 void
 GaussNewton::compute_scaling_fw(unsigned rscal)
 {
-    if ( rscal == 2 )
+    if ( rscal == 3 )
     {
         for (long j = 1; j <= _fw.nr(); ++j)
         {
@@ -1613,7 +1616,7 @@ GaussNewton::compute_scaling_fw(unsigned rscal)
                             SMALL;         // 1.0 ???;
         }
     }
-    else if ( rscal == 1 )
+    else if ( rscal == 2 )
     {
         for (long j = 1; j <= _fw.nr(); ++j)
         {
