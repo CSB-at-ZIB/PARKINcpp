@@ -776,7 +776,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
     iopt.qrank1    = false;     // allow Broyden rank-1 updates if __true__
     iopt.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
-    iopt.rscal     = 1;     // 1:use unchange fscal, 2:recompute/modify fscal, 3:use automatic scaling only
+    iopt.rscal     = 1;     // 1:use unchanged fscal, 2:recompute/modify fscal, 3:use automatic scaling only
     iopt.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
     iopt.lpos      = false;      // force solution vector to be positive (all components > 0.0)
                             //          _mprmon =   0      1      2      3      4       5       6

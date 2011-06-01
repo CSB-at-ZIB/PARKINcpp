@@ -898,13 +898,13 @@ BioSystem::getSensitivityMatrix()
 {
     return _jac;
 }
-//---------------------------------------------------------------------------
-BioSystem::MeasurementList const&
-BioSystem::getSensitivityList()
-{
-    return _jacobian;
-}
-//---------------------------------------------------------------------------
+////---------------------------------------------------------------------------
+//BioSystem::MeasurementList const&
+//BioSystem::getSensitivityList()
+//{
+//    return _jacobian;
+//}
+////---------------------------------------------------------------------------
 
 ///
 ///

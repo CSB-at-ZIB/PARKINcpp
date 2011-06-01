@@ -62,9 +62,9 @@ namespace PARKIN
             getMeasurementWeights()
             { return _bioSystem->getMeasurementWeights(); }
 
-            BioSystem::MeasurementList
-            getSensitivityList()
-            { return _bioSystem->getSensitivityList(); }
+//            BioSystem::MeasurementList
+//            getSensitivityList()
+//            { return _bioSystem->getSensitivityList(); }
 
         private:
 

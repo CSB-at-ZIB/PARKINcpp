@@ -198,9 +198,9 @@ namespace PARKIN
             Matrix
             getSensitivityMatrix();
 
-        public:
-            BioSystem::MeasurementList const&
-            getSensitivityList();
+//        public:
+//            BioSystem::MeasurementList const&
+//            getSensitivityList();
 
             ///
 
@@ -218,7 +218,8 @@ namespace PARKIN
             ODESolver::Grid                 _tpMeas;
             MeasurementList                 _measData;      // e.g. _measData[3][species] = pair< value, std.dev >
             MeasurementList                 _synData;
-            std::vector<MeasurementPoint>   _jacobian;
+            //std::vector<MeasurementPoint>   _jacobian;
+            MeasurementList                 _jacobian;
             Matrix                          _jac;           // Jacobian (sensitivity matrix) as stagged blocks of
                                                             // solutions to the variational equation
 
