@@ -623,25 +623,31 @@ GaussNewton::computeSensitivity()
 
             if (ifail != 0) { _ierr = 182; return _ierr; }
 
+            _lumon.set_level( dlib::LDEBUG );
+
             //_timon(2);
             if ( jacgen == 3 ) compute_jcf_AA(etamin, etamax, etadif, ifail);
             if ( jacgen == 2 ) compute_jac_AA(ajdel, ajmin, ifail);
             //_timoff(2);
+
+            _lumon.set_level( _loglvl[_iopt.mprmon] );
         }
 
         if ( (jacgen == 1) && (ifail <  0) ) { _ierr = 183; return _ierr; }
         if ( (jacgen != 1) && (ifail != 0) ) { _ierr = 182; return _ierr; }
 
         // Copy Jacobian to work matrix _A(_m2,_n)
-        _A = _AA * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
+        _A = -1.0 * _AA;   //  * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
 
         /*
         //_A.scale_columns(_xw);
         for (long k = 1; k <= (long)_n; ++k)
+        {
             for (long j = 1; j <= (long)_m; ++j)
             {
                 _A(j,k) = _A(j,k) * _xw(k);
             }
+        }
         */
 
 //std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
@@ -657,7 +663,7 @@ GaussNewton::computeSensitivity()
 //std::cerr << std::endl;
 
         // Row scaling of _A(_m,_n)
-        if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);
+        // if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);
 
         _qrA = _A.factorQRcon(_mcon, _irank, _cond);
     }
@@ -1800,6 +1806,10 @@ GaussNewton::compute_jac_AA(Real ajdelta, Real ajmin, int& ifail)
 
     for (long k = 1; k <= n; ++k)
     {
+        printl( _lumon, dlib::LDEBUG,
+                " %s: %s%04d\n",
+                "jac", "computing difference quotient of parameter #", k);
+
         w = _x(k);
 
         su = ( w < 0.0 ) ? -1 : 1;
@@ -1847,6 +1857,10 @@ GaussNewton::compute_jcf_AA(
 
     for (long k = 1; k <= n; ++k)
     {
+        printl( _lumon, dlib::LDEBUG,
+                " %s: %s%04d\n",
+                "jcf", "computing difference quotient of parameter #", k);
+
         is = qexit = qfine = false;
         while ( !qfine )
         {

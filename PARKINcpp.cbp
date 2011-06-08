@@ -43,8 +43,9 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-fPIC" />
+					<Add option="-fpic" />
 					<Add directory="/usr/include/python2.6" />
+					<Add directory="/usr/lib/python2.6/config" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -64,8 +65,9 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-fPIC" />
+					<Add option="-fpic" />
 					<Add directory="/usr/include/python2.6" />
+					<Add directory="/usr/lib/python2.6/config" />
 				</Compiler>
 				<ExtraCommands>
 					<Add before="/bin/rm -f swig/parkin_wrap.cpp obj/SharedLib/swig/parkin_wrap.o" />
@@ -303,15 +305,12 @@
 		</Unit>
 		<Unit filename="swig/testbioparkin.py">
 			<Option target="SharedLib" />
-			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_aux.py">
 			<Option target="SharedLib" />
-			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_helper.py">
 			<Option target="SharedLib" />
-			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="system/BioPAR.cpp" />
 		<Unit filename="system/BioPAR.h" />

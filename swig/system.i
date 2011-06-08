@@ -20,9 +20,6 @@
 %include <std_vector.i>
 %include <std_map.i>
 %include <std_pair.i>
-%include linalg.i
-%include nonlin.i
-%include odelib.i
 
 %template(Param)                std::map< std::string, double >;
 %template(StringList)           std::vector< std::string >;                             // for Species, Parameter, Auxiliary
@@ -30,7 +27,11 @@
 %template(VectorList)           std::vector< PARKIN::Vector >;                          // for ODESolver::Grid
 %template(ValuePair)            std::pair< double, double >;                            // for MeasurementPoint, see next line
 %template(MeasurementPoint)     std::map< std::string, std::pair<double,double> >;      // mapping from species name to pair (meas.value, std.dev)
+%template(Trajectory)           std::map< unsigned, std::vector<double> >;              // for ODESolver (forward declaration)
 
+%include linalg.i
+%include nonlin.i
+%include odelib.i
 
 %ignore PARKIN::Expression::operator=;
 %ignore PARKIN::BioRHS::operator=;

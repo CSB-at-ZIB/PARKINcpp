@@ -116,6 +116,8 @@ namespace PARKIN
             setMeasurementList(Vector const& tp, MeasurementList const& meas);
             void
             setMeasurementList(MeasurementList const& meas);
+            void
+            setEmptyMeasurementList(long T = 0);
             Vector
             getMeasurements();
             Vector

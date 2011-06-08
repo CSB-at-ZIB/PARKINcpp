@@ -47,8 +47,8 @@ int testsystem_aux()
     /// taken from SBML example files / cases
     /// cyclin: BIOMD0000000008.xml
 
-    Real                        tstart = 1.0;
-    Real                        tend   = 500.0;
+    Real                        tstart = 0.0;
+    Real                        tend   = 100.0;
     Expression::Param           var, par;
 
     BioSystem::Species          species;
@@ -326,8 +326,8 @@ int testsystem_aux()
     biosys.setInitialValue("Y", 1.0);
     biosys.setInitialValue("Z", 1.0);
 
-    Vector meastp(78);
-    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/79.0;
+    Vector meastp(100);
+    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/100.0;
     biosys.setMeasurementTimePoints( meastp );
 
     // Breakpoints / Event Management:
@@ -335,6 +335,7 @@ int testsystem_aux()
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
     Vector breaktp;
+/*
     breaktp.zeros(4);
     for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/3.0;
 
@@ -374,7 +375,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
         std::cout << std::endl;
     }
     std::cout << std::endl;
-
+*/
 
     emap.clear();
     emap = biosys.getODEExpr();
@@ -461,7 +462,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     BioPAR         probS( &biosys, par1 );
 
     ioptS.mode      = 0;     // 0:normal run, 1:single step
-    ioptS.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
+    ioptS.jacgen    = 1;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
     ioptS.qrank1    = false;     // allow Broyden rank-1 updates if __true__
     ioptS.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
     ioptS.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
@@ -490,8 +491,47 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::cout << "-----------------------" << std::endl;
     std::cout << " qrA.getDiag() = " << std::endl;
     std::cout << gnS.getSensitivity().getDiag().t() << std::endl;
-    std::cout << " A = " << std::endl;
+
+    Matrix reducedA;
+    Matrix A = gnS.getSensitivityMatrix();
+
+    std::cout << "  A = (" << A.nr() << " x " << A.nc() << ") " << std::endl;
     std::cout << gnS.getSensitivityMatrix() << std::endl;
+
+    reducedA.zeros(species.size(), A.nc());
+    for (unsigned k = 0; k < (unsigned)A.nc(); ++k)
+    {
+        Vector v = A.colm(k+1);
+
+        for (unsigned j = 0; j < species.size(); ++j)
+        {
+            // long   off = j + 1;
+            double s = 0.0;
+
+            for (unsigned tp = 0; tp < (unsigned)meastp.nr(); ++tp)
+            {
+                double val = v( tp*nS + j + 1 ); // off);
+                s += std::pow(val, 2.0);
+            }
+
+            reducedA(j+1,k+1) = std::sqrt(s);
+        }
+    }
+
+    BioSystem::Species   cSpec  = probS.getSpecies();
+    BioSystem::Parameter cParam = probS.getCurrentParameter();
+
+    std::cout << " rA = (" << reducedA.nr() << " x " << reducedA.nc() << ") " << std::endl;
+    std::cout << std::setw(10) << "\t";
+    for (unsigned k = 0; k < cParam.size(); ++k)
+    {
+        std::cout << std::setw(8) << cParam[k] << " ";
+    }
+    std::cout << std::endl << std::endl;
+    for (unsigned j = 0; j < cSpec.size(); ++j)
+    {
+        std::cout << std::setw(10) << cSpec[j] << "\t" << std::fixed << reducedA.rowm(j+1) << std::endl;
+    }
 
 #endif
     //-----------------------------------------------------------------------------

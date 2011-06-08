@@ -265,6 +265,8 @@ BioSystem::setODESystem(ExpressionMap const& eMap)
 {
     _ode.setRHS(eMap);
 
+    setEmptyMeasurementList( (long)_tpMeas.size() );
+
     setIdentityEvents();
 
     // BioSystemWrapper::setObj(*this);
@@ -325,6 +327,34 @@ BioSystem::setMeasurementList(MeasurementList const& meas)
     _measData = meas;
     _tpMeas.clear();
     for (long j = 0; j < T; ++j) _tpMeas.push_back(j);
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::setEmptyMeasurementList(long T)
+{
+    Species const& species = _ode.getSpecies();
+    StrIterConst   sBeg = species.begin();
+    StrIterConst   sEnd = species.end();
+
+    if ( T <= 0 )
+    {
+        T = 100;
+        _tpMeas.clear();
+        for (long j = 0; j < T; ++j) _tpMeas.push_back(j);
+    }
+
+    _measData.clear();
+
+    for (long tp = 0; tp < T; ++tp)
+    {
+        _measData.push_back( MeasurementPoint() );
+
+        for (StrIterConst it = sBeg; it != sEnd; ++it)
+        {
+            _measData[tp][*it] = std::make_pair<Real,Real>(0.0, GREAT);
+        }
+    }
+    _totmeasData = T*species.size();
 }
 //---------------------------------------------------------------------------
 Vector

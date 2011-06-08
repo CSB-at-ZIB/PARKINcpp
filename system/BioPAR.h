@@ -41,7 +41,7 @@ namespace PARKIN
             //
 
             void
-            setParameter(BioSystem::Parameter const& param)
+            setCurrentParameter(BioSystem::Parameter const& param)
             {
                 // _bioSystem->setParameters(param);
                 _parameter = param;
@@ -49,8 +49,16 @@ namespace PARKIN
             }
 
             BioSystem::Parameter const&
-            getParameter()
+            getCurrentParameter()
+            { return _parameter; }
+
+            BioSystem::Parameter const&
+            getParameters()
             { return _bioSystem->getParameters(); }
+
+            BioSystem::Species const&
+            getSpecies()
+            { return _bioSystem->getSpecies(); }
 
             ///
 

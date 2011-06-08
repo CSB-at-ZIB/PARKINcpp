@@ -8,6 +8,7 @@
 
 
 %{
+#include <nonlin/UserFunc.h>
 #include <nonlin/GaussNewton.h>
 #include <nonlin/YeOldeParkinCore.h>
 %}
