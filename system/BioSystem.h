@@ -69,7 +69,7 @@ namespace PARKIN
             Expression::Param&
             getOptPar();
 
-            Species const&
+            Species
             getSpecies();
             void
             resetSpecies(Species const& species);   // Species serve also as index
@@ -77,7 +77,7 @@ namespace PARKIN
                                                     // have a resetSpecies method here!
 
 
-            Parameter const&
+            Parameter
             getParameters();
             void
             setParameters(Parameter const& parameter);
@@ -117,7 +117,7 @@ namespace PARKIN
             void
             setMeasurementList(MeasurementList const& meas);
             void
-            setEmptyMeasurementList(long T = 0);
+            setEmptyMeasurementList();
             Vector
             getMeasurements();
             Vector

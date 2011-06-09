@@ -615,8 +615,6 @@ GaussNewton::computeSensitivity()
         }
         else
         {
-            ifail = 998; // Flag for BioPAR to use "init" for computeModel()
-
             //_timon(1);
             _fmodel = call_FCN( _x, ifail );
             //_timoff(1);

@@ -36,13 +36,12 @@ BioPAR::~BioPAR()
 Vector
 BioPAR::fcn(Vector const& x, int& ifail)
 {
-    std::string mode("");
     // Expression::Param       optPar;
     BioSystem::StrIterConst pBeg = _parameter.begin();
     BioSystem::StrIterConst pEnd = _parameter.end();
     long                    k = 0;
 
-    if ( ifail == 998 ) mode = "init";
+    // if ( ifail == 998 ) mode = "init";
 
     for (BioSystem::StrIterConst it = pBeg; it != pEnd; ++it)
     {
@@ -50,7 +49,7 @@ BioPAR::fcn(Vector const& x, int& ifail)
     }
 
     Vector v;
-    v = _bioSystem -> computeModel( _optPar, mode );
+    v = _bioSystem -> computeModel( _optPar );
     ifail = 0;
 
     return v;

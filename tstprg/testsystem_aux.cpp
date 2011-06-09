@@ -70,30 +70,33 @@ int testsystem_aux()
     //
 
     // param.push_back("V1");      var["V1"]  = 0.0;
-    param.push_back("V1p");     var["V1p"] = 0.75;
-    param.push_back("K1");      var["K1"]  = 0.1;
+    param.push_back("glo_V1p");     var["glo_V1p"] = 0.75;
+    param.push_back("r04_K1");      var["r04_K1"]  = 0.1;
 
-    param.push_back("V2");      var["V2"]  = 0.25;
-    param.push_back("K2");      var["K2"]  = 0.1;
+    param.push_back("r05_V2");      var["r05_V2"]  = 0.25;
+    param.push_back("r05_K2");      var["r05_K2"]  = 0.1;
 
     // param.push_back("V3");      var["V3"]  = 0.0;
-    param.push_back("V3p");     var["V3p"] = 0.3;
-    param.push_back("K3");      var["K3"]  = 0.2;
+    param.push_back("glo_V3p");     var["glo_V3p"] = 0.3;
+    param.push_back("r06_K3");      var["r06_K3"]  = 0.2;
 
-    param.push_back("V4");      var["V4"]  = 0.1;
-    param.push_back("K4");      var["K4"]  = 0.1;
+    param.push_back("r07_V4");      var["r07_V4"]  = 0.1;
+    param.push_back("r07_K4");      var["r07_K4"]  = 0.1;
 
-    param.push_back("K5");      var["K5"]  = 0.02;
-    param.push_back("K6");      var["K6"]  = 0.3;
+    param.push_back("r02_K5");      var["r02_K5"]  = 0.02;
+    param.push_back("glo_K6");      var["glo_K6"]  = 0.3;
 
-    param.push_back("vi");      var["vi"]  = 0.1;
-    param.push_back("k1");      var["k1"]  = 0.5;
-    param.push_back("kd");      var["kd"]  = 0.02;
-    param.push_back("a1");      var["a1"]  = 0.05;
-    param.push_back("a2");      var["a2"]  = 0.05;
-    param.push_back("d1");      var["d1"]  = 0.05;
-    param.push_back("vs");      var["vs"]  = 0.2;
-    param.push_back("alpha");   var["alpha"] = 0.1;
+    param.push_back("r01_vi");      var["r01_vi"]  = 0.1;
+    param.push_back("r02_k1");      var["r02_k1"]  = 0.5;
+    param.push_back("r03_kd");      var["r03_kd"]  = 0.02;
+    param.push_back("r11_kd");      var["r11_kd"]  = 0.02;
+    param.push_back("r08_a1");      var["r08_a1"]  = 0.05;
+    param.push_back("r09_a2");      var["r09_a2"]  = 0.05;
+    param.push_back("r10_d1");      var["r10_d1"]  = 0.05;
+    param.push_back("r13_d1");      var["r13_d1"]  = 0.05;
+    param.push_back("r12_vs");      var["r12_vs"]  = 0.2;
+    param.push_back("r10_alpha");   var["r10_alpha"] = 0.1;
+    param.push_back("r11_alpha");   var["r11_alpha"] = 0.1;
 
     //
 
@@ -102,21 +105,21 @@ int testsystem_aux()
     //      V1 := C * V1p * pow( C + K6 , -1 )
     //      V3 := V3p * M
 
-    aux["V1"] = Expression(
+    aux["glo_V1"] = Expression(
                     TIMES,
                     "C",
                     Expression(
                         TIMES,
-                        "V1p",
+                        "glo_V1p",
                         Expression(
                             POWER,
-                            Expression(PLUS, "C", "K6"),
+                            Expression(PLUS, "C", "glo_K6"),
                             -1.0
                         )
                     )
                 );
 
-    aux["V3"] = Expression(TIMES, "V3p", "M");
+    aux["glo_V3"] = Expression(TIMES, "glo_V3p", "M");
 
     //
 
@@ -136,37 +139,37 @@ int testsystem_aux()
     //      r12 :  vs
     //      r13 :  d1 * Y
 
-    aux["r1"] = Expression("vi");
+    aux["r1"] = Expression("r01_vi");
 
     aux["r2"] = Expression(
                     TIMES,
                     "C",
                     Expression(
                         TIMES,
-                        "k1",
+                        "r02_k1",
                         Expression(
                             TIMES,
                             "X",
                             Expression(
                                 POWER,
-                                Expression(PLUS, "C", "K5"),
+                                Expression(PLUS, "C", "r02_K5"),
                                 -1.0
                             )
                         )
                     )
                 );
 
-    aux["r3"] = Expression(TIMES, "C", "kd");
+    aux["r3"] = Expression(TIMES, "C", "r03_kd");
 
     aux["r4"] = Expression(
                     TIMES,
                     Expression(PLUS, 1.0, Expression(MINUS, "M")),
                     Expression(
                         TIMES,
-                        aux["V1"],
+                        aux["glo_V1"],
                         Expression(
                             POWER,
-                            Expression(PLUS, "K1", Expression(PLUS, Expression(MINUS, "M"), 1.0)),
+                            Expression(PLUS, "r04_K1", Expression(PLUS, Expression(MINUS, "M"), 1.0)),
                             -1.0
                         )
                     )
@@ -177,10 +180,10 @@ int testsystem_aux()
                     "M",
                     Expression(
                         TIMES,
-                        "V2",
+                        "r05_V2",
                         Expression(
                             POWER,
-                            Expression(PLUS, "K2", "M"),
+                            Expression(PLUS, "r05_K2", "M"),
                             -1.0
                         )
                     )
@@ -188,13 +191,13 @@ int testsystem_aux()
 
     aux["r6"] = Expression(
                     TIMES,
-                    aux["V3"],
+                    aux["glo_V3"],
                     Expression(
                         TIMES,
                         Expression(PLUS, 1.0, Expression(MINUS, "X")),
                         Expression(
                             POWER,
-                            Expression(PLUS, "K3", Expression(PLUS, Expression(MINUS, "X"), 1.0)),
+                            Expression(PLUS, "r06_K3", Expression(PLUS, Expression(MINUS, "X"), 1.0)),
                             -1.0
                         )
                     )
@@ -202,29 +205,29 @@ int testsystem_aux()
 
     aux["r7"] = Expression(
                     TIMES,
-                    "V4",
+                    "r07_V4",
                     Expression(
                         TIMES,
                         "X",
                         Expression(
                             POWER,
-                            Expression(PLUS, "K4", "X"),
+                            Expression(PLUS, "r07_K4", "X"),
                             -1.0
                         )
                     )
                 );
 
-    aux["r8"] = Expression(TIMES, "a1", Expression(TIMES, "C", "Y"));
+    aux["r8"] = Expression(TIMES, "r08_a1", Expression(TIMES, "C", "Y"));
 
-    aux["r9"] = Expression(TIMES, "a2", "Z");
+    aux["r9"] = Expression(TIMES, "r09_a2", "Z");
 
-    aux["r10"] = Expression(TIMES, "alpha", Expression(TIMES, "d1", "Z"));
+    aux["r10"] = Expression(TIMES, "r10_alpha", Expression(TIMES, "r10_d1", "Z"));
 
-    aux["r11"] = Expression(TIMES, "alpha", Expression(TIMES, "kd", "Z"));
+    aux["r11"] = Expression(TIMES, "r11_alpha", Expression(TIMES, "r11_kd", "Z"));
 
-    aux["r12"] = Expression("vs");
+    aux["r12"] = Expression("r12_vs");
 
-    aux["r13"] = Expression(TIMES, "d1", "Y");
+    aux["r13"] = Expression(TIMES, "r13_d1", "Y");
 
     //
 
@@ -326,7 +329,7 @@ int testsystem_aux()
     biosys.setInitialValue("Y", 1.0);
     biosys.setInitialValue("Z", 1.0);
 
-    Vector meastp(100);
+    Vector meastp(99);
     for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/100.0;
     biosys.setMeasurementTimePoints( meastp );
 
@@ -452,9 +455,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
     par1.clear();
 
-    par1.push_back( "K3" );         // var[ "K3" ] = pS(1);
-    par1.push_back( "K4" );         // var[ "K4" ] = pS(2);
-    par1.push_back( "K5" );         // var[ "K5" ] = pS(3);
+    par1.push_back( "r06_K3" );         // var[ "r06_K3" ] = pS(1);
+    par1.push_back( "r07_K4" );         // var[ "r07_K4" ] = pS(2);
+    par1.push_back( "r02_K5" );         // var[ "r02_K5" ] = pS(3);
 
     IOpt           ioptS;
     GaussNewtonWk  wkS;
@@ -496,19 +499,19 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     Matrix A = gnS.getSensitivityMatrix();
 
     std::cout << "  A = (" << A.nr() << " x " << A.nc() << ") " << std::endl;
-    std::cout << gnS.getSensitivityMatrix() << std::endl;
+    std::cout << A << std::endl;
 
-    reducedA.zeros(species.size(), A.nc());
+    reducedA.zeros(nS, A.nc());
     for (unsigned k = 0; k < (unsigned)A.nc(); ++k)
     {
-        Vector v = A.colm(k+1);
+        Vector v = A.colm( k + 1 );
 
-        for (unsigned j = 0; j < species.size(); ++j)
+        for (unsigned j = 0; j < (unsigned)nS; ++j)
         {
             // long   off = j + 1;
             double s = 0.0;
 
-            for (unsigned tp = 0; tp < (unsigned)meastp.nr(); ++tp)
+            for (unsigned tp = 0; tp < (unsigned)TS; ++tp)
             {
                 double val = v( tp*nS + j + 1 ); // off);
                 s += std::pow(val, 2.0);
@@ -525,12 +528,17 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::cout << std::setw(10) << "\t";
     for (unsigned k = 0; k < cParam.size(); ++k)
     {
-        std::cout << std::setw(8) << cParam[k] << " ";
+        std::cout << std::setw(10) << cParam[k] << " ";
     }
     std::cout << std::endl << std::endl;
     for (unsigned j = 0; j < cSpec.size(); ++j)
     {
-        std::cout << std::setw(10) << cSpec[j] << "\t" << std::fixed << reducedA.rowm(j+1) << std::endl;
+        std::cout << std::setw(10) << cSpec[j] << "\t";
+        for (unsigned k = 0; k < cParam.size(); ++k)
+        {
+            std::cout << std::setw(10) << reducedA(j+1,k+1) << " ";
+        }
+        std::cout << std::endl << std::endl;
     }
 
 #endif
@@ -561,9 +569,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
     utmp.zeros(3);
 
-    par["K3"] = var["K3"];      utmp(1) = ( par["K3"] );
-    par["K4"] = var["K4"];      utmp(2) = ( par["K4"] );
-    par["K5"] = var["K5"];      utmp(3) = ( par["K5"] );
+    par["r06_K3"] = var["r06_K3"];      utmp(1) = ( par["r06_K3"] );
+    par["r07_K4"] = var["r07_K4"];      utmp(2) = ( par["r07_K4"] );
+    par["r02_K5"] = var["r02_K5"];      utmp(3) = ( par["r02_K5"] );
 
     Jac.zeros( n*T, 7 );
 
@@ -571,22 +579,22 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
 
     Jac.set_colm( 1, 3 ) =
-        biosys.computeJacobian( par ) * utmp.diag();  // ... * exp( u=log(par) ).diag()
+        biosys.computeJacobian( par ); // * utmp.diag();  // ... * exp( u=log(par) ).diag()
 
 , std::cerr )
 
 
     for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
     {
-        Real   h = sqrt(1e-10), ptmp;
-        Vector vtmp;
+        Real   h = std::sqrt(1e-10), psav;
+        Vector vpert;
 
-        ptmp = par[it->first];
-        par[it->first] = exp( log(ptmp) + h );
-        vtmp = biosys.computeModel(par);
-        par[it->first] = ptmp;
+        psav = par[it->first];
+        par[it->first] = psav + h; // std::exp( std::log(psav) + h );
+        vpert = biosys.computeModel(par);
+        par[it->first] = psav;
 
-        Jac.set_colm( 5+j++ ) = (1.0/h)*(vtmp - vref);
+        Jac.set_colm( 5+j++ ) = (1.0/h)*(vpert - vref);
     }
 
     std::cout << " Jacobian Jac (" << Jac.nr() << " x " << Jac.nc() << ") = " << std::endl;
@@ -803,9 +811,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     par1.clear();
     var.clear();
 
-    par1.push_back( "K3" );         var[ "K3" ] = p(1);
-    par1.push_back( "K4" );         var[ "K4" ] = p(2);
-    par1.push_back( "K5" );         var[ "K5" ] = p(3);
+    par1.push_back( "r06_K3" );         var[ "r06_K3" ] = p(1);
+    par1.push_back( "r07_K4" );         var[ "r07_K4" ] = p(2);
+    par1.push_back( "r02_K5" );         var[ "r02_K5" ] = p(3);
 
     IOpt           iopt;
     GaussNewtonWk  wk;

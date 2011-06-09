@@ -178,10 +178,22 @@ BioSystem::getOptPar()
     return _optPar;
 }
 //---------------------------------------------------------------------------
-BioSystem::Species const&
+BioSystem::Species
 BioSystem::getSpecies()
 {
-    return _ode.getSpecies();
+    BioSystem::Species ret;
+    BioSystem::Species species = _ode.getSpecies();
+    StrIterConst       sBeg = species.begin();
+    StrIterConst       sEnd = species.end();
+
+    ret.clear();
+
+    for (StrIterConst it = sBeg; it != sEnd; ++it)
+    {
+        ret.push_back( *it );
+    }
+
+    return ret;
 }
 //---------------------------------------------------------------------------
 void
@@ -196,10 +208,22 @@ BioSystem::resetSpecies(Species const& species)
     // _measData.clear(); _totmeasData = 0;
 }
 //---------------------------------------------------------------------------
-BioSystem::Parameter const&
+BioSystem::Parameter
 BioSystem::getParameters()
 {
-    return _ode.getParameters();
+    BioSystem::Parameter ret;
+    BioSystem::Parameter param = _ode.getParameters();
+    StrIterConst         pBeg = param.begin();
+    StrIterConst         pEnd = param.end();
+
+    ret.clear();
+
+    for (StrIterConst it = pBeg; it != pEnd; ++it)
+    {
+        ret.push_back( *it );
+    }
+
+    return ret;
 }
 //---------------------------------------------------------------------------
 void
@@ -265,7 +289,7 @@ BioSystem::setODESystem(ExpressionMap const& eMap)
 {
     _ode.setRHS(eMap);
 
-    setEmptyMeasurementList( (long)_tpMeas.size() );
+    setEmptyMeasurementList();
 
     setIdentityEvents();
 
@@ -330,8 +354,9 @@ BioSystem::setMeasurementList(MeasurementList const& meas)
 }
 //---------------------------------------------------------------------------
 void
-BioSystem::setEmptyMeasurementList(long T)
+BioSystem::setEmptyMeasurementList()
 {
+    long           T = _tpMeas.size();
     Species const& species = _ode.getSpecies();
     StrIterConst   sBeg = species.begin();
     StrIterConst   sEnd = species.end();
@@ -354,6 +379,7 @@ BioSystem::setEmptyMeasurementList(long T)
             _measData[tp][*it] = std::make_pair<Real,Real>(0.0, GREAT);
         }
     }
+
     _totmeasData = T*species.size();
 }
 //---------------------------------------------------------------------------
@@ -416,6 +442,8 @@ BioSystem::setMeasurementTimePoints(Vector const& tp)
 {
     _tpMeas.clear();
     for (long j = 1; j <= tp.nr(); ++j) _tpMeas.push_back( tp(j) );
+
+    setEmptyMeasurementList();
 }
 //---------------------------------------------------------------------------
 Vector //ODESolver::Grid&
