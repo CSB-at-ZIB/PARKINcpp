@@ -44,7 +44,11 @@ namespace PARKIN
             setCurrentParameter(BioSystem::Parameter const& param)
             {
                 // _bioSystem->setParameters(param);
-                for (StrIt)
+//                _parameter.clear();
+//                for (long j = 0; j < (long)param.size(); ++j)
+//                {
+//                    _parameter.push_back( param[j] );
+//                }
                 _parameter = param;
                 _optPar.clear();
             }

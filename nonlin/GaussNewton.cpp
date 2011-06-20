@@ -53,6 +53,9 @@ GaussNewton::GaussNewton() :
     _lumon.set_logger_header(&print_parkin_logger_header);
     _lusol.set_logger_header(&print_parkin_logger_header);
 
+    _AA.zeros(1,1);
+    _A.zeros(1,1);
+
     setIOpt(iopt);
     setWk(wk);
 }
@@ -637,7 +640,6 @@ GaussNewton::computeSensitivity()
         // Copy Jacobian to work matrix _A(_m2,_n)
         _A = -1.0 * _AA;   //  * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
 
-        /*
         //_A.scale_columns(_xw);
         for (long k = 1; k <= (long)_n; ++k)
         {
@@ -646,7 +648,6 @@ GaussNewton::computeSensitivity()
                 _A(j,k) = _A(j,k) * _xw(k);
             }
         }
-        */
 
 //std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
 //std::cerr << " _fmodel = " << std::endl;
@@ -661,7 +662,7 @@ GaussNewton::computeSensitivity()
 //std::cerr << std::endl;
 
         // Row scaling of _A(_m,_n)
-        // if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);
+        if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);
 
         _qrA = _A.factorQRcon(_mcon, _irank, _cond);
     }

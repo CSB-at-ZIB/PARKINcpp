@@ -47,8 +47,8 @@ int testsystem_aux()
     /// taken from SBML example files / cases
     /// cyclin: BIOMD0000000008.xml
 
-    Real                        tstart = 0.0;
-    Real                        tend   = 100.0;
+    Real                        tstart = 1.0;
+    Real                        tend   = 10.0;
     Expression::Param           var, par;
 
     BioSystem::Species          species;
@@ -329,8 +329,8 @@ int testsystem_aux()
     biosys.setInitialValue("Y", 1.0);
     biosys.setInitialValue("Z", 1.0);
 
-    Vector meastp(99);
-    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/100.0;
+    Vector meastp(20);
+    for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/20.0;
     biosys.setMeasurementTimePoints( meastp );
 
     // Breakpoints / Event Management:
@@ -448,9 +448,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     //
 
     pS.zeros(3);
-    pS(1) = 0.5;         // true: 0.2
-    pS(2) = 0.5;         // true: 0.1
-    pS(3) = 0.05;        // true: 0.02
+    pS(1) = 0.2;         // true: 0.2
+    pS(2) = 0.1;         // true: 0.1
+    pS(3) = 0.02;        // true: 0.02
     pscalS.zeros(3);
 
     par1.clear();
