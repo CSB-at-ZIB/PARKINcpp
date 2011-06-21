@@ -17,7 +17,8 @@ namespace PARKIN
     ///
     enum ExprNodeType
     {
-          PLUS = '+', MINUS = '-', TIMES = '*', DIVIDE = '/', POWER = '^'
+          PLUS  = int('+'), MINUS  = int('-'),
+          TIMES = int('*'), DIVIDE = int('/'), POWER = int('^')
         , ABS  = 256
         , ARCCOS,   ARCOSH
         // , ARCCOT,   ARCOTH
