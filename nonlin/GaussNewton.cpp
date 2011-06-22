@@ -612,6 +612,8 @@ GaussNewton::computeSensitivity()
         //
         if ( jacgen == 1 )
         {
+            _fmodel.zeros(_m);
+
             //_timon(2);
             _AA = call_JAC( _x, ifail );    // _fun->jac(_x, ifail);
             //_timoff(2);
@@ -638,28 +640,30 @@ GaussNewton::computeSensitivity()
         if ( (jacgen != 1) && (ifail != 0) ) { _ierr = 182; return _ierr; }
 
         // Copy Jacobian to work matrix _A(_m2,_n)
-        _A = -1.0 * _AA;   //  * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
+        // _A = -1.0 * _AA;   //  * _xw.diag();    // _A(1:_m2, 1:_n) = _AA(1:_m2, 1:_n)
 
         //_A.scale_columns(_xw);
         for (long k = 1; k <= (long)_n; ++k)
         {
             for (long j = 1; j <= (long)_m; ++j)
             {
-                _A(j,k) = _A(j,k) * _xw(k);
+                _A(j,k) = _AA(j,k) * _xw(k);
             }
         }
 
-//std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
-//std::cerr << " _fmodel = " << std::endl;
-//std::cerr << _fmodel.t() << std::endl;
-//std::cerr << " _xw.diag() = " << std::endl;
-//std::cerr << _xw.diag().t() << std::endl;
-//std::cerr << " _AA = " << std::endl;
-//std::cerr << _AA.t() << std::endl;
-//std::cerr << " _A = " << std::endl;
-//std::cerr << _A.t() << std::endl;
-//std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
-//std::cerr << std::endl;
+std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
+std::cerr << " _fmodel = " << std::endl;
+std::cerr << _fmodel.t() << std::endl;
+std::cerr << " _xw = " << std::endl;
+std::cerr << _xw.t() << std::endl;
+std::cerr << " _AA = " << std::endl;
+std::cerr << _AA.t() << std::endl;
+std::cerr << " _A = " << std::endl;
+std::cerr << _A.t() << std::endl;
+std::cerr << " _fw = " << std::endl;
+std::cerr << _fw.t() << std::endl;
+std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
+std::cerr << std::endl;
 
         // Row scaling of _A(_m,_n)
         if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);

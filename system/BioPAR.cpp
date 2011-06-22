@@ -50,7 +50,7 @@ BioPAR::fcn(Vector const& x, int& ifail)
 
     Vector v;
     v = _bioSystem -> computeModel( _optPar );
-    ifail = 0;
+    ifail = _bioSystem -> getComputeErrorFlag();
 
     return v;
 }
@@ -71,7 +71,7 @@ BioPAR::jac(Vector const& x, int& ifail)
     Matrix J;
 
     J = _bioSystem -> computeJacobian( _optPar );
-    ifail = 0;
+    ifail = _bioSystem -> getComputeErrorFlag();
 
     return J;
 }

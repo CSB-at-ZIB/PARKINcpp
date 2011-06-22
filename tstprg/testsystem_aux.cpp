@@ -412,7 +412,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     //  take the following lines in to change the default values
     //  ATOL = 10*EPMACH, and RTOL = 1.0e-12
     //
-    biosys.setSolverRTol(1.0e-5);
+    biosys.setSolverRTol(1.0e-8);
     biosys.setSolverATol(1.0e-8);
 
 
@@ -426,7 +426,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     Vector                      dummyMeasS, dummyScalS;
 
     dummyMeasS.zeros(nS*TS);
-    dummyScalS.zeros(nS*TS);
+    dummyScalS.ones(nS*TS);
 
 /*
     BioSystem::MeasurementList  mlistS;
@@ -452,6 +452,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     pS(2) = 0.1;         // true: 0.1
     pS(3) = 0.02;        // true: 0.02
     pscalS.zeros(3);
+    pscalS(1) = pS(1);
+    pscalS(2) = pS(2);
+    pscalS(3) = pS(3);
 
     par1.clear();
 
@@ -468,6 +471,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     ioptS.jacgen    = 1;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
     ioptS.qrank1    = false;     // allow Broyden rank-1 updates if __true__
     ioptS.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
+    ioptS.rscal     = 1;     // 1:use unchanged fscal, 2:recompute/modify fscal, 3:use automatic scaling only
     ioptS.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
     ioptS.lpos      = false;      // force solution vector to be positive (all components > 0.0)
                             //          _mprmon =   0      1      2      3      4       5       6
@@ -826,7 +830,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     iopt.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
     iopt.rscal     = 1;     // 1:use unchanged fscal, 2:recompute/modify fscal, 3:use automatic scaling only
     iopt.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
-    iopt.lpos      = false;      // force solution vector to be positive (all components > 0.0)
+    iopt.lpos      = false;     // force solution vector to be positive (all components > 0.0)
                             //          _mprmon =   0      1      2      3      4       5       6
                             //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE
     iopt.mprmon    = 2;

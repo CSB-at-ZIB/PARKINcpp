@@ -24,6 +24,7 @@ BioSystem::BioSystem( Real tStart, Real tEnd ) :
     _synData(),
     //$$$ _odeSystem( new DOP853() ),
     _odeSystem( new LIMEX_A() ),
+    _odeErrorFlag(0),
     _totmeasData(0),
     _tInterval()
 {
@@ -47,6 +48,7 @@ BioSystem::BioSystem( Vector const&  tInterval ) :
     _synData(),
     //$$$ _odeSystem( new DOP853() ),
     _odeSystem( new LIMEX_A() ),
+    _odeErrorFlag(0),
     _totmeasData(0),
     _tInterval()
 {
@@ -75,6 +77,7 @@ BioSystem::BioSystem( ExpressionMap const&      eMap,
     _synData(),
     //$$$ _odeSystem( new DOP853() ),
     _odeSystem( new LIMEX_A() ),
+    _odeErrorFlag(0),
     _tInterval(tInterval)
 {
     long n = 0;
@@ -117,6 +120,7 @@ BioSystem::~BioSystem()
 
          //$$$ _odeSystem = new DOP853();
          _odeSystem = new LIMEX_A();
+         _odeErrorFlag = 0;
 
          _totmeasData = s._totmeasData;
          _tInterval   = s._tInterval;
@@ -672,7 +676,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 
         //$$$ std::cerr << "*** dop853: rc = " <<
         // std::cerr << "*** BioSystem::computeModel: limex_a: rc = " <<
-        _odeSystem -> integrate(n, y, _tInterval[j-1], _tInterval[j]);
+        _odeErrorFlag = _odeSystem -> integrate(n, y, _tInterval[j-1], _tInterval[j]);
         // std::cerr << std::endl;
 
         /*
@@ -818,7 +822,7 @@ BioSystem::computeJacobian(Expression::Param const& var)
 
         //$$$ std::cerr << "*** dop853: rc = " <<
         // std::cerr << "\n*** BioSystem::computeJacobian() : limex_a: rc = " <<
-        _odeSystem -> integrate(N, yy, _tInterval[jj-1], _tInterval[jj]);
+        _odeErrorFlag = _odeSystem -> integrate(N, yy, _tInterval[jj-1], _tInterval[jj]);
         // std::cerr << std::endl;
 
         /*
@@ -882,6 +886,12 @@ BioSystem::computeJacobian(Expression::Param const& var)
     delete[] yy;
 
     return jacobian;
+}
+//---------------------------------------------------------------------------
+int
+BioSystem::getComputeErrorFlag()
+{
+    return _odeErrorFlag;
 }
 //---------------------------------------------------------------------------
 QRconDecomp

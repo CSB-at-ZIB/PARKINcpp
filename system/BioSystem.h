@@ -178,6 +178,8 @@ namespace PARKIN
             Matrix
             computeJacobian(Expression::Param const& var);
 
+            int
+            getComputeErrorFlag();
 
             ///
 
@@ -226,6 +228,7 @@ namespace PARKIN
                                                             // solutions to the variational equation
 
             ODESolver*                      _odeSystem;
+            int                             _odeErrorFlag;
 
             long                            _totmeasData;
             ODESolver::Grid                 _tInterval;

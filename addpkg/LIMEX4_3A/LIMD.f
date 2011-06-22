@@ -1,4 +1,4 @@
-      subroutine LIMD ( n, Fcn, Jacobian, t_Begin, t_End, y, ys, 
+      subroutine LIMD ( n, Fcn, Jacobian, t_Begin, t_End, y, ys,
      2                  rTol, aTol, h, Iopt, Ropt, IPos, IFail )
 c
       implicit none
@@ -6,14 +6,14 @@ c
 c-----------------------------------------------------------------------
 c
 c     Extrapolation integrator  for the solution of  linearly-implicit
-c     differential-algebraic systems of the form 
+c     differential-algebraic systems of the form
 c
-c          B (t,y) * y' (t) = f (t,y) 
-c                                
+c          B (t,y) * y' (t) = f (t,y)
+c
 c     with B a (n,n)-matrix of rank less or equal n.
 c
 c-----------------------------------------------------------------------
-c  
+c
 c     Copyright (C) 2000 - 2004,
 c     Konrad-Zuse-Zentrum fuer Informationstechnik Berlin (ZIB)
 c     ALL RIGHTS RESERVED
@@ -22,7 +22,7 @@ c     Written by:
 c
 c     R. Ehrig, U. Nowak,
 c     Konrad-Zuse-Zentrum fuer Informationstechnik Berlin (ZIB)
-c     Takustrasse 7 
+c     Takustrasse 7
 c     D-14195 Berlin-Dahlem
 c
 c     phone : +49-30-84185-0
@@ -51,41 +51,41 @@ c            BICGSTAB  with a  variable ILU  preconditioner. Based  on
 c            BLAS and LAPACK routines.
 c
 c     Versions with other solver routines are available on request.
-c                             
+c
 c-----------------------------------------------------------------------
 c
-c     NOTICE: "The LIMEX  program may be used SOLELY  for educational, 
+c     NOTICE: "The LIMEX  program may be used SOLELY  for educational,
 c     research, and benchmarking  purposes by no-profit organizations.
 c     Commercial and other organizations  may make use of LIMEX SOLELY
 c     for benchmarking  purposes only. LIMEX may  be modified by or on
-c     behalf of the user for  such use but  at no time  shall LIMEX or 
+c     behalf of the user for  such use but  at no time  shall LIMEX or
 c     any such  modified version  of LIMEX become the  property of the
 c     user. LIMEX  is provided  without warranty  of any  kind, either
 c     expressed  or implied.  Neither the  authors nor their employers
 c     shall be liable  for any direct or consequential  loss or damage
 c     whatsoever  arising out  of the  use or  misuse of  LIMEX by the
-c     user. LIMEX  must not  be sold. You  may make  copies  of LIMEX, 
-c     but  this NOTICE  and the  Copyright notice  must appear  in all 
+c     user. LIMEX  must not  be sold. You  may make  copies  of LIMEX,
+c     but  this NOTICE  and the  Copyright notice  must appear  in all
 c     copies. Any  other  use  of LIMEX  requires written  permission.
 c     Your use of LIMEX is an implicit agreement to these conditions."
 c
-c     LIMEX also is  available for commercial use. Contact the authors 
+c     LIMEX also is  available for commercial use. Contact the authors
 c     who will provide details of price and condition of use.
 c
 c-----------------------------------------------------------------------
 c
 c     Description
 c
-c     LIMEX  solves linearly-implicit  differential-algebraic  systems 
-c     (DAEs) of the form 
+c     LIMEX  solves linearly-implicit  differential-algebraic  systems
+c     (DAEs) of the form
 c
 c        B (t,y) * y' (t) = f (t,y).
-c 
-c     If n is the size of the system, B is a (n,n)-matrix of rank less 
+c
+c     If n is the size of the system, B is a (n,n)-matrix of rank less
 c     or equal n. General  conditions for  the applicability  of LIMEX
-c     are a regular  matrix pencil B + h A with A the Jacobian of  the 
+c     are a regular  matrix pencil B + h A with A the Jacobian of  the
 c     residual of the DAE and an index of the DAE less or equal 1. The
-c     discretization  of LIMEX  is based  on the  elementary  linearly 
+c     discretization  of LIMEX  is based  on the  elementary  linearly
 c     implicit Euler discretization
 c
 c        ( B(t,y(k)) - h J ) ( y(k+1) - y(k) ) = h f(t(k+1),y(k))
@@ -108,9 +108,9 @@ c        T(j,k) = T(j,k-1) + ---------------------, k = 1, ..., j.
 c                            j / ( j - k + 1 ) - 1
 c
 c     As error estimates the subdiagonal differences T(j,j) - T(j,j-1)
-c     are taken. 
+c     are taken.
 c
-c     The efficiency of LIMEX mainly depends on the performance of the 
+c     The efficiency of LIMEX mainly depends on the performance of the
 c     evaluation of the Jacobian  and in particular on the solution of
 c     the  linear systems. Therefore  different versions  of LIMEX are
 c     available with  different methods to create the  Jacobian and to
@@ -122,7 +122,7 @@ c     Linear systems solvers: direct for dense matrices, LIMEX version
 c     4.3A, direct or iterative methods (GMRES or BICGSTAB) for sparse
 c     matrices, LIMEX version 4.3B. The  code  for dense  matrices de-
 c     termines the optimal matrix representation, full or banded, from
-c     the  ratio between  the system  size and the number of lower and 
+c     the  ratio between  the system  size and the number of lower and
 c     upper diagonals in the Jacobian.
 c
 c     Throughout  the code a local error control is implemented, which
@@ -134,14 +134,14 @@ c     The code has an additional option to compute  consistent initial
 c     values (CIVs). For this  task an  extrapolated Newton  iteration
 c     is used to  determine correct  start values at t = t(0) for  the
 c     algebraic variables (which are known only  approximately in many
-c     applications) and the derivatives  of the differential variables 
+c     applications) and the derivatives  of the differential variables
 c     (which are unknown in most applications), which  satisfy exactly
-c     the  DAE. The algebraic  variables are these  components of  the 
+c     the  DAE. The algebraic  variables are these  components of  the
 c     solution  vector, for  which  the  corresponding columns  in the
 c     matrix B(t,y) contain zeros only. All other  components will  be
-c     accounted  as  differential  variables,  whose  values  are  not 
-c     changed during the CIV computation. However, in many cases where 
-c     only the  right derivatives at  the start of the integration are 
+c     accounted  as  differential  variables,  whose  values  are  not
+c     changed during the CIV computation. However, in many cases where
+c     only the  right derivatives at  the start of the integration are
 c     unknown, LIMEX solves the DAE even without CIV determination.
 c
 c     Furthermore a dense output option is availabe. With this  option
@@ -150,19 +150,19 @@ c     the integration interval with nearly the same accuracy as at the
 c     automatically  selected integration  points. The method bases on
 c     Hermitian interpolation and considers all intermediate solutions
 c     computed in  the extrapolation process. The dense  output option
-c     may be combined with the  one-step mode, i.e. the return  to the 
-c     calling  program after  every  integration  step, and  also with 
-c     continuation  calls. These options  enable to obtain efficiently 
+c     may be combined with the  one-step mode, i.e. the return  to the
+c     calling  program after  every  integration  step, and  also with
+c     continuation  calls. These options  enable to obtain efficiently
 c     solutions  on an  arbitrary user defined  set of values  for the
 c     independent variable.
 c
-c     If information  about the  structure of the  Jacobian  matrix is  
+c     If information  about the  structure of the  Jacobian  matrix is
 c     needed, the  matrix in a specific  integration step is available
 c     in a PostScript plot.
 c
 c     Since in many  applications some components of the solution have
 c     to be nonnegative, due to their physical interpretation, one may
-c     set for these  components that only positive values ( => 0 ) are 
+c     set for these  components that only positive values ( => 0 ) are
 c     allowed. If in the extrapolation negative values  are occurring,
 c     the stepsize is reduced by a heuristic factor.
 c
@@ -199,7 +199,7 @@ c
 c     Requires the BLAS (Basic Linear Algebra Subprograms) library and
 c     the LAPACK  library. Ideally, one  should  use  vendor-optimized
 c     BLAS and LAPACK routines. If these are not available, one should
-c     use the routines collected in source form in the file 
+c     use the routines collected in source form in the file
 c
 c        'LIMEX4_3_Auxiliaries.f'
 c
@@ -215,7 +215,7 @@ c        do ...  end do  constructions (without statement labels)
 c
 c        implicit none   to use only explicitly declared variables
 c
-c        include '....'  for inserting code  
+c        include '....'  for inserting code
 c
 c        symbolic names may be longer than 6 characters
 c
@@ -227,8 +227,8 @@ c     to consist of four parameter statements of the following form:
 c
 c-----------------------------------------------------------------------
 c
-c     Define the  maximum number of  equations. This statement sets an 
-c     upper limit for the number of equations defining the DAE. 
+c     Define the  maximum number of  equations. This statement sets an
+c     upper limit for the number of equations defining the DAE.
 c
 c     parameter ( Max_Nr_of_Equations    =
 c
@@ -236,7 +236,7 @@ c-----------------------------------------------------------------------
 c
 c     Define the maximum number  of non-zero entries in the  Jacobian.
 c     This statement defines an upper limit for the number of non-zero
-c     entries  in  the  Jacobian of  the  residual  of  the  DAE. This 
+c     entries  in  the  Jacobian of  the  residual  of  the  DAE. This
 c     parameter is not used  in the LIMEX version 4.3A, it is included
 c     here  only for consistency of the include files of the different
 c     LIMEX versions.
@@ -274,22 +274,22 @@ c     parameter ( Max_Upper_Diagonals    =
 c
 c-----------------------------------------------------------------------
 c
-c     Define the maximum number of vectors which are  available within 
-c     GMRES or  BICGSTAB. For GMRES  this statement  implies  an upper 
-c     limit for the dimension of the Krylov  subspaces. This dimension 
+c     Define the maximum number of vectors which are  available within
+c     GMRES or  BICGSTAB. For GMRES  this statement  implies  an upper
+c     limit for the dimension of the Krylov  subspaces. This dimension
 c     is  defined by  Iopt(20), see  below. GMRES  then requires  that
-c     Max_It_Vectors => Iopt(20) + 4 (this  relation  is  checked). If  
+c     Max_It_Vectors => Iopt(20) + 4 (this  relation  is  checked). If
 c     the Krylov subspace is exhausted without  attaining the required
 c     accuracy, a  restart is done. Reasonable values for Iopt(20) are
 c     in many cases 10 or 20, then Max_It_Vectors should  be set to 15
-c     resp. 25. The greater  the dimension  of the Krylov subspace is, 
-c     the  faster GMRES  converges  (in theory), but  needs a  rapidly 
+c     resp. 25. The greater  the dimension  of the Krylov subspace is,
+c     the  faster GMRES  converges  (in theory), but  needs a  rapidly
 c     increasing number of floating point  operations and is also less
-c     stable. If  BICGSTAB is  used, Max_It_Vectors must be 6 at least 
+c     stable. If  BICGSTAB is  used, Max_It_Vectors must be 6 at least
 c     (this  condition is  checked). If  no iterative  method will  be
 c     used, Max_It_Vectors may  be set equal 1. This parameter  is not
-c     used in  the LIMEX version 4.3A, it  is included  here only  for 
-c     consistency  of   the  include  files  of  the  different  LIMEX 
+c     used in  the LIMEX version 4.3A, it  is included  here only  for
+c     consistency  of   the  include  files  of  the  different  LIMEX
 c     versions.
 c
 c     parameter ( Max_It_Vectors         =
@@ -301,14 +301,14 @@ c
 c-----------------------------------------------------------------------
 c
 c     All restrictions  are  checked, but  no further  control of  the
-c     consistency of the input data will be performed. 
+c     consistency of the input data will be performed.
 c
-c     n          Integer variable, must be set by caller on entry, not 
+c     n          Integer variable, must be set by caller on entry, not
 c                modified. Size of the  differential algebraic system.
 c                Restriction: Max_Nr_of_Equations => n => 1.
-c 
-c     Fcn        Name of an  external subroutine computing  the values 
-c                of  the  right-hand  side  function  f(t,y)  and  the 
+c
+c     Fcn        Name of an  external subroutine computing  the values
+c                of  the  right-hand  side  function  f(t,y)  and  the
 c                entries in the matrix B (see below).
 c
 c     Jacobian   Name of an  external subroutine computing  analytical
@@ -318,65 +318,65 @@ c
 c     t_Begin    Real variable, must be set by caller on  entry. Inde-
 c                pendent variable, starting point  of the integration.
 c                On exit, the  value  of the  independent value, up to
-c                LIMEX has solved the DAE successfully. 
+c                LIMEX has solved the DAE successfully.
 c
 c     t_End      Real variable, must  be set  by caller on  entry, not
-c                modified. Independent  variable, final  point  of the 
+c                modified. Independent  variable, final  point  of the
 c                integration.
 c
-c     y          Real  array  of  size  n, must  be set  by caller  on 
-c                entry. The  initial  values  of the  solution at  the 
-c                starting  point  t_Begin. On  exit,  y  contains  the 
-c                solution  at  the  final  point t_End, resp. at  this  
+c     y          Real  array  of  size  n, must  be set  by caller  on
+c                entry. The  initial  values  of the  solution at  the
+c                starting  point  t_Begin. On  exit,  y  contains  the
+c                solution  at  the  final  point t_End, resp. at  this
 c                value of the independent variable, up  to which LIMEX
-c                has solved the DAE successfully. 
+c                has solved the DAE successfully.
 c
 c     ys         Real array of size n. Derivatives  of the solution at
 c                t_Begin. Only the values  of ys for  the differential
-c                variables  are needed. If the  values for ys are  not 
-c                known, set ys to  zero. If only estimates are  known, 
-c                these  should be  used. However, the  option  Iopt(6) 
+c                variables  are needed. If the  values for ys are  not
+c                known, set ys to  zero. If only estimates are  known,
+c                these  should be  used. However, the  option  Iopt(6)
 c                for the  computation of consistent initial values can
-c                be used to  start always with  correct values for ys. 
-c                On exit, ys contains  the derivatives at t_End, resp. 
-c                at this  value  of  the  independent  variable, up to 
+c                be used to  start always with  correct values for ys.
+c                On exit, ys contains  the derivatives at t_End, resp.
+c                at this  value  of  the  independent  variable, up to
 c                LIMEX has solved the DAE successfully.
 c
 c     rTol       Real  array  of size 1 at least for Iopt(11) = 0 or n
-c                for Iopt(11) = 1. Values  must be  set by  caller  on 
-c                entry,  not  modified.  Relative  error   tolerances, 
+c                for Iopt(11) = 1. Values  must be  set by  caller  on
+c                entry,  not  modified.  Relative  error   tolerances,
 c                interpreted as a scalar or a vector  depending on the
 c                value of Iopt(11). The code keeps the local  error of
-c                y(i)  below  rTol(i)*abs(y(i))+aTol(i).  
+c                y(i)  below  rTol(i)*abs(y(i))+aTol(i).
 c
 c                Restriction: rTol(*) > 0.
 c
 c     aTol       Real array  of size 1 at least  for Iopt(11) = 0 or n
 c                for  Iopt(11) = 1. Values  must be set by  caller  on
-c                entry,  not  modified.  Absolute  error   tolerances, 
+c                entry,  not  modified.  Absolute  error   tolerances,
 c                interpreted as a scalar or a vector  depending on the
-c                value of Iopt(11). 
+c                value of Iopt(11).
 c
-c                Restriction: aTol(*) => 0. 
+c                Restriction: aTol(*) => 0.
 c
-c                Remark: For any  component y(i), which could  be zero  
-c                during the integration  one has to set aTol(i) > 0 to 
-c                prevent  divisions  by  zero.  In  many  well  scaled 
+c                Remark: For any  component y(i), which could  be zero
+c                during the integration  one has to set aTol(i) > 0 to
+c                prevent  divisions  by  zero.  In  many  well  scaled
 c                problems a reasonable setting is aTol(i) = rTol(i).
 c
 c     h          Real  variable, must  be  set  by  caller  on  entry.
 c                Initial  stepsize  guess, if h  is  set  to zero, the
-c                program puts  h = h_Min. This  variable is  currently 
+c                program puts  h = h_Min. This  variable is  currently
 c                set  in a  parameter statement to 1.d0-4, but  may be
 c                changed. On exit h is the  estimated optimal stepsize
 c                for the next  integration step. If an  error occurred
 c                h is set to zero.
 c
 c     Iopt       Integer  array  of  size 30, values  from  Iopt(1) to
-c                Iopt(18) must be set by caller on  entry. Integration 
+c                Iopt(18) must be set by caller on  entry. Integration
 c                control parameters.
 c
-c                Iopt(1)  Integration monitoring, not modified 
+c                Iopt(1)  Integration monitoring, not modified
 c                         = 0 : no output
 c                         = 1 : standard output
 c                         = 2 : additional integration monitor
@@ -407,27 +407,27 @@ c                Iopt(5)  Singular or nonsingular  matrix B, not modi-
 c                         fied
 c                         = 0 : matrix B may be singular
 c                         = 1 : matrix B is nonsingular
-c                         For theoretical  reasons Iopt(5) = 0 reduces 
-c                         the  maximum  order  to 5, even  if  in most 
+c                         For theoretical  reasons Iopt(5) = 0 reduces
+c                         the  maximum  order  to 5, even  if  in most
 c                         cases  LIMEX  also  runs  successfully  with
 c                         Iopt(5) = 1  and  singular  matrices B(t,y).
 c
 c                         Restriction: 0 <= Iopt(5) <= 1.
 c
-c                Iopt(6)  Determination  of consistent  initial values 
-c                         (CIVs), not modified 
+c                Iopt(6)  Determination  of consistent  initial values
+c                         (CIVs), not modified
 c                         = 0 : no determination of CIVs
 c                         = 1 : determination of CIVs
 c                         If Iopt(6) = 1, the code computes before the
-c                         integration  consistent initial  values. For 
-c                         this  reason, new  values for  the algebraic 
-c                         variables  and  for the  derivatives  of the 
+c                         integration  consistent initial  values. For
+c                         this  reason, new  values for  the algebraic
+c                         variables  and  for the  derivatives  of the
 c                         differential  variables are  computed, which
 c                         satisfy the DAE up to the required accuracy.
 c
 c                         Restriction: 0 <= Iopt(6) <= 1.
 c
-c                Iopt(7)  Numerical  or analytical  generation  of the 
+c                Iopt(7)  Numerical  or analytical  generation  of the
 c                         Jacobian matrix, not modified
 c                         = 0 : Numerical  difference approximation of
 c                               Jacobian of the residual
@@ -436,69 +436,69 @@ c                               subroutine Jacobian
 c
 c                         Restriction: 0 <= Iopt(7) <= 1.
 c
-c                Iopt(8)  Lower bandwidth of the  Jacobian matrix, not 
-c                         modified. If  the Jacobian is a band matrix,  
+c                Iopt(8)  Lower bandwidth of the  Jacobian matrix, not
+c                         modified. If  the Jacobian is a band matrix,
 c                         the computing time needed for the evaluation
 c                         of this matrix can be substantially reduced.
-c                         If Iopt(8) => n, the whole lower  triangular 
+c                         If Iopt(8) => n, the whole lower  triangular
 c                         submatrix will be computed. If Iopt(8) (and/
 c                         or Iopt(9)) is less  than n, the Jacobian is
 c                         a band  matrix. Then LIMEX uses  specialized
-c                         subroutines  for the factorization  and  the 
+c                         subroutines  for the factorization  and  the
 c                         solution of linear systems, which are faster
-c                         than  the corresponding  algorithms for full 
+c                         than  the corresponding  algorithms for full
 c                         matrices. Also the storage needed is reduced
-c                         if  the parameters  Max_Upper_Diagonals  and 
+c                         if  the parameters  Max_Upper_Diagonals  and
 c                         Max_Lower_Diagonals are  set properly in the
-c                         include file LIMEX4_3_Size_Definitions.h. 
+c                         include file LIMEX4_3_Size_Definitions.h.
 c
-c                         Restriction: 
-c                         0 <= Iopt(8) <= Max_Lower_Diagonals. 
+c                         Restriction:
+c                         0 <= Iopt(8) <= Max_Lower_Diagonals.
 c
-c                Iopt(9)  Upper bandwidth of the  Jacobian matrix, not 
-c                         modified. If  the Jacobian is a band matrix, 
+c                Iopt(9)  Upper bandwidth of the  Jacobian matrix, not
+c                         modified. If  the Jacobian is a band matrix,
 c                         the computing time needed for the evaluation
-c                         of this matrix can be substantially reduced. 
-c                         If Iopt(9) => n, the whole upper  triangular 
+c                         of this matrix can be substantially reduced.
+c                         If Iopt(9) => n, the whole upper  triangular
 c                         submatrix will be computed. If Iopt(9) (and/
 c                         or Iopt(8)) is less  than n, the Jacobian is
 c                         a band matrix. Read then the hints above for
 c                         Iopt(8).
 c
 c                         Restriction:
-c                         0 <= Iopt(9) <= Max_Upper_Diagonals. 
+c                         0 <= Iopt(9) <= Max_Upper_Diagonals.
 c
 c                Iopt(10) Determines whether the code tries to use the
-c                         Jacobians in more than one integration step, 
-c                         not modified. This can lead to a significant 
+c                         Jacobians in more than one integration step,
+c                         not modified. This can lead to a significant
 c                         increase of the overall performance.
 c                         = 0 : no reuse of the Jacobian
 c                         = 1 : reuse of the  Jacobian in the follwing
 c                               integration steps
 c                         If Iopt(10) = 1, the  code  computes the  so
 c                         called contractivity factor, an estimate for
-c                         the current linearity of  the DAE. Depending 
+c                         the current linearity of  the DAE. Depending
 c                         from an  upper  bound for  this  factor, the
-c                         current Jacobian  is used also  in the  next 
+c                         current Jacobian  is used also  in the  next
 c                         integration step. The upper bound is defined
 c                         by ThMin. This  variable  is set  within the
 c                         parameter statement  below and should always
 c                         selected between 0 (no  reuse the  Jacobian)
 c                         and 1 (try almost in every step to reuse the
 c                         Jacobian). A recommended value for the first
-c                         computations  is 2.0d-2. If  in the  current 
+c                         computations  is 2.0d-2. If  in the  current
 c                         step a  new Jacobian  is computed, the  step
 c                         number is marked in the monitor  output with
 c                         an asterisk '*'. If  the stepsize is reduced
-c                         due to  an unsatisfying  convergence  within 
-c                         the extrapolation, the true current Jacobian  
+c                         due to  an unsatisfying  convergence  within
+c                         the extrapolation, the true current Jacobian
 c                         is recomputed if necessary.
 c
 c                         Restriction: 0 <= Iopt(10) <= 1.
 c
 c                Iopt(11) Switch  for error  tolerances, not modified.
 c                         = 0 : both rTol and aTol are scalars
-c                         = 1 : both rTol and aTol are vectors 
+c                         = 1 : both rTol and aTol are vectors
 c
 c                         Restriction: 0 <= Iopt(11) <= 1.
 c
@@ -506,17 +506,17 @@ c                Iopt(12) Switch for the one step mode, not  modified.
 c                         If Iopt(12) is equal 1, LIMEX returns during
 c                         the integration to the calling program after
 c                         each integration  step. If  Iopt(12) = 2 and
-c                         the  dense  output  option is  active , i.e. 
+c                         the  dense  output  option is  active , i.e.
 c                         Iopt(13) > 0, the code  returns only  on the
-c                         specified dense  output points (see  below). 
+c                         specified dense  output points (see  below).
 c                         If LIMEX returns during the integration, the
-c                         following  parameters of  LIMEX contain  the 
-c                         current  values and  may be used  within the 
+c                         following  parameters of  LIMEX contain  the
+c                         current  values and  may be used  within the
 c                         calling program:
 c
 c                         t_Begin: the current value of t (independent
 c                                  variable)
-c                         y      : the current solution 
+c                         y      : the current solution
 c
 c                         To  assure  a correct  continuation  of  the
 c                         integration, no parameter of LIMEX should be
@@ -527,14 +527,14 @@ c                         is finished.
 c
 c                         Restriction: 0 <= Iopt(12) <= 2.
 c
-c                Iopt(13) Dense output option, not modified. 
+c                Iopt(13) Dense output option, not modified.
 c                         = 0 : no dense output
 c                         = 1 : dense  output  on  equidistant  points
 c                               within the whole integration interval.
 c                               The number of such points is specified
 c                               by Iopt(14).
 c                         = 2 : dense  output  on  equidistant  points
-c                               within  every  integration  step.  The 
+c                               within  every  integration  step.  The
 c                               number of such points  is specified by
 c                               Iopt(14).
 c                         = 3 : output  of the solution  at the end of
@@ -544,44 +544,44 @@ c                               the distance  of two  output points is
 c                               always  less or  equal t_Max. tMax  is
 c                               specified by Ropt(2).
 c
-c                         If  one sets  Iopt(13) > 0 and Iopt(12) = 2, 
+c                         If  one sets  Iopt(13) > 0 and Iopt(12) = 2,
 c                         LIMEX returns to  the calling program at all
 c                         dense output points.
 c
-c                         The solution at such points is  computed via 
-c                         Hermite interpolation. The size of the error 
-c                         of the interpolated solution may be slightly 
+c                         The solution at such points is  computed via
+c                         Hermite interpolation. The size of the error
+c                         of the interpolated solution may be slightly
 c                         larger than  specified by  the rTol and aTol
-c                         values. 
+c                         values.
 c
 c                         Restriction: 0 <= Iopt(13) <= 3.
 c
-c                Iopt(14) The number of  equidistant output points, if 
-c                         the dense output  option  Iopt(13) = 1 or 2, 
+c                Iopt(14) The number of  equidistant output points, if
+c                         the dense output  option  Iopt(13) = 1 or 2,
 c                         not  modified. If  Iopt(13) = 1, Iopt(14) is
 c                         the number of output points within the whole
 c                         integration  interval. If Iopt(14) = 0 or 1,
 c                         no dense output will be provided.
 c
 c                         Example: if  t_Begin = 0 and  t_End = 1 with
-c                         Iopt(13) = 1 and  Iopt(14) = 6  the solution 
-c                         at  the  points 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 
+c                         Iopt(13) = 1 and  Iopt(14) = 6  the solution
+c                         at  the  points 0.0, 0.2, 0.4, 0.6, 0.8, 1.0
 c                         will be provided.
 c
 c                         If Iopt(13) = 2, Iopt(14) is  the number  of
 c                         output points within every integration step.
 c                         If  Iopt(14) = 0, no  dense  output will  be
-c                         provided.  If  Iopt(14) = 1 or 2, the  dense 
+c                         provided.  If  Iopt(14) = 1 or 2, the  dense
 c                         output consists of the solutions at the ends
 c                         of the integration intervals.
 c
-c                         Example: if the current integration interval 
+c                         Example: if the current integration interval
 c                         is [0,1], with Iopt(13) = 2 and Iopt(14) = 6
 c                         the solution at 0.0, 0.2, 0.4, 0.6, 0.8, 1.0
 c                         will be computed in this interval.
 c
-c                         Restriction: 0 <= Iopt(14)  if  Iopt(13) = 1 
-c                                      or 2.    
+c                         Restriction: 0 <= Iopt(14)  if  Iopt(13) = 1
+c                                      or 2.
 c
 c                Iopt(15) The unit number  for dense solution  output,
 c                         not  modified.  Iopt(15) = 0  supresses  the
@@ -592,21 +592,21 @@ c                         Restriction: 0 <= Iopt(15) if Iopt(13) > 0.
 c
 c                Iopt(16) Type  of call, may be modified. Iopt(16) = 0
 c                         specifies  the  current  call  as an initial
-c                         call, i.e. the  first  call  of LIMEX  for a 
-c                         given  problem. Thus  LIMEX performs  then a 
+c                         call, i.e. the  first  call  of LIMEX  for a
+c                         given  problem. Thus  LIMEX performs  then a
 c                         full data check and initialization. Further-
-c                         more the solution  output  and, if required, 
-c                         the dense  output will  be printed  also  at 
+c                         more the solution  output  and, if required,
+c                         the dense  output will  be printed  also  at
 c                         t_Begin. Iopt(16) = 1 specifies a successive
 c                         call, i.e. the integration of the last LIMEX
 c                         call will  be continued. Then  the  solution
 c                         and/or the dense  output will not be printed
 c                         at t_Begin. To assure a correct continuation
-c                         of the  further integration, no parameter of 
+c                         of the  further integration, no parameter of
 c                         LIMEX except t_End should be changed between
 c                         the LIMEX calls. If the code returns with no
 c                         error, Iopt(16) on return will be always set
-c                         to 1, thus enabling the continuation  of the 
+c                         to 1, thus enabling the continuation  of the
 c                         integration.
 c
 c                         Restriction: 0 <= Iopt(16) <= 1.
@@ -625,21 +625,21 @@ c                         that t is always less or equal this limit.
 c
 c                         Restriction: 0 <= Iopt(17) <= 1.
 c
-c                Iopt(18) By  means of  this option one may generate a 
+c                Iopt(18) By  means of  this option one may generate a
 c                         PostScript plot of the  Jacobian  matrix. If
 c                         Iopt(18) = i > 0, in the  integration step i
 c                         the  file 'Jacobian.ps'  will  be  generated
 c                         representing the  non-zero structure  of the
-c                         current  Jacobian. If in  this  step no  new 
+c                         current  Jacobian. If in  this  step no  new
 c                         Jacobian is computed, since Iopt(10) = 1, no
 c                         PostScript plot will be  generated. The sub-
-c                         routine JacPlot internally  uses the logical 
+c                         routine JacPlot internally  uses the logical
 c                         unit-number 99. If Iopt(18) = 0 no plot will
 c                         be generated, if Iopt(18) = -1 the structure
 c                         of the initial Jacobian (step 0) is plotted.
 c
 c                         Restriction: -1 <= Iopt(18).
-c           
+c
 c                Iopt(19) - Iopt(23)
 c                         Parameters  used  only in  the LIMEX version
 c                         4.3B (sparse Jacobians).
@@ -649,7 +649,7 @@ c                         during the integration without those for the
 c                         computation of the Jacobian.
 c
 c                Iopt(25) On return the number of function evaluations
-c                         needed for the  numerical computation of the 
+c                         needed for the  numerical computation of the
 c                         Jacobian.
 c
 c                Iopt(26) On return the number of LU decompositions by
@@ -660,7 +660,7 @@ c                         by the LAPACK routines dgetrs or dgbtrs.
 c
 c                Iopt(28) On return the number of integration steps.
 c
-c                Iopt(29) On  return  the  number  of Jacobian  matrix 
+c                Iopt(29) On  return  the  number  of Jacobian  matrix
 c                         evaluations.
 c
 c                Iopt(30) Parameter  used  only in  the  LIMEX version
@@ -671,7 +671,7 @@ c                         0 : B is the n x n identity matrix
 c                         1 : B is constant
 c                         2 : B may be not constant or depend on y
 c
-c     Ropt       Real array of size 5, Ropt(1) to Ropt(3) must  be set 
+c     Ropt       Real array of size 5, Ropt(1) to Ropt(3) must  be set
 c                by caller on entry. Integration control parameter.
 c
 c                Ropt(1)  The maximum allowed  stepsize, not modified.
@@ -680,29 +680,29 @@ c                         is set to the default value t_End - t_Begin.
 c
 c                         Restriction: 0 <= Ropt(1).
 c
-c                Ropt(2)  The  maximal  distance of  two dense  output 
-c                         points, not  modified. Used only if Iopt(13) 
+c                Ropt(2)  The  maximal  distance of  two dense  output
+c                         points, not  modified. Used only if Iopt(13)
 c                         is equal 3.
 c
 c                         Restriction: 0 < Ropt(2) if Iopt(13) = 3.
 c
 c                Ropt(3)  The upper limit for the independent variable
-c                         t, not modified. Used only  if Iopt(17) = 1. 
+c                         t, not modified. Used only  if Iopt(17) = 1.
 c                         If Ropt(3)  is less  than t_End the value of
-c                         Ropt(3) will be ignored  and no upper  limit 
+c                         Ropt(3) will be ignored  and no upper  limit
 c                         will be considered.
-c                         
+c
 c                Ropt(4), Ropt(5)
 c                         Parameters used  only in  the  LIMEX version
 c                         4.3B (sparse Jacobians).
 c
 c     IPos       Integer array of size n, values must be set by caller
 c                on entry, not modified. If IPos(i) = 1, the values of
-c                the corresponding  solution component will be checked 
+c                the corresponding  solution component will be checked
 c                to be  nonnegative. If  during  the  extrapolation  a
 c                negative value occurs, the stepsize is reduced by the
 c                heuristic factor RedPos, which  is set in a parameter
-c                statement to 0.5, but  may  be changed. If IPos(i) is 
+c                statement to 0.5, but  may  be changed. If IPos(i) is
 c                not equal 1, no check will be performed.
 c
 c     IFail      Integer array of size 3, need not to be set by caller
@@ -711,15 +711,15 @@ c
 c                IFail(1) Internal LIMEX error code. Zero if  no error
 c                         occurred. If  Iopt(1) < 0, for each error an
 c                         explanatory message is output on the current
-c                         monitor  unit. The error  codes -1 until -31  
+c                         monitor  unit. The error  codes -1 until -31
 c                         indicate  wrong or  inconsistent input data,
 c                         the other error codes indicate errors during
 c                         the integration.
 c
 c                Error-code IFail(1)            Description
 c
-c                         -1            Max_Nr_of_Equations  <  n   or  
-c                                       n < 1 
+c                         -1            Max_Nr_of_Equations  <  n   or
+c                                       n < 1
 c
 c                         -2            rTol(i) <= 0 for some index i
 c
@@ -758,9 +758,9 @@ c                                       or 2
 c
 c                        -18            Iopt(15) < 0 and Iopt(13) > 0
 c
-c                        -19            Iopt(16) < 0  or  Iopt(16) > 1 
+c                        -19            Iopt(16) < 0  or  Iopt(16) > 1
 c
-c                        -20            Iopt(17) < 0  or  Iopt(17) > 1 
+c                        -20            Iopt(17) < 0  or  Iopt(17) > 1
 c
 c                        -21            Iopt(18) < - 1
 c
@@ -769,16 +769,16 @@ c
 c                        -28            Ropt(2) <= 0 and Iopt(13) = 3
 c
 c                        -32            An  initial value of y is less
-c                                       than zero, but  by the setting 
+c                                       than zero, but  by the setting
 c                                       of IPos it should be => 0.
 c
 c                        -33            The routine Fcn  returns  with
 c                                       an   error ( FcnInfo < 0 )  in
 c                                       the first call  of Fcn in  the
 c                                       current integration interval.
-c                
+c
 c                        -34            More than Max_Non_Zeros_B non-
-c                                       zero entries in  matrix B(t,y) 
+c                                       zero entries in  matrix B(t,y)
 c                                       defined.
 c
 c                        -35            The routine Fcn  returns  with
@@ -786,12 +786,12 @@ c                                       an  error (FcnInfo < 0) in the
 c                                       numerical  evaluation  of  the
 c                                       Jacobian.
 c
-c                        -36            The  routine Jacobian  returns 
+c                        -36            The  routine Jacobian  returns
 c                                       with an error (JacInfo < 0).
 c
 c                        -39            Internal error  in the  LAPACK
-c                                       routines dgetrf or dgbtrf, see  
-c                                       IFail(2) and the LAPACK User's 
+c                                       routines dgetrf or dgbtrf, see
+c                                       IFail(2) and the LAPACK User's
 c                                       Guide.
 c
 c                        -43            Problem not solvable with this
@@ -801,7 +801,7 @@ c
 c                        -44            Problem not solvable with this
 c                                       LIMEX version,  most  probable
 c                                       reason:  initial  values   not
-c                                       consistent  or  index  of  the 
+c                                       consistent  or  index  of  the
 c                                       DAE > 1.
 c
 c                        -45            A value of the solution vector
@@ -811,8 +811,8 @@ c                                       => 0 by the settings of IPos.
 c
 c                        -46            More  stepsize reductions than
 c                                       allowed  due  to failing  con-
-c                                       vergence in the extrapolation. 
-c                                       This  is  controlled  by   the 
+c                                       vergence in the extrapolation.
+c                                       This  is  controlled  by   the
 c                                       parameter Max_Step_Red_Ex.
 c
 c                        -47            Singular matrix pencil B - hA,
@@ -821,12 +821,12 @@ c                                       LIMEX.
 c
 c                        -48            More  integration  steps  than
 c                                       allowed. This is controlled by
-c                                       the parameter Max_Int_Steps. 
+c                                       the parameter Max_Int_Steps.
 c
 c                        -49            More internal Newton steps for
 c                                       the computation  of consistent
-c                                       initial  values than  allowed. 
-c                                       This  is  controlled  by   the 
+c                                       initial  values than  allowed.
+c                                       This  is  controlled  by   the
 c                                       parameter Max_Step_CIV.
 c
 c                        -50            Stepsize  too  small, in  most
@@ -835,54 +835,54 @@ c                                       reductions.
 c
 c                IFail(2) Internal error code of the subroutine dgetrf
 c                         or  dgbtrf (IFail(1) = - 39). See the LAPACK
-c                         User's Guide for  an explanation. Zero if no 
+c                         User's Guide for  an explanation. Zero if no
 c                         error occurred.
 c
-c                IFail(3) This  error code  signals whether  the error 
-c                         occurred  during the  computation of CIVs or 
+c                IFail(3) This  error code  signals whether  the error
+c                         occurred  during the  computation of CIVs or
 c                         not. IFail(3) = 0: error during integration,
-c                         IFail(3) = 1: error  during CIV computation. 
-c                         For  both IFail(3) = 0 or 1 the error  codes 
+c                         IFail(3) = 1: error  during CIV computation.
+c                         For  both IFail(3) = 0 or 1 the error  codes
 c                         IFail(1)  and  IFail(2) specify the  type of
 c                         the error.
 c
-c     Remark: In  addition to  these errors  LIMEX may  output on  the 
+c     Remark: In  addition to  these errors  LIMEX may  output on  the
 c             current monitor unit the following warning messages:
 c
-c             1. Warning: component xxx does  not have  an  asymptotic 
+c             1. Warning: component xxx does  not have  an  asymptotic
 c                         expansion in the first integration step
 c
 c                This messsage  occurrs if for  some components of the
-c                solution  no asymptotic expansion in  powers of h can 
-c                be found. The reason  for this can be either an index 
-c                of the DAE which is greater than 1 or (in most cases) 
+c                solution  no asymptotic expansion in  powers of h can
+c                be found. The reason  for this can be either an index
+c                of the DAE which is greater than 1 or (in most cases)
 c                the lack of consistent initial  values. Thus, if this
-c                message occurs  very frequently, the  computation  of 
-c                consistent initial  values by setting Iopt(6) = 1 may 
-c                prevent the  warning. However, in  many  cases  where 
-c                this  warning is  printed, the  integration  proceeds 
+c                message occurs  very frequently, the  computation  of
+c                consistent initial  values by setting Iopt(6) = 1 may
+c                prevent the  warning. However, in  many  cases  where
+c                this  warning is  printed, the  integration  proceeds
 c                without problems.
-c                
-c             2. Warning: switch  to direct  solution of  higher order 
+c
+c             2. Warning: switch  to direct  solution of  higher order
 c                         approximations
 c
-c                This warning  occurrs, if during  the integration the 
+c                This warning  occurrs, if during  the integration the
 c                higher order approximations can not be computed using
 c                a Richardson iteration, if the direct solution of the
 c                linear  systems is  selected. If an  iterative method
 c                is  selected, this message  indicates that the higher
-c                order  solutions can  not be obtained with  the first 
+c                order  solutions can  not be obtained with  the first
 c                order matrix ILU factorization as  preconditioner. In
-c                both  cases, an appropriate  direct approach  will be 
-c                tried, but this can  be more time  consuming. If  the 
+c                both  cases, an appropriate  direct approach  will be
+c                tried, but this can  be more time  consuming. If  the
 c                problem is well posed, then this warning  indicates a
 c                strongly varying matrix B(t,y). If the linear systems
 c                are solved with direct methods, the maximum number of
-c                iterations in the  Richardson  process  is defined by 
+c                iterations in the  Richardson  process  is defined by
 c                the variable Max_Iter_Rich. The value of the limit is
-c                defined in a parameter  statement and may  be changed 
+c                defined in a parameter  statement and may  be changed
 c                if necessary.
-c 
+c
 c-----------------------------------------------------------------------
 c
 c     Subroutines and functions called
@@ -919,43 +919,43 @@ c     b          Real array of size nz, must be set in the subroutine.
 c                Values of the non-zero entries in  the matrix B(t,y).
 c
 c     ir         Integer  array of  size nz, must  be set  in the sub-
-c                routine. Row  indices of  the non-zero entries in the 
+c                routine. Row  indices of  the non-zero entries in the
 c                matrix B(t,y).
 c
 c     ic         Integer  array of  size nz, must  be set  in the sub-
-c                routine. Column  indices  of the  non-zero entries in 
+c                routine. Column  indices  of the  non-zero entries in
 c                the matrix B(t,y).
 c
 c     FcnInfo    Integer variable. FcnInfo indicates  the type  of the
 c                call  of Fcn. If FcnInfo = 0, the  call is  the first
-c                call of  Fcn  in  the  current  integration  step. If  
+c                call of  Fcn  in  the  current  integration  step. If
 c                FcnInfo = 1 this  call is  within  the  extrapolation
 c                process. FcnInfo = 2 indicates  a call of  Fcn within
 c                the  numerical  evaluation of  the Jacobian. In  some
-c                application  it may be  reasonable for efficiency, to 
+c                application  it may be  reasonable for efficiency, to
 c                compute f and/or B during the numerical evaluation of
-c                the Jacobian only with  limited accuracy. Furthermore 
+c                the Jacobian only with  limited accuracy. Furthermore
 c                FcnInfo on return is  used as error  indicator. If an
 c                error in the subroutine  Fcn occurs, set FcnInfo < 0.
-c                Then LIMEX reduces the stepsize by the factor RedFcn. 
-c                This  variable   is  currently  set  in  a  parameter 
+c                Then LIMEX reduces the stepsize by the factor RedFcn.
+c                This  variable   is  currently  set  in  a  parameter
 c                statement  to 0.5, but  may  be  changed. If  such an
 c                error  occurs during  the numerical evaluation of the
-c                Jacobian, the program exits with an error message. If 
+c                Jacobian, the program exits with an error message. If
 c                no error occurs, set FcnInfo = 0.
 c
 c     Remarks:   The order  of the  entries in  matrix B is arbitrary.
 c                If the indices  ir and ic are constant, they  must be
 c                defined only once in the first call of Fcn.
-c                
 c
-c     Jacobian ( n, t, y, ys, Jac, LDJac, ml, mu, Full_or_Band, 
+c
+c     Jacobian ( n, t, y, ys, Jac, LDJac, ml, mu, Full_or_Band,
 c     ---------------------------------------------------------
 c                JacInfo )
 c                ---------
 c
 c     This  subroutine computes  the Jacobian  matrix, i.e. analytical
-c     derivatives of the residual f(t,y) - B(t,y) * y'. 
+c     derivatives of the residual f(t,y) - B(t,y) * y'.
 c
 c     Parameters:
 c
@@ -972,18 +972,18 @@ c
 c     ys         Real array of size n, should not  be changed. Current
 c                values of the derivatives y'.
 c
-c     Jac        Real matrix of  dimension at least (LDJac,n), must be  
-c                set in the subroutine. The derivatives at the current 
-c                values of y, ys and t. 
+c     Jac        Real matrix of  dimension at least (LDJac,n), must be
+c                set in the subroutine. The derivatives at the current
+c                values of y, ys and t.
 c
-c     LDJac      Integer variable, the leading dimension of the matrix 
+c     LDJac      Integer variable, the leading dimension of the matrix
 c                Jac as declared in LIMEX, should not be changed.
 c
 c     ml         Integer  variable, the  number of  lower diagonals in
-c                the Jacobian, should not be changed. 
+c                the Jacobian, should not be changed.
 c
 c     mu         Integer  variable, the  number of  upper diagonals in
-c                the Jacobian, should not be changed. 
+c                the Jacobian, should not be changed.
 c
 c     Full_or_Band
 c                Integer variable, should not be changed.
@@ -991,7 +991,7 @@ c                = 0 : Jacobian matrix is a full matrix.
 c                = 1 : Jacobian matrix is a band matrix.
 c
 c     JacInfo    Integer variable, error indicator. If an error in the
-c                subroutine  Jacobian  occurs,  set  JacInfo < 0. Then 
+c                subroutine  Jacobian  occurs,  set  JacInfo < 0. Then
 c                LIMEX aborts with an error  message. If JacInfo => 0,
 c                no error is assumed.
 c
@@ -1023,9 +1023,9 @@ c                end do
 c
 c                If the  numerical  approximation  of the  Jacobian is
 c                used, one may supply a dummy routine. If the Jacobian
-c                is a  sparse  matrix, it  can be  more  efficient, to 
+c                is a  sparse  matrix, it  can be  more  efficient, to
 c                compute  the numerical approximation  of the Jacobian
-c                also  by this  routine, even  if  for  such  problems 
+c                also  by this  routine, even  if  for  such  problems
 c                LIMEX4.3B should be preferable.
 c
 c     Other subroutines
@@ -1080,13 +1080,13 @@ c-----------------------------------------------------------------------
 c
 c     Define size of problem via the include file
 c
-c        'LIMEX4_3_Size_Definitions.h'. 
+c        'LIMEX4_3_Size_Definitions.h'.
 c
 c     See the installation notes for a detailed description.
 c
 c-----------------------------------------------------------------------
 c
-      integer            Max_Nr_of_Equations, Max_Non_Zeros_Jacobian, 
+      integer            Max_Nr_of_Equations, Max_Non_Zeros_Jacobian,
      2                   Max_Non_Zeros_B,
      3                   Max_Lower_Diagonals, Max_Upper_Diagonals,
      4                   Max_It_Vectors
@@ -1111,59 +1111,59 @@ c     Control parameters. May be changed by skillful users.
 c
 c-----------------------------------------------------------------------
 c
-c     Max_Int_Steps      The maximum  number of integration  steps per 
+c     Max_Int_Steps      The maximum  number of integration  steps per
 c                        interval permitted
 c
-c     Max_Step_Red_Ex    The  maximum  number of  stepsize  reductions 
-c                        permitted due to  failing  convergence in the 
+c     Max_Step_Red_Ex    The  maximum  number of  stepsize  reductions
+c                        permitted due to  failing  convergence in the
 c                        extrapolation tableau or negative  components
 c                        of the solution vector y, which by the values
 c                        of IPos should be positive
 c
-c     Max_Step_Red_Dc    The  maximum  number  of stepsize  reductions 
-c                        permitted  due to zero pivot  elements in the 
+c     Max_Step_Red_Dc    The  maximum  number  of stepsize  reductions
+c                        permitted  due to zero pivot  elements in the
 c                        LU decomposition
 c
-c     Max_Row_Tab        The maximum row  number in the  extrapolation 
+c     Max_Row_Tab        The maximum row  number in the  extrapolation
 c                        tableau
 c
 c     Max_Step_CIV       The maximum  number of Newton steps permitted
-c                        for  the  computation of  consistent  initial 
+c                        for  the  computation of  consistent  initial
 c                        values
 c
-      integer            Max_Int_Steps, Max_Step_Red_Ex, 
+      integer            Max_Int_Steps, Max_Step_Red_Ex,
      2                   Max_Step_Red_Dc, Max_Row_Tab, Max_Step_CIV
 c
-      parameter        ( Max_Int_Steps      = 10000,
-     2                   Max_Step_Red_Ex    =    20,
-     3                   Max_Step_Red_Dc    =     5,
-     4                   Max_Row_Tab        =     7,
-     5                   Max_Step_CIV       =    10 )
+      parameter        ( Max_Int_Steps      = 300000,
+     2                   Max_Step_Red_Ex    =     20,
+     3                   Max_Step_Red_Dc    =      5,
+     4                   Max_Row_Tab        =      7,
+     5                   Max_Step_CIV       =     10 )
 c
 c-----------------------------------------------------------------------
-c     
+c
 c     Local scalars
 c
 c-----------------------------------------------------------------------
 c
       logical            CIV_Convergence, Convergence, Direct
 c
-      integer            DensOut, FcnInfo, Full_or_Band, HoldJac, i, 
-     2                   icc, iCIV, iCont, iLower, iRed, irh, irr, 
-     3                   iSing, Iter_Rich, iUpper, j, j_Cons, JacAct, 
-     4                   JacInfo, JacP, jCIV, jk, jo, joh, jmax, jmh, 
-     5                   jmm, k, k_Cons, k_Dense, k1, kc1, kc2, kl, km, 
-     6                   ko, koh, mb1, mb2, ml, MonOut, mu, n_Dense, 
-     7                   nDec, NewJac, nFcn, nFcnE, nFcnJ, nJac, njj, 
-     8                   NoDense, NonPosComp, nSol, nStep, nz, SolOut, 
+      integer            DensOut, FcnInfo, Full_or_Band, HoldJac, i,
+     2                   icc, iCIV, iCont, iLower, iRed, irh, irr,
+     3                   iSing, Iter_Rich, iUpper, j, j_Cons, JacAct,
+     4                   JacInfo, JacP, jCIV, jk, jo, joh, jmax, jmh,
+     5                   jmm, k, k_Cons, k_Dense, k1, kc1, kc2, kl, km,
+     6                   ko, koh, mb1, mb2, ml, MonOut, mu, n_Dense,
+     7                   nDec, NewJac, nFcn, nFcnE, nFcnJ, nJac, njj,
+     8                   NoDense, NonPosComp, nSol, nStep, nz, SolOut,
      9                   Status, WarnCont
 c
       double precision   abs_del, CErr, Cons_Err, d1, d2, delm,
-     2                   delta_Dense, delta_y, Delta_y0,delta_y_rec, 
+     2                   delta_Dense, delta_y, Delta_y0,delta_y_rec,
      3                   del_quot, eph, eps_Mach, eps_Mach10, EtaDif,
      4                   fc, fcm, fco, g, g_inv, h_proposed, h_True,
-     5                   hMax, hMax_Int, hSave, Mean_rTol, omj, omjo, 
-     6                   ones, red, rTol2, t, t_dense, tEnd_t, th, tmp, 
+     5                   hMax, hMax_Int, hSave, Mean_rTol, omj, omjo,
+     6                   ones, red, rTol2, t, t_dense, tEnd_t, th, tmp,
      7                   tn_Dense, TolQuot, y_orig
 c
       double precision   dnrm2
@@ -1174,15 +1174,15 @@ c     Arrays for the LIMEX core algorithm
 c
 c-----------------------------------------------------------------------
 c
-      double precision   del   ( Max_Size ), 
-     2                   dz    ( Max_Size ), 
+      double precision   del   ( Max_Size ),
+     2                   dz    ( Max_Size ),
      3                   Scal  ( Max_Size ),
-     4                   Temp1 ( Max_Size ), 
+     4                   Temp1 ( Max_Size ),
      5                   Temp2 ( Max_Size ),
      6                   Temp3 ( Max_Size ),
      7                   Temp4 ( Max_Size ),
-     8                   TolQu ( Max_Size ), 
-     9                   yk    ( Max_Size ) 
+     8                   TolQu ( Max_Size ),
+     9                   yk    ( Max_Size )
 c
 c-----------------------------------------------------------------------
 c
@@ -1190,7 +1190,7 @@ c     Arrays for the extrapolation and order control
 c
 c-----------------------------------------------------------------------
 c
-      integer            nj    ( Max_Row_Tab ), 
+      integer            nj    ( Max_Row_Tab ),
      2                   incr  ( Max_Row_Tab )
 c
       double precision   aj    ( Max_Row_Tab )
@@ -1203,7 +1203,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Arrays for the left-hand side matrix B 
+c     Arrays for the left-hand side matrix B
 c
 c-----------------------------------------------------------------------
 c
@@ -1221,7 +1221,7 @@ c-----------------------------------------------------------------------
 c
       integer            ipt   ( Max_Row_Tab )
 c
-      double precision   Dense ( Max_Size, 
+      double precision   Dense ( Max_Size,
      2                   2 + ( Max_Row_Tab * ( Max_Row_Tab + 1 ) ) / 2 )
 c
 c-----------------------------------------------------------------------
@@ -1234,7 +1234,7 @@ c-----------------------------------------------------------------------
 c
       integer            Pivot ( Max_Size )
 c
-      integer            LDJac, LDBJac, 
+      integer            LDJac, LDBJac,
      2                   Max_Band_Size_1, Max_Band_Size_2,
      3                   mbs1, mbs2, mbs3, mbs4
 c
@@ -1244,15 +1244,15 @@ c
       parameter        ( Max_Band_Size_2 =
      2                           Max_Band_Size_1 + Max_Lower_Diagonals )
 c
-      parameter        ( mbs1 = Max_Band_Size_2 / Max_Size, 
+      parameter        ( mbs1 = Max_Band_Size_2 / Max_Size,
      2                   mbs2 = Max_Size / Max_Band_Size_2  )
 c
       parameter        ( mbs3 = ( mbs1 + 2 ) / ( mbs1 + 1 ) - 1,
      2                   mbs4 = ( mbs2 + 2 ) / ( mbs2 + 1 ) - 1  )
 c
-      parameter        ( LDJac  = 
+      parameter        ( LDJac  =
      2                        mbs3 * Max_Band_Size_1 + mbs4 * Max_Size,
-     3                   LDBJac = 
+     3                   LDBJac =
      4                        mbs3 * Max_Band_Size_2 + mbs4 * Max_Size )
 c
       double precision   Jac   ( LDJac,  Max_Size ),
@@ -1275,7 +1275,7 @@ c
      3            one1   = 1.01d0, quart  = 0.25d0 , RedFcn = 0.5d0 ,
      4            RedPos = 0.5d0 , rmin   = 0.9d0  , ro     = 0.25d0,
      5            safe   = 0.5d0 , Small  = 1.0d-30, ten    = 1.0d2 ,
-     6            ThMin  = 2.0d-2, thresh = 0.1d0  , zero   = 0.0d0   ) 
+     6            ThMin  = 2.0d-2, thresh = 0.1d0  , zero   = 0.0d0   )
 c
       parameter ( iCons1 = 4, iCons2 = 4, Max_Iter_Rich = 10 )
 c
@@ -1311,7 +1311,7 @@ c
 c
       else if ( Iopt(16) .eq. 1 ) then
 c
-         if ( Status .eq. 0 ) WarnCont = 1 
+         if ( Status .eq. 0 ) WarnCont = 1
 c
       else
 c
@@ -1319,7 +1319,7 @@ c
 c
       end if
 c
-      if ( Status .eq. 1 ) go to 120 
+      if ( Status .eq. 1 ) go to 120
 c
       if ( Status .ge. 2 ) go to 310
 c
@@ -1371,7 +1371,7 @@ c
       if ( Iopt(1) .gt. 0 ) write ( MonOut, 9000 )
 c
       if ( Max_Nr_of_Equations .lt. n .or. n .lt. 1 ) then
-         if ( Iopt(1) .ne. 0 ) 
+         if ( Iopt(1) .ne. 0 )
      2      write ( MonOut, 9040 ) n, Max_Nr_of_Equations
          IFail(1) = - 1
          go to 510
@@ -1380,7 +1380,7 @@ c
       if ( Iopt(3) .lt. 0 .or. Iopt(3) .gt. 2 ) then
          if ( Iopt(1) .ne. 0 ) then
             write ( MonOut, 9010 ) 3, Iopt(3)
-            write ( MonOut, 9020 ) 2 
+            write ( MonOut, 9020 ) 2
          end if
          IFail(1) = - 6
          go to 510
@@ -1391,7 +1391,7 @@ c
          if ( Iopt(4) .lt. 0 ) then
             if ( Iopt(1) .ne. 0 ) then
                write ( MonOut, 9010 ) 4, Iopt(4)
-               write ( MonOut, 9030 ) 
+               write ( MonOut, 9030 )
             end if
             IFail(1) = - 7
             go to 510
@@ -1419,7 +1419,7 @@ c
       if ( Iopt(8) .lt. 0 .or. Iopt(8) .gt. Max_Lower_Diagonals ) then
          if ( Iopt(1) .ne. 0 ) then
             write ( MonOut, 9010 ) 8, Iopt(8)
-            write ( MonOut, 9020 ) Max_Lower_Diagonals 
+            write ( MonOut, 9020 ) Max_Lower_Diagonals
          end if
          IFail(1) = - 11
          go to 510
@@ -1428,7 +1428,7 @@ c
       if ( Iopt(9) .lt. 0 .or. Iopt(9) .gt. Max_Upper_Diagonals ) then
          if ( Iopt(1) .ne. 0 ) then
             write ( MonOut, 9010 ) 9, Iopt(9)
-            write ( MonOut, 9020 ) Max_Upper_Diagonals 
+            write ( MonOut, 9020 ) Max_Upper_Diagonals
          end if
          IFail(1) = - 12
          go to 510
@@ -1459,7 +1459,7 @@ c
       if ( Iopt(13) .lt. 0 .or. Iopt(13) .gt. 3 ) then
          if ( Iopt(1) .ne. 0 ) then
             write ( MonOut, 9010 ) 13, Iopt(13)
-            write ( MonOut, 9020 ) 3 
+            write ( MonOut, 9020 ) 3
          end if
          IFail(1) = - 16
          go to 510
@@ -1482,8 +1482,8 @@ c
                write ( MonOut, 9030 )
             end if
             IFail(1) = - 18
-            go to 510 
-         else 
+            go to 510
+         else
             DensOut = Iopt(15)
          end if
 c
@@ -1495,7 +1495,7 @@ c
          DensOut = 0
          NoDense = 0
       else
-         NoDense = 1 
+         NoDense = 1
       end if
 c
       do i = 16, 17
@@ -1503,11 +1503,11 @@ c
          if ( Iopt(i) .lt. 0 .or. Iopt(i) .gt. 1 ) then
             if ( Iopt(1) .ne. 0 ) then
                write ( MonOut, 9010 ) i, Iopt(i)
-               write ( MonOut, 9020 ) 1 
+               write ( MonOut, 9020 ) 1
             end if
             IFail(1) = - ( i + 3 )
             go to 510
-         end if 
+         end if
 c
       end do
 c
@@ -1531,7 +1531,7 @@ c
          if ( Iopt(17) .eq. 1 ) then
             if ( Ropt(3) .ge. t_End ) then
                hMax = Ropt(3) - t_Begin
-            else 
+            else
                hMax = zero
             end if
          else
@@ -1609,7 +1609,7 @@ c
       end do
 c
 c-----------------------------------------------------------------------
-cTD 
+cTD
       if ( Iopt(31) .eq. 0 ) Iopt(6) = 0
 c
 c-----------------------------------------------------------------------
@@ -1663,8 +1663,8 @@ c
 c
          if ( Iopt(10) .eq. 0 ) then
             write ( MonOut, 9260 )
-         else 
-            write ( MonOut, 9270 ) ThMin  
+         else
+            write ( MonOut, 9270 ) ThMin
          end if
 c
          if ( Iopt(11) .eq. 0 ) then
@@ -1674,12 +1674,12 @@ c
          end if
 c
          if ( Iopt(12) .eq. 0 ) then
-            write ( MonOut, 9300 ) 
+            write ( MonOut, 9300 )
          else if ( Iopt(12) .eq. 1 ) then
             write ( MonOut, 9310 )
          else
             if ( NoDense .eq. 0 ) then
-               write ( MonOut, 9300 ) 
+               write ( MonOut, 9300 )
             else if ( Iopt(13) .eq. 1 ) then
                write ( MonOut, 9320 ) Iopt(14)
             else if ( Iopt(13) .eq. 2 ) then
@@ -1700,8 +1700,8 @@ c
          end if
 c
          if ( Iopt(17) .eq. 0 ) then
-            write ( MonOut, 9390 ) 
-         else 
+            write ( MonOut, 9390 )
+         else
             if ( Ropt(3) .ge. t_End ) then
                write ( MonOut, 9400 ) Ropt(3)
             else
@@ -1712,12 +1712,12 @@ c
          if ( Iopt(18) .eq. 0 ) then
             write ( MonOut, 9420 )
             JacP = 0
-         else 
+         else
             if ( Iopt(18) .gt. 0 ) then
                write ( MonOut, 9430 ) Iopt(18)
             else
                write ( MonOut, 9430 ) 0
-            end if  
+            end if
             JacP = Iopt(18)
          end if
 c
@@ -1792,7 +1792,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Define delta_x for the numerical differentiation. 
+c     Define delta_x for the numerical differentiation.
 c
 c-----------------------------------------------------------------------
 c
@@ -1820,7 +1820,7 @@ c
       if ( iCIV .eq. 1 ) then
 c
          hSave = h
-         h     = CStep 
+         h     = CStep
 c
          j_Cons = iCons1
          k_Cons = iCons2
@@ -1950,14 +1950,14 @@ c-----------------------------------------------------------------------
 c
       if ( Iopt(3) .ge. 1 ) write ( SolOut, 9470 ) t, ( y(i), i = 1, n )
 c
-      if (          DensOut .ne. 0 .and. iCIV .eq. 0 
+      if (          DensOut .ne. 0 .and. iCIV .eq. 0
      2      .and. ( Iopt(3) .lt. 2 .or. DensOut .ne. SolOut ) )
      3   write ( DensOut, 9480 ) t_Begin, ( y(i), i = 1, n )
 c
       if ( Iopt(1) .gt. 0 ) write ( MonOut, 9490 )
 c
       if (      abs ( t_End - t ) .lt. abs ( t ) * eps_Mach10 * ten
-     2     .or. abs ( t_End - t ) .lt. abs ( h ) * eps_Mach10 ) 
+     2     .or. abs ( t_End - t ) .lt. abs ( h ) * eps_Mach10 )
      3   go to 360
 c
 c-----------------------------------------------------------------------
@@ -1967,7 +1967,7 @@ c
 c-----------------------------------------------------------------------
 c
   120 continue
-c 
+c
       if ( Iopt(13) .eq. 1 .and. Iopt(14) .gt. 1 ) then
 c
          delta_Dense = ( t_End - t_Begin ) / dble ( Iopt(14) - 1 )
@@ -1989,7 +1989,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Define order for next integration step resp. for the computation    
+c     Define order for next integration step resp. for the computation
 c     of consistent initial values.
 c
 c-----------------------------------------------------------------------
@@ -2032,25 +2032,25 @@ C
 c
       end if
 c
-      if ( iCIV .eq. 0 .and. Iopt(3) .eq. 2 .and. nStep .gt. 0 ) 
+      if ( iCIV .eq. 0 .and. Iopt(3) .eq. 2 .and. nStep .gt. 0 )
      2   write ( SolOut, 9510 ) t, ( y(i), i = 1, n )
 c
 c-----------------------------------------------------------------------
 c
 c     Resize  h, if t_End will  be reached  in the current integration
-c     step or can reached by a small enlargement of the stepsize. 
+c     step or can reached by a small enlargement of the stepsize.
 c
 c-----------------------------------------------------------------------
 c
       if ( Iopt(17) .ne. 1 ) then
 c
-         if ( abs ( tEnd_t ) .lt. one1 * abs ( h ) ) h = tEnd_t 
+         if ( abs ( tEnd_t ) .lt. one1 * abs ( h ) ) h = tEnd_t
 c
          hMax_Int = min ( abs ( hMax ), abs ( tEnd_t ) )
 c
       else if ( iCont .eq. 1 ) then
 c
-         if ( abs ( Ropt(3) - t ) .lt. one1 * abs ( h ) ) 
+         if ( abs ( Ropt(3) - t ) .lt. one1 * abs ( h ) )
      2      h = Ropt(3) - t
 c
          hMax_Int = min ( abs ( hMax ), abs ( Ropt(3) - t ) )
@@ -2111,7 +2111,7 @@ c
          else
 c
             do i = 1, nz
-               yk(ir(i)) = yk(ir(i)) - b0(i) * ys(ic(i)) 
+               yk(ir(i)) = yk(ir(i)) - b0(i) * ys(ic(i))
             end do
 c
          end if
@@ -2125,7 +2125,7 @@ c
 c-----------------------------------------------------------------------
 c
       if ( HoldJac .eq. 0 ) then
-c 
+c
          JacAct = 1
          nJac   = nJac + 1
 c
@@ -2192,9 +2192,9 @@ c
                   do i = iUpper, iLower
 c
                      if ( yk(i) .ne. del(i) ) then
-                        Jac(i,j) = 
+                        Jac(i,j) =
      2                    ( yk(i) - del(i) ) * ( delta_y_rec / Scal(i) )
-                     else  
+                     else
                         Jac(i,j) = zero
                      end if
 c
@@ -2236,7 +2236,7 @@ c
 c
                   do k = j, n, mb2
                      y(k) = Temp1(k)
-                  end do 
+                  end do
 c
                   if ( FcnInfo .lt. 0 ) go to 390
 cTD
@@ -2281,13 +2281,13 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Analytical computation of the Jacobian.    
+c     Analytical computation of the Jacobian.
 c
 c-----------------------------------------------------------------------
 c
          else
 c
-            call Jacobian ( n, t, y, ys, Jac, LDJac, ml, mu, 
+            call Jacobian ( n, t, y, ys, Jac, LDJac, ml, mu,
      2                      Full_or_Band, JacInfo )
 c
             if ( JacInfo .lt. 0 ) go to 400
@@ -2326,10 +2326,10 @@ c
 c-----------------------------------------------------------------------
 c
          if (      ( JacP .eq. - 1   .and. nStep .eq. 0 )
-     2        .or. ( JacP .eq. nStep .and. iCIV .eq. 0 
+     2        .or. ( JacP .eq. nStep .and. iCIV .eq. 0
      3                               .and. nStep .gt. 0 ) ) then
 c
-            call JacPlot ( n, 0, Jac, LDJac, ml, mu, 0, 0, nStep, 
+            call JacPlot ( n, 0, Jac, LDJac, ml, mu, 0, 0, nStep,
      2                     Full_or_Band )
 c
             JacP = 0
@@ -2338,7 +2338,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Otherwise the now used Jacobian is not the matrix of the current 
+c     Otherwise the now used Jacobian is not the matrix of the current
 c     derivatives.
 c
 c-----------------------------------------------------------------------
@@ -2359,7 +2359,7 @@ c
 c
       do i = 1, n
          dz(i) = dz(i) / Scal(i)
-      end do  
+      end do
 c
 c-----------------------------------------------------------------------
 c
@@ -2371,7 +2371,7 @@ c
   150 continue
 c
       Direct = .false.
-c 
+c
       if ( hMax_Int .gt. zero ) then
          fcm = max ( fmin, abs ( h ) / hMax_Int )
       else
@@ -2399,16 +2399,16 @@ c
                n_Dense = 1
 c
                go to 160
-c 
+c
             end if
 c
          end do
 c
       end if
 c
-      if (         iCIV .eq. 0 .and. n_Dense .eq. 0 
+      if (         iCIV .eq. 0 .and. n_Dense .eq. 0
      2     .and. (      ( Iopt(13) .eq. 2 .and. Iopt(14) .gt. 0 )
-     3             .or. ( Iopt(13) .eq. 3 .and. h .gt. Ropt(2) ) 
+     3             .or. ( Iopt(13) .eq. 3 .and. h .gt. Ropt(2) )
      4             .or. ( Iopt(17) .eq. 1 .and. t_End .le. t + h ) ) )
      5   n_Dense = 1
 c
@@ -2461,7 +2461,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Add entries of B(t,y). 
+c     Add entries of B(t,y).
 c
 c-----------------------------------------------------------------------
 cTD
@@ -2483,7 +2483,7 @@ c
          else
 c
             do i = 1, nz
-c   
+c
                irr = ir(i)
                icc = ic(i)
 c
@@ -2514,8 +2514,8 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Factorize B(0) / h - A. 
-c   
+c     Factorize B(0) / h - A.
+c
 c-----------------------------------------------------------------------
 c
          if ( Full_or_Band .eq. 0 ) then
@@ -2532,10 +2532,10 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     A non-zero  error code from dgetrf or dgbtrf greater 0 signals a 
-c     singular matrix. In  this case, an  empirical stepsize reduction 
-c     is tried. All other values of IFail(2) are irrecoverable errors. 
-c     If an error occurs during the computation of CIVs, the algorithm 
+c     A non-zero  error code from dgetrf or dgbtrf greater 0 signals a
+c     singular matrix. In  this case, an  empirical stepsize reduction
+c     is tried. All other values of IFail(2) are irrecoverable errors.
+c     If an error occurs during the computation of CIVs, the algorithm
 c     ends with an error exit.
 c
 c-----------------------------------------------------------------------
@@ -2552,7 +2552,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Solve  the linear  system applying the factorization from dgetrf 
+c     Solve  the linear  system applying the factorization from dgetrf
 c     or dgbtrf to h/nj(j) * f((y(0)).
 c
 c-----------------------------------------------------------------------
@@ -2561,12 +2561,12 @@ c
 c
          if ( Full_or_Band .eq. 0 ) then
 c
-            call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, del, 
+            call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, del,
      2                    Max_Size, IFail(2) )
 c
          else
 c
-            call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot, del, 
+            call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot, del,
      2                    Max_Size, IFail(2) )
 c
          end if
@@ -2580,7 +2580,7 @@ c     values.
 c
 c-----------------------------------------------------------------------
 c
-         if (       iCIV .eq. 0 .and. Iopt(5) .ne. 1 
+         if (       iCIV .eq. 0 .and. Iopt(5) .ne. 1
      2        .and. j .le. 2    .and. nStep .le. 2 ) then
 c
             if ( j .eq. 1 ) then
@@ -2594,7 +2594,7 @@ c
 c
                end do
 c
-            else    
+            else
 c
                do i = 1, n
 c
@@ -2604,20 +2604,20 @@ c
 c
                   if ( abs_del .gt. Small ) then
 c
-                     del_quot = ( Temp3(i) + rTol2 ) / abs_del 
+                     del_quot = ( Temp3(i) + rTol2 ) / abs_del
 c
                      if ( del_quot .lt. ex2 ) then
 c
-                        if (       Iopt(1) .eq. 2 .and. iRed .eq. 0 
+                        if (       Iopt(1) .eq. 2 .and. iRed .eq. 0
      2                       .and. nStep .eq. 0  )
      3                     write ( MonOut, 9520 ) i
 c
                         if (       Temp3(i) .gt. delm * thresh
      2                       .and. iRed. gt. 2 ) then
 c
-                           if ( del_quot .lt. ex1 ) go to 420 
+                           if ( del_quot .lt. ex1 ) go to 420
 c
-                           go to 430 
+                           go to 430
 c
                         end if
 c
@@ -2625,7 +2625,7 @@ c
 c
                   end if
 c
-               end do  
+               end do
 c
             end if
 c
@@ -2652,7 +2652,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     For CIV computation  store the  derivatives of  the differential 
+c     For CIV computation  store the  derivatives of  the differential
 c     variables.
 c
 c-----------------------------------------------------------------------
@@ -2712,7 +2712,7 @@ c
 c
                   NonPosComp = i
 c
-                  go to 270 
+                  go to 270
 c
                end if
 c
@@ -2722,14 +2722,14 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     For CIV computation restore the derivatives of  the differential 
+c     For CIV computation restore the derivatives of  the differential
 c     variables and estimate the convergence of the Newton iteration.
 c
 c-----------------------------------------------------------------------
 c
          if ( iCIV .eq. 1 ) then
 c
-            do i = 1, nz 
+            do i = 1, nz
                ys(ic(i)) = g_inv * yk(ic(i))
             end do
 c
@@ -2813,7 +2813,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Label  for return, if the  Richardson iteration  method does not 
+c     Label  for return, if the  Richardson iteration  method does not
 c     converge.
 c
 c-----------------------------------------------------------------------
@@ -2825,7 +2825,7 @@ c
 c    Compute the approximation f(y(k)) = f(y(0)+k*h).
 c
 c-----------------------------------------------------------------------
-c 
+c
             FcnInfo = 1
 c
             call Fcn ( n, nz, th, yk, del, bk, ir, ic, FcnInfo )
@@ -2833,7 +2833,7 @@ c
             nFcn  = nFcn + 1
             nFcnE = nFcnE + 1
 c
-            if ( FcnInfo .lt. 0 ) go to 280 
+            if ( FcnInfo .lt. 0 ) go to 280
 c
             if ( iCIV .eq. 1 ) then
 c
@@ -2882,7 +2882,7 @@ c
                      irr = ir(i)
                      icc = ic(i)
 c
-                     Temp3(irr) = Temp3(irr) 
+                     Temp3(irr) = Temp3(irr)
      2              + Scal(icc) * bk(i) * Temp2(icc) / ( g * Scal(irr) )
 c
                   end do
@@ -2915,7 +2915,7 @@ c
                else
 c
                   do i = 1, n
-                     do k1 = max(1,i-mu) - i + mb1, 
+                     do k1 = max(1,i-mu) - i + mb1,
      2                       min(n,i+ml) - i + mb1
                         B_Jac(k1+ml,i) = Jac(k1,i)
                      end do
@@ -2947,7 +2947,7 @@ c
                else
 c
                   do i = 1, nz
-c  
+c
                      irr = ir(i)
                      icc = ic(i)
 c
@@ -2957,7 +2957,7 @@ c
                         irh = irr - icc + mb2
                      end if
 c
-                     B_Jac(irh,icc) =  B_Jac(irh,icc) 
+                     B_Jac(irh,icc) =  B_Jac(irh,icc)
      2                           + Scal(icc) * bk(i) / ( g * Scal(irr) )
 c
                   end do
@@ -2976,7 +2976,7 @@ c
 c
                else
 c
-                  call dgbtrf ( n, n, ml, mu, B_Jac, LDBJac, Pivot, 
+                  call dgbtrf ( n, n, ml, mu, B_Jac, LDBJac, Pivot,
      2                          IFail(2) )
 c
                end if
@@ -2995,7 +2995,7 @@ c-----------------------------------------------------------------------
 c
                if ( IFail(2) .lt. 0 ) go to 410
 c
-               if ( IFail(2) .gt. 0 ) then 
+               if ( IFail(2) .gt. 0 ) then
 c
                   if ( iCIV .eq. 0 ) go to 260
 c
@@ -3005,7 +3005,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Solve the  linear system applying the factorization  from dgetrf 
+c     Solve the  linear system applying the factorization  from dgetrf
 c     or dgbtrf to h/nj(j) * f((y(k)).
 c
 c-----------------------------------------------------------------------
@@ -3039,7 +3039,7 @@ c-----------------------------------------------------------------------
 c
 c     Compute  first ( B(0) / h - A )**(-1) * f(y(k)) using  the known
 c     decomposition of B(0) / h - A.
-c 
+c
 c-----------------------------------------------------------------------
 c
                if ( Full_or_Band .eq. 0 ) then
@@ -3070,7 +3070,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Computation of 
+c     Computation of
 c     delta(B(k)) * delta(k+1) =
 c                          ( B(y(k)) - B(0) ) * ( y(k+1) - y(k) ) / h.
 c
@@ -3088,7 +3088,7 @@ c
 cTD
                if ( Iopt(31) .lt. 2 ) go to 210
 c
-               do i = 1, n 
+               do i = 1, n
                   Temp1(i) = zero
                end do
 c
@@ -3097,8 +3097,8 @@ c
                   icc = ic(i)
                   irr = ir(i)
 c
-                  Temp1(irr) = Temp1(irr) 
-     2                   + g_inv * Temp2(icc) * ( b0(i) - bk(i) ) 
+                  Temp1(irr) = Temp1(irr)
+     2                   + g_inv * Temp2(icc) * ( b0(i) - bk(i) )
      3                           * Scal(icc) / Scal(irr)
 c
                end do
@@ -3153,7 +3153,7 @@ c
                else
 c
                   do i = 1, n
-                     if ( abs ( Temp1(i) ) .gt. 1.0d-1 * rTol(i) ) 
+                     if ( abs ( Temp1(i) ) .gt. 1.0d-1 * rTol(i) )
      2                  go to 200
                   end do
 c
@@ -3238,7 +3238,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     For CIV  computation store  the derivatives  of the differential 
+c     For CIV  computation store  the derivatives  of the differential
 c     variables.
 c
 c-----------------------------------------------------------------------
@@ -3306,7 +3306,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     For CIV computation  restore the derivatives of the differential 
+c     For CIV computation  restore the derivatives of the differential
 c     variables and estimate the convergence of the Newton iteration.
 c
 c-----------------------------------------------------------------------
@@ -3391,7 +3391,7 @@ c     End of the Euler discretization loop.
 c
 c-----------------------------------------------------------------------
 c
-         end do   
+         end do
 c
 c-----------------------------------------------------------------------
 c
@@ -3446,12 +3446,12 @@ c
 c
                do i = 1, n
 c
-                  Temp2(i) = d2 * Temp1(i)     
+                  Temp2(i) = d2 * Temp1(i)
                   del(i)   = del(i) + Temp2(i)
                   Temp1(i) = d1 * Temp2(i) - dtp(i,k)
                   dtp(i,k) = Temp2(i)
 c
-               end do   
+               end do
 c
             end do
 c
@@ -3461,7 +3461,7 @@ c
 c
             do i = 1, n
                ys(i) = Scal(i) * ( del(i) + Temp1(i) )
-            end do  
+            end do
 c
          end if
 c
@@ -3497,7 +3497,7 @@ c
                   del(i)   = d1 * Temp2(i) - dt(i,k)
                   dt(i,k)  = Temp2(i)
 c
-               end do   
+               end do
 c
             end do
 c
@@ -3517,11 +3517,11 @@ c-----------------------------------------------------------------------
 c
             do i = 1, n
 c
-               if ( IPos(i) .eq. 1 .and. yk(i) .lt. zero ) then  
+               if ( IPos(i) .eq. 1 .and. yk(i) .lt. zero ) then
 c
                   NonPosComp = i
 c
-                  if ( iCIV .eq. 0 ) then 
+                  if ( iCIV .eq. 0 ) then
                      go to 270
                   else
                      go to 440
@@ -3533,7 +3533,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c     Error estimation by the sub-diagonal differences. 
+c     Error estimation by the sub-diagonal differences.
 c
 c-----------------------------------------------------------------------
 c
@@ -3546,7 +3546,7 @@ c
 c
                   do i = 1, n
 c
-                     fc = max ( fc, abs ( del(i) ) 
+                     fc = max ( fc, abs ( del(i) )
      2                              / ( abs ( yk(i) ) + TolQuot ) )
 c
                   end do
@@ -3557,8 +3557,8 @@ c
 c
                   do i = 1, n
 c
-                     tmp =   abs ( del(i) ) 
-     2                     / ( abs ( yk(i) ) + TolQu(i) ) 
+                     tmp =   abs ( del(i) )
+     2                     / ( abs ( yk(i) ) + TolQu(i) )
 c
                      fc = max ( fc, tmp )
 c
@@ -3586,7 +3586,7 @@ c
             fc  = max ( fcm, ( fc / eph ) ** ( one / dble ( j ) ) )
             omj = fc * aj(j)
 c
-            if (       ( j .le. 2 .or. omj * one1 .lt. omjo ) 
+            if (       ( j .le. 2 .or. omj * one1 .lt. omjo )
      2           .and. k .le. joh ) then
 c
                ko   = k
@@ -3631,13 +3631,13 @@ c
 c-----------------------------------------------------------------------
 c
                red = one / fco
-               jk  = min ( km, joh ) 
+               jk  = min ( km, joh )
 c
-               if ( k .ge. jk)  go to 250 
+               if ( k .ge. jk)  go to 250
 c
                if ( ko .lt. koh ) red = al(koh,ko) * red
 c
-               if ( al(jk,ko) .lt. fco ) go to 250 
+               if ( al(jk,ko) .lt. fco ) go to 250
 c
             end if
 c
@@ -3645,7 +3645,7 @@ c
 c
   240    continue
 c
-      end do   
+      end do
 c
 c----------------------------------------------------------------------
 c
@@ -3670,7 +3670,7 @@ c
 c
       if ( Iopt(1) .eq. 2 ) write ( MonOut, 9540 ) iRed, red
 c
-      if ( iRed .gt. Max_Step_Red_Ex ) go to 450 
+      if ( iRed .gt. Max_Step_Red_Ex ) go to 450
 c
       go to 290
 c
@@ -3682,21 +3682,21 @@ c-----------------------------------------------------------------------
 c
   260 continue
 c
-      if ( Iopt(5) .eq. 0 ) iSing = iSing + 1 
+      if ( Iopt(5) .eq. 0 ) iSing = iSing + 1
 c
-      if ( iSing .gt. Max_Step_Red_Dc ) go to 460 
+      if ( iSing .gt. Max_Step_Red_Dc ) go to 460
 c
       hMax_Int = g * quart * safe
       red      = hMax_Int / abs ( h )
-      h        = hMax_Int 
+      h        = hMax_Int
 c
       if ( iRed .eq. 0 .and. nStep .gt. 0 ) incr(koh) = - 2
 c
       iRed = iRed + 1
 c
       if ( Iopt(1) .eq. 2 ) write ( MonOut, 9550 ) iRed, red
-c  
-      if ( iRed .gt. Max_Step_Red_Ex ) go to 450 
+c
+      if ( iRed .gt. Max_Step_Red_Ex ) go to 450
 c
       go to 290
 c
@@ -3711,7 +3711,7 @@ c
       h    = h * RedPos
       iRed = iRed + 1
 c
-      if ( Iopt(1) .eq. 2 ) 
+      if ( Iopt(1) .eq. 2 )
      2   write ( MonOut, 9560 ) iRed, NonPosComp, RedPos
 c
       if ( iRed .gt. Max_Step_Red_Ex ) go to 450
@@ -3729,7 +3729,7 @@ c
       h    = h * RedFcn
       iRed = iRed + 1
 c
-      if ( Iopt(1) .eq. 2 ) 
+      if ( Iopt(1) .eq. 2 )
      2   write ( MonOut, 9570 ) iRed, FcnInfo, RedFcn
 c
       if ( iRed .gt. Max_Step_Red_Ex ) go to 450
@@ -3831,10 +3831,10 @@ c
      2        .and. t_End - t_Dense .gt. abs ( t ) * eps_Mach10 )
      3      then
 c
-            call Eval_Herm ( n, Max_Size, Dense, k, (t_Dense-t)/h, 
+            call Eval_Herm ( n, Max_Size, Dense, k, (t_Dense-t)/h,
      2                       Temp1 )
 c
-            if ( DensOut .ne. 0 ) write ( DensOut, 9480 ) 
+            if ( DensOut .ne. 0 ) write ( DensOut, 9480 )
      2         t_Dense, ( Temp1(j), j = 1, n )
 c
             if ( Iopt(12) .eq. 2 ) then
@@ -3898,12 +3898,12 @@ c
 c
          if ( k_Dense .gt. n_Dense ) go to 340
 c
-         t_Dense = tn_Dense + dble ( k_Dense ) * delta_Dense 
+         t_Dense = tn_Dense + dble ( k_Dense ) * delta_Dense
 c
          call Eval_Herm ( n, Max_Size, Dense, k, (t_Dense-t)/h,
      2                    Temp1 )
 c
-         if ( DensOut .ne. 0 ) 
+         if ( DensOut .ne. 0 )
      2      write ( DensOut, 9480 ) t_Dense, ( Temp1(j), j = 1, n )
 c
          if ( Iopt(12) .eq. 2 ) then
@@ -3938,12 +3938,12 @@ c     t_End and return to the calling program.
 c
 c-----------------------------------------------------------------------
 c
-      if ( t + h .ge. t_End .and. Iopt(17) .eq. 1 ) then 
+      if ( t + h .ge. t_End .and. Iopt(17) .eq. 1 ) then
 c
          call Eval_Herm ( n, Max_Size, Dense, k, (t_End-t)/h, y )
 c
-         if (       DensOut .ne. 0 
-     2        .and. ( Iopt(13) .eq. 1 .or. Iopt(13) .eq. 3 ) ) 
+         if (       DensOut .ne. 0
+     2        .and. ( Iopt(13) .eq. 1 .or. Iopt(13) .eq. 3 ) )
      3      write ( DensOut, 9480 ) t_End, ( y(j), j = 1, n )
 c
          if ( Ropt(3) .le. t_End ) then
@@ -3953,10 +3953,10 @@ c
             if ( Iopt(1) .ge. 1 ) then
 c
                if ( HoldJac .eq. 0  ) then
-                  write ( MonOut, 9500 ) 
+                  write ( MonOut, 9500 )
      2               nStep, '*', nFcn, t_End, h, k, ko
                else
-                  write ( MonOut, 9500 ) 
+                  write ( MonOut, 9500 )
      2               nStep, ' ', nFcn, t_End, h, k, ko
                end if
 c
@@ -3964,7 +3964,7 @@ c
 c
          end if
 c
-         if ( Iopt(3) .gt. 0 ) 
+         if ( Iopt(3) .gt. 0 )
      2      write ( SolOut, 9510 ) t_End, ( y(i), i = 1, n )
 c
          if ( Iopt(13) .eq. 3 ) then
@@ -4000,7 +4000,7 @@ c-----------------------------------------------------------------------
 c
   350 continue
 c
-      if ( iCIV .eq. 0 ) t = t + h 
+      if ( iCIV .eq. 0 ) t = t + h
 c
       t_Begin = t
       tEnd_t  = t_End - t
@@ -4014,7 +4014,7 @@ c
 c
          if ( CIV_Convergence ) then
 c
-            if ( Iopt(1) .gt. 0 ) write ( MonOut, 9580 ) 
+            if ( Iopt(1) .gt. 0 ) write ( MonOut, 9580 )
      2         nStep, CErr, j_Cons, k_Cons
 c
             iCIV  = 0
@@ -4025,18 +4025,18 @@ c
 c
             if ( Iopt(3) .gt. 0 ) then
 c
-               write ( SolOut, 9590 ) ( yk(i), i = 1, n ) 
-               write ( SolOut, 9600 ) ( ys(i), i = 1, n ) 
+               write ( SolOut, 9590 ) ( yk(i), i = 1, n )
+               write ( SolOut, 9600 ) ( ys(i), i = 1, n )
 c
             end if
 c
-         else 
+         else
 c
             if ( nStep .gt. Max_Step_CIV ) go to 480
 c
          end if
 c
-      else 
+      else
 c
 c-----------------------------------------------------------------------
 c
@@ -4070,13 +4070,13 @@ c
 c
          if ( Iopt(11) .eq. 0 ) then
 c
-            do i = 1, n 
+            do i = 1, n
                Scal(i) = abs ( y(i) ) + TolQuot
             end do
 c
          else
 c
-            do i = 1, n 
+            do i = 1, n
                Scal(i) = abs ( y(i) ) + TolQu(i)
             end do
 c
@@ -4119,9 +4119,9 @@ c
 c
       end if
 c
-      if (       (        Iopt(13) .gt. 1 
+      if (       (        Iopt(13) .gt. 1
      2             .or. ( Iopt(13) .eq. 1 .and. nStep .eq. 0 ) )
-     3     .and. DensOut .ne. 0 
+     3     .and. DensOut .ne. 0
      4     .and. ( Iopt(3) .eq. 0 .or. SolOut .ne. DensOut ) )
      5   write ( DensOut, 9480 ) t, ( y(i), i = 1, n )
 c
@@ -4139,9 +4139,9 @@ c
 c
       end if
 
-      if (         jCIV .eq. 0 
-     2     .and. (        Iopt(12) .eq. 1 
-     3             .or. (       Iopt(12) .eq. 2 .and. NoDense .eq. 1 
+      if (         jCIV .eq. 0
+     2     .and. (        Iopt(12) .eq. 1
+     3             .or. (       Iopt(12) .eq. 2 .and. NoDense .eq. 1
      4                    .and. Iopt(13) .ge. 2 ) ) ) then
 c
          Iopt(24) = nFcnE
@@ -4155,7 +4155,7 @@ c
 c
       end if
 c
-      go to 130 
+      go to 130
 c
 c-----------------------------------------------------------------------
 c
@@ -4166,24 +4166,24 @@ c
   360 continue
 c
       h = h_proposed
-c   
+c
       Iopt(24) = nFcnE
       Iopt(25) = nFcnJ
       Iopt(26) = nDec
       Iopt(27) = nSol
       Iopt(28) = nStep
-      Iopt(29) = nJac 
+      Iopt(29) = nJac
 c
       t_Begin = t_End
 c
       if (         Iopt(13) .eq. 1 .and. DensOut .ne. 0
-     2     .and. ( Iopt(3) .eq. 0 .or. SolOut .ne. DensOut ) ) 
+     2     .and. ( Iopt(3) .eq. 0 .or. SolOut .ne. DensOut ) )
      3   write ( DensOut, 9480 ) t_End, ( y(i), i = 1, n )
 c
-      if ( Iopt(3) .gt. 0 ) 
+      if ( Iopt(3) .gt. 0 )
      2   write ( SolOut, 9510 ) t_End, ( y(i), i = 1, n )
 c
-      return 
+      return
 c
 c-----------------------------------------------------------------------
 c
@@ -4270,7 +4270,7 @@ c
 c
          if ( iCIV .eq. 0 ) then
             write ( MonOut, 9700 ) Max_Step_Red_Dc
-         else 
+         else
             write ( MonOut, 9710 )
          end if
 c
@@ -4310,7 +4310,7 @@ c
 c
          IFail(3) = 1
 c
-         if ( Iopt(1) .gt. 0 ) write ( MonOut, 9760 ) 
+         if ( Iopt(1) .gt. 0 ) write ( MonOut, 9760 )
 c
       end if
 c
@@ -4348,7 +4348,7 @@ c
 c-----------------------------------------------------------------------
 c
  9000 format ( /, 16x, 43('-'), /, 16x, '|', 41x, '|', /, 16x, '|', 11x,
-     2         'L I M E X  V. 4.3A', 12x, '|', /, 16x, '|', 41x, '|', 
+     2         'L I M E X  V. 4.3A', 12x, '|', /, 16x, '|', 41x, '|',
      3         /, 16x, '| Copyright (C) 2004, Konrad-Zuse-Zentrum |', /,
      4         16x, '|  fuer Informationstechnik Berlin (ZIB)  |', /,
      5         16x, 43('-'), / )
@@ -4357,7 +4357,7 @@ c
  9020 format ( ' *** should be between 0 and ', i5, 33x, '***' )
  9030 format ( ' *** should be greater or equal 0', 34x, '***' )
  9040 format ( ' *** LIMEX error, wrong input for n : ', i5, ',', 23x,
-     2         '***', /, ' *** should be between 1 and ', i5, 33x, 
+     2         '***', /, ' *** should be between 1 and ', i5, 33x,
      3         '***' )
  9050 format ( ' *** should be greater or equal - 1', 32x, '***' )
  9060 format ( ' *** LIMEX error, wrong input for Ropt(', i1, ') : ',
@@ -4370,11 +4370,11 @@ c
      2         d18.9, ', ***' )
  9100 format ( ' *** LIMEX error, non positive comp. y(', i5, ') :',
      2         d18.9, ' ***' )
- 9110 format ( 9x, 57('-'), /, 9x, '|', 55x, '|', /, 9x, 
+ 9110 format ( 9x, 57('-'), /, 9x, '|', 55x, '|', /, 9x,
      2         '| Integration options:', 34x, '|', /, 9x, '|', 55x,
      3         '|' )
- 9120 format ( 9x, '| Standard integration monitor on unit', i3, 15x, 
-     2         '|' ) 
+ 9120 format ( 9x, '| Standard integration monitor on unit', i3, 15x,
+     2         '|' )
  9130 format ( 9x, '| Enhanced integration monitor on unit', i3, 15x,
      2         '|' )
  9140 format ( 9x, '| No output of solution values', 26x, '|' )
@@ -4394,14 +4394,14 @@ c
  9230 format ( 9x, '| Numerical difference approximation for the ',
      2         'Jacobian', 3x, '|' )
  9240 format ( 9x, '| Analytical Jacobian', 35x, '|' )
- 9250 format ( 9x, '| Lower bandwidth of the Jacobian:', i5, 17x, '|', 
-     2         /, 9x, '| Upper bandwidth of the Jacobian:', i5, 17x, 
+ 9250 format ( 9x, '| Lower bandwidth of the Jacobian:', i5, 17x, '|',
+     2         /, 9x, '| Upper bandwidth of the Jacobian:', i5, 17x,
      3         '|' )
  9260 format ( 9x, '| No reuse of the Jacobian', 30x, '|' )
  9270 format ( 9x, '| Reuse of the Jacobian, ThMin = ', d7.1, 16x, '|' )
  9280 format ( 9x, '| rTol, aTol used as scalars:', d10.3, 2x, d10.3,
-     2         5x, '|' ) 
- 9290 format ( 9x, '| rTol, aTol used as vectors', 28x, '|' ) 
+     2         5x, '|' )
+ 9290 format ( 9x, '| rTol, aTol used as vectors', 28x, '|' )
  9300 format ( 9x, '| One step mode is off', 34x, '|' )
  9310 format ( 9x, '| One step mode is on', 35x, '|' )
  9320 format ( 9x, '| One step mode on, return at ', i4, ' points',
@@ -4417,24 +4417,24 @@ c
      2         'on unit ', i3, '  |' )
  9380 format ( 9x, '| Dense output in steps <= ', d10.3,
      2         ' on unit ', i3, 7x, '|' )
- 9390 format ( 9x, '| Integration for t > t_End disabled', 20x, '|' ) 
+ 9390 format ( 9x, '| Integration for t > t_End disabled', 20x, '|' )
  9400 format ( 9x, '| Integration for t > t_End enabled', 21x, '|', /,
-     2         9x, '|', 4x, 'upper t-limit: ', d12.5, 24x, '|' ) 
+     2         9x, '|', 4x, 'upper t-limit: ', d12.5, 24x, '|' )
  9410 format ( 9x, '| Integration for t > t_End enabled', 21x, '|', /,
-     2         9x, '|', 4x, 'no upper t-limit', 35x, '|' ) 
+     2         9x, '|', 4x, 'no upper t-limit', 35x, '|' )
  9420 format ( 9x, '| No PostScript plot of the Jacobian', 20x, '|' )
- 9430 format ( 9x, '| PostScript plot of the Jacobian in step ', i6, 
+ 9430 format ( 9x, '| PostScript plot of the Jacobian in step ', i6,
      2         7x, ' |' )
  9440 format ( 9x, '| Maximum stepsize: ', d12.5, 24x, '|', /, 9x, '|',
-     2         55x, '|', /, 9x, 57('-'), / )  
- 9450 format ( 9x, '| No upper limit for stepsize', 27x, '|', /, 9x, 
+     2         55x, '|', /, 9x, 57('-'), / )
+ 9450 format ( 9x, '| No upper limit for stepsize', 27x, '|', /, 9x,
      2         57('-'), / )
  9460 format ( 9x, '*** Warning: This LIMEX call was specified as a',
      2         7x, '***', /, 9x, '*** continuation call, but there ',
      3         'was no call before.  ***', / )
  9470 format ( 1x, 10e18.9 )
  9480 format ( ' t = ', d18.9, /, ( 1x, 4d18.9 ) )
- 9490 format ( /, 3x, 'Step-Nr.', 5x, 'F-calls', 9x, 't', 12x, 
+ 9490 format ( /, 3x, 'Step-Nr.', 5x, 'F-calls', 9x, 't', 12x,
      2         'Stepsize', 5x, 'used/aimed stage', /, 1x, 73('-'), / )
  9500 format ( 4x, i5, 1x, a1, i10, 2x, d15.5, 2x, d15.5, i9, i8 )
  9510 format ( 1x, 10e18.9 )
@@ -4447,7 +4447,7 @@ c
      2         'by ', d10.3, / )
  9550 format ( /, 4x, i3, '. Stepsize reduction ( singular matrix  ) ',
      2         'by ', d10.3, / )
- 9560 format ( /, 4x, i3, '. Stepsize reduction (y(', i5, 
+ 9560 format ( /, 4x, i3, '. Stepsize reduction (y(', i5,
      2         ' ) not pos.) by ', d10.3, / )
  9570 format ( /, 4x, i3, '. Stepsize reduction ( FcnInfo : ', i5,
      2         ' ) by ', d10.3, / )
@@ -4480,7 +4480,7 @@ c
  9700 format ( /, ' *** LIMEX error: more than ', i4, ' stepsize ',
      2         'reductions due to', 8x, '***', /, ' *** singular ',
      3         'matrix, system is not solvable with LIMEX', 12x, '***' )
- 9710 format ( /, ' *** LIMEX error: singular Jacobian matrix', 25x, 
+ 9710 format ( /, ' *** LIMEX error: singular Jacobian matrix', 25x,
      2         '***' )
  9720 format ( /, ' *** LIMEX error: more than ', i6, ' integration ',
      2         'steps', 15x, '***' )
