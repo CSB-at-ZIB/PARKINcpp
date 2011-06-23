@@ -651,19 +651,19 @@ GaussNewton::computeSensitivity()
             }
         }
 
-std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
-std::cerr << " _fmodel = " << std::endl;
-std::cerr << _fmodel.t() << std::endl;
-std::cerr << " _xw = " << std::endl;
-std::cerr << _xw.t() << std::endl;
-std::cerr << " _AA = " << std::endl;
-std::cerr << _AA.t() << std::endl;
-std::cerr << " _A = " << std::endl;
-std::cerr << _A.t() << std::endl;
-std::cerr << " _fw = " << std::endl;
-std::cerr << _fw.t() << std::endl;
-std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
-std::cerr << std::endl;
+//std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
+//std::cerr << " _fmodel = " << std::endl;
+//std::cerr << _fmodel.t() << std::endl;
+//std::cerr << " _xw = " << std::endl;
+//std::cerr << _xw.t() << std::endl;
+//std::cerr << " _AA = " << std::endl;
+//std::cerr << _AA.t() << std::endl;
+//std::cerr << " _A = " << std::endl;
+//std::cerr << _A.t() << std::endl;
+//std::cerr << " _fw = " << std::endl;
+//std::cerr << _fw.t() << std::endl;
+//std::cerr << "*** GaussNewton::computeSensitivity ***" << std::endl;
+//std::cerr << std::endl;
 
         // Row scaling of _A(_m,_n)
         if ( qscale ) compute_row_scaling_A(); // else _fw.ones(_m);

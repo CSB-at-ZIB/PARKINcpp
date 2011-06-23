@@ -43,7 +43,7 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-fpic" />
+					<Add option="-fPIC" />
 					<Add directory="/usr/include/python2.6" />
 					<Add directory="/usr/lib/python2.6/config" />
 				</Compiler>
@@ -65,7 +65,7 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-fpic" />
+					<Add option="-fPIC" />
 					<Add directory="/usr/include/python2.6" />
 					<Add directory="/usr/lib/python2.6/config" />
 				</Compiler>
