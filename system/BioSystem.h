@@ -178,6 +178,11 @@ namespace PARKIN
             Matrix
             computeJacobian(Expression::Param const& var);
 
+            Matrix
+            computeJacobian(Expression::Param const& var,
+                            Expression::Param&       idx);
+
+
             int
             getComputeErrorFlag();
 

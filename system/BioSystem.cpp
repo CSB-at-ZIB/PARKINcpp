@@ -732,6 +732,24 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 Matrix
 BioSystem::computeJacobian(Expression::Param const& var)
 {
+    Expression::ParamIterConst vBeg = var.begin();
+    Expression::ParamIterConst vEnd = var.end();
+    Expression::Param          idx;
+    long                       k = 0;
+
+    idx.clear();
+    for (Expression::ParamIterConst it = vBeg; it != vEnd; ++it)
+    {
+        idx[it->first] = ++k;
+    }
+
+    return computeJacobian(var, idx);
+}
+//---------------------------------------------------------------------------
+Matrix
+BioSystem::computeJacobian(Expression::Param const& var,
+                           Expression::Param&       idx)
+{
     Species const&      species   = _ode.getSpecies();
     Parameter const&    parameter = _ode.getParameters();
     long                j = 0;
@@ -872,13 +890,15 @@ BioSystem::computeJacobian(Expression::Param const& var)
 
         for (MeasIterConst it = mBeg; it != mEnd; ++it)
         {
-            ++j; k = 0;
+            ++j; // k = 0;
             for (Expression::ParamIterConst itPar = vBeg;
                                             itPar != vEnd; ++itPar)
             {
-                std::string s = (it->first) + "_" + (itPar->first);
+                std::string s;
+                s = (it->first) + "_" + (itPar->first);
+                k = idx[(itPar->first)];
 
-                jacobian(j,++k) = (_jacobian[tp][s]).first;
+                jacobian( j, k ) = (_jacobian[tp][s]).first;
             }
         }
     }

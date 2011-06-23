@@ -12,24 +12,44 @@ using namespace PARKIN;
 //----------------------------------------------------------------------------
 BioPAR::BioPAR(BioSystem* biosys) :
     _bioSystem(biosys),
-    _parameter(biosys->getParameters()),
-    _optPar()
+    _parameter(),
+    _optPar(),
+    _optIdx()
     // , _invPTrafo(id)
 {
-    // _bioSystem -> setParameters(_parameter);
+    setCurrentParameter( biosys->getParameters() );
 }
 //----------------------------------------------------------------------------
 BioPAR::BioPAR(BioSystem* biosys, BioSystem::Parameter const& param) :
     _bioSystem(biosys),
-    _parameter(param),
-    _optPar()
+    _parameter(),
+    _optPar(),
+    _optIdx()
     // , _invPTrafo(id)
 {
-    // _bioSystem -> setParameters(_parameter);
+    setCurrentParameter( param );
 }
 //----------------------------------------------------------------------------
 BioPAR::~BioPAR()
 {
+}
+//----------------------------------------------------------------------------
+void
+BioPAR::setCurrentParameter(BioSystem::Parameter const& param)
+{
+    BioSystem::StrIterConst pBeg = param.begin();
+    BioSystem::StrIterConst pEnd = param.end();
+    long                    k = 0;
+
+    _parameter = param;
+
+    _optPar.clear();
+    _optIdx.clear();
+    for (BioSystem::StrIterConst it = pBeg; it != pEnd; ++it)
+    {
+        _optPar[*it] = 0.0;
+        _optIdx[*it] = ++k;
+    }
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -70,7 +90,7 @@ BioPAR::jac(Vector const& x, int& ifail)
 
     Matrix J;
 
-    J = _bioSystem -> computeJacobian( _optPar );
+    J = _bioSystem -> computeJacobian( _optPar, _optIdx );
     ifail = _bioSystem -> getComputeErrorFlag();
 
     return J;

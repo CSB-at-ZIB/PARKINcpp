@@ -23,8 +23,8 @@ namespace PARKIN
     {
         public:
 
-            typedef double (*PTrafo)(double);
-            typedef double (*InvPTrafo)(double);
+            // typedef double (*PTrafo)(double);
+            // typedef double (*InvPTrafo)(double);
 
             ///
 
@@ -41,17 +41,7 @@ namespace PARKIN
             //
 
             void
-            setCurrentParameter(BioSystem::Parameter const& param)
-            {
-                // _bioSystem->setParameters(param);
-//                _parameter.clear();
-//                for (long j = 0; j < (long)param.size(); ++j)
-//                {
-//                    _parameter.push_back( param[j] );
-//                }
-                _parameter = param;
-                _optPar.clear();
-            }
+            setCurrentParameter(BioSystem::Parameter const& param);
 
             BioSystem::Parameter const&
             getCurrentParameter()
@@ -85,6 +75,7 @@ namespace PARKIN
             BioSystem*              _bioSystem;
             BioSystem::Parameter    _parameter;
             Expression::Param       _optPar;
+            Expression::Param       _optIdx;
             // PTrafo                  _pTrafo;
             // PTrafo                  _dpTrafo;
             // InvPTrafo               _invPTrafo;
