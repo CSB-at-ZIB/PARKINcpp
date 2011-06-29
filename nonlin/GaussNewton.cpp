@@ -280,11 +280,11 @@ GaussNewton::initialise(
     if ( !qsucc )
     {
         printl( _lumon, dlib::LINFO,
-                " %s %d\n %s %d\n %s %d\n\n %s %10.2e\n\n",
-                "Number of parameters to be estimated (N):",        _n,
-                "Number of data to fit, e.g. observations (MFIT):", _mfit,
-                "Number of equality constraints (MCON): ",          _mcon,
-                "Prescribed relative precision (XTOL): ",           _rtol
+                " %s  %d\n %s  %d\n %s  %d\n\n %s %9.2e\n\n",
+                "Number of parameters to be estimated        (N): ", _n,
+                "Number of data to fit, e.g. observations (MFIT): ", _mfit,
+                "Number of equality constraints           (MCON): ", _mcon,
+                "Prescribed relative precision            (XTOL): ", _rtol
               );
 
        std::string jacg, rsmode;
@@ -357,8 +357,8 @@ GaussNewton::initialise(
 
     if ( !qsucc )
         printl(_lumon, dlib::LINFO,
-                " %s %d\n",
-                "Maximum permitted number of iteration steps:", _nitmax
+                " %s  %d\n",
+                "Maximum permitted number of iteration steps: ", _nitmax
               );
 
     // Initial damping factor for highly nonlinear problems
