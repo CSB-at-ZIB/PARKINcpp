@@ -220,14 +220,21 @@ GaussNewton::initialise(
     unsigned    minmn;
 
     _m = m;
+    _n = x.nr();
+    _mfit = fObs.nr();
 
     if ( iopt.lpos == true )
     {
-        long n = x.nr();
 
-        _x.zeros(n);
-        _xscal.ones(n);
-        for (long j = 1; j <= n; ++j) _x(j) = std::log( x(j) );
+        _x.zeros(_n);
+        // scaling switched off ==> absolute error measure is applied
+        _xscal.ones(_n);
+
+        // iteration takes place in log-space
+        for (unsigned j = 1; j <= _n; ++j)
+        {
+            _x(j) = (x(j) > 0.0) ? std::log( x(j) ) : -1.0e-38;
+        }
     }
     else
     {
@@ -236,9 +243,6 @@ GaussNewton::initialise(
     }
 
     _fi = fObs;
-
-    _n = x.nr();
-    _mfit = fObs.nr();
 
     _tolmin = 10.0*_n*EPMACH;
     _rtol = rtol;
