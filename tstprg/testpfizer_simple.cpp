@@ -76,7 +76,7 @@ int testpfizer_simple()
 
     //
 
-    param.push_back("dose");     var[ "dose"  ] = 47.297;
+    param.push_back("dose");     var[ "dose"  ] = 35.0; // 47.297;
     // param.push_back("k_a");      var[ "k_a"   ] = 0.0;
     param.push_back("k_out");    var[ "k_out" ] = 0.21984;
     param.push_back("k_cp");     var[ "k_cp"  ] = 0.1229;
@@ -266,7 +266,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     //
     Real rTol = 1.0e-7;
     Real aTol = 1.0e-9;
-    Real xTol = 1.0e-5;
+    Real xTol = 1.0e-3;
 
     biosys.setSolverRTol(rTol);
     biosys.setSolverATol(aTol);
@@ -483,12 +483,16 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     invBiosys.setODESystem(emap);
     // invBiosys.setSpecies(species);       // see above comment!
     invBiosys.setParameters(param);
+    invBiosys.setBreakpoints(breaktp);
 
     for (unsigned j = 0; j < species.size(); ++j)
         invBiosys.setInitialValue( species[j], biosys.getInitialValue(species[j]) );
 
     for (unsigned j = 0; j < param.size(); ++j)
         invBiosys.setParamValue( param[j], biosys.getParamValue(param[j]) );
+
+    for (unsigned j = 0; j < (unsigned)breaktp.nr(); ++j)
+        invBiosys.setEvent( j, biosys.getEvent(j) );
 
     //
     // Some kind of bootstrapping ...
@@ -606,8 +610,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
     std::ifstream in;
 
-    // in.open("iv7mg_b.csv");
-    in.open("testpfizer_simple.csv");
+    in.open("iv7mg_b.csv");
+    // in.open("testpfizer_simple.csv");
 
     if ( !in.is_open() )
     {
@@ -626,7 +630,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     while ( std::getline(in, line) )
     {
         std::stringstream ss(line);
-        std::string       id, unit;
+        std::string       id, unit, field;
 
         if ( mSpecies.empty() )
         {
@@ -645,51 +649,88 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
         }
         else
         {
-            Real measTime, measVal;
-            long j = 0;
+            long j = -1;
 
-            ss >> measTime;
-            std::cout << measTime << "\t";
-
-            mTimepoint.push_back(measTime);
-            newMeas.push_back( MeasurementPoint() );
-
-            while ( ss.good() )
+            while (std::getline(ss, field, '\t'))
             {
-                ss >> measVal;
+                std::stringstream fs(field);
+                Real              measVal;
+
+                if ( !(fs >> measVal) )
+                {
+                    std::cout << ">   . / .    <" << "\t";
+
+                    if (j < 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        ++j;
+                        continue;
+                    }
+                }
+
                 std::cout << ">" << measVal << "<" << "\t";
-                newMeas[tp][mSpecies[j]] = std::make_pair<Real,Real>(measVal, 0.0);
+
+                if (j < 0)
+                {
+                    mTimepoint.push_back(measVal);
+                    newMeas.push_back( MeasurementPoint() );
+                    tp = newMeas.size()-1;
+                }
+                else
+                {
+                    newMeas[tp][mSpecies[j]] = std::make_pair<Real,Real>(measVal, 0.0);
+                }
+
                 ++j;
             }
-            std::cout << std::endl;
 
-            ++tp;
+            if ( newMeas[tp].empty() )
+            {
+                newMeas.pop_back();
+                mTimepoint.pop_back();
+            }
+
+            std::cout << std::endl;
         }
     }
 
     in.close();
 
-    std::cout << "Read " << newMeas.size() << " timepoints with measurement data." << std::endl;
+    std::cout << "Read " << newMeas.size() << " timepoint(s) with measurement data." << std::endl;
 
+    invBiosys.setMeasurementList( Vector(mTimepoint), newMeas );
 
-exit(-6);
+    syndata = invBiosys.getMeasurements();
+    synscal.ones( syndata.nr() );
+    synscal = sigma * synscal;
+
+    std::cout << std::endl;
+    std::cout << "Measured  experimental  data  :  nr() = " << syndata.nr() << std::endl;
+    // std::cout << syndata << std::endl;
+
 
     //
     // Initial guess for GaussNewton
     //
 
-    p.zeros(3);
-    p(1) = 0.5;         // true: 0.2
-    p(2) = 0.5;         // true: 0.1
-    p(3) = 0.05;        // true: 0.02
-    pscal.zeros(3);
+    long q = param.size();
 
     par1.clear();
-    var.clear();
+    p.zeros( q );
+    pscal.zeros( q );
 
-    par1.push_back( "r06_K3" );         var[ "r06_K3" ] = p(1);
-    par1.push_back( "r07_K4" );         var[ "r07_K4" ] = p(2);
-    par1.push_back( "r02_K5" );         var[ "r02_K5" ] = p(3);
+    for (long j = 1; j <= q; ++j)
+    {
+        par1.push_back( param[j-1] );
+        p(j) = pscal(j) = var[ par1.back() ];
+    }
+
+    p(5) = pscal(5) = 1.0;      var[ par1[4] ] = p(5);
+    p(6) = pscal(6) = 1.0;      var[ par1[5] ] = p(6);
+
 
     IOpt           iopt;
     GaussNewtonWk  wk;
@@ -699,10 +740,10 @@ exit(-6);
     iopt.mode      = 0;     // 0:normal run, 1:single step
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
     iopt.qrank1    = false;     // allow Broyden rank-1 updates if __true__
-    iopt.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
+    iopt.nonlin    = 3;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
     iopt.rscal     = 1;     // 1:use unchanged fscal, 2:recompute/modify fscal, 3:use automatic scaling only
     iopt.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
-    iopt.lpos      = false;     // force solution vector to be positive (all components > 0.0)
+    iopt.lpos      = true;      // force solution vector to be positive (all components > 0.0)
                             //          _mprmon =   0      1      2      3      4       5       6
                             //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE
     iopt.mprmon    = 2;
@@ -715,8 +756,8 @@ exit(-6);
 
 
     gn.setProblem( &prob );
+/*
     gn.initialise( syndata.nr(), p, pscal, syndata, synscal, reconXTol, iopt, wk );
-
 
 TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::endl;
     std::cerr << "rc = " << gn.computeSensitivity();
@@ -727,14 +768,15 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::cout << "-----------------------" << std::endl;
     std::cout << " qrA.getDiag() = " << std::endl;
     std::cout << gn.getSensitivity().getDiag().t() << std::endl;
+*/
 
-
-    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, xTol, iopt, wk );
+    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, reconXTol, iopt, wk );
     gn.run();
     // gn.analyse();
     gn.printCounter();
 
     std::vector<Vector> piter = gn.getSolutionIter();
+    Vector psol = gn.getSolution();
 
     std::cout << std::endl;
     std::cout << "Inv.Prob. solution iteration" << std::endl;
@@ -743,7 +785,13 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
         std::cout << "it = " << j << "\n" << piter[j].t();
     std::cout << std::endl;
 
-    Expression::Param final = invBiosys.getSysPar();
+
+    // Expression::Param final = invBiosys.getSysPar();
+    Expression::Param final = var;
+    for (long j = 1; j <= psol.nr(); ++j)
+    {
+        final[ par1[j-1] ] = psol(j);
+    }
 
     std::cout.unsetf( std::ios_base::floatfield );
     std::cout << std::endl;
