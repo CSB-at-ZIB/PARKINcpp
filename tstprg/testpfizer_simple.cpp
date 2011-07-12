@@ -264,8 +264,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     //  take the following lines in to change the default values
     //  ATOL = 10*EPMACH, and RTOL = 1.0e-12
     //
-    Real rTol = 1.0e-5;
+    Real rTol = 1.0e-7;
     Real aTol = 1.0e-9;
+    Real xTol = 1.0e-5;
 
     biosys.setSolverRTol(rTol);
     biosys.setSolverATol(aTol);
@@ -274,7 +275,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
     //-----------------------------------------------------------------------------
 #define SENSI
 #ifdef SENSI
-    double                      xTolS = 1.0e-5;
+    double                      xTolS = xTol;
     long                        nS    = species.size();
     long                        qS    = param.size();
     long                        TS    = meastp.nr();
@@ -332,7 +333,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
 
     // if ( iopt.jacgen > 1 )
-        wkS.cond = 1.0 / sqrt(rTol);
+        wkS.cond = 1.0 / std::sqrt(rTol);
     // wkS.nitmax = 15;
 
 
@@ -348,8 +349,8 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     Matrix reducedA;
     Matrix A = gnS.getSensitivityMatrix();
 
-    std::cout << "  A = (" << A.nr() << " x " << A.nc() << ") " << std::endl;
-    std::cout << A << std::endl;
+    // std::cout << "  A = (" << A.nr() << " x " << A.nc() << ") " << std::endl;
+    // std::cout << A << std::endl;
 
     reducedA.zeros(nS, A.nc());
     for (unsigned k = 0; k < (unsigned)A.nc(); ++k)
@@ -371,8 +372,12 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
         }
     }
 
+    Vector pivot = gnS.getSensitivity().getPivot();
     Vector sensDiag = gnS.getSensitivity().getDiag();
     Vector subCond = sensDiag;
+
+    BioSystem::Species   cSpec  = probS.getSpecies();
+    BioSystem::Parameter cParam = probS.getCurrentParameter();
 
     for (long j = 1; j <= sensDiag.nr(); ++j)
     {
@@ -384,11 +389,18 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::cout << "-----------------------" << std::endl;
     std::cout << " qrA.getDiag() = " << std::endl;
     std::cout << sensDiag.t() << std::endl;
-    std::cout << " corresp. Sub-Conditions = " << std::endl;
-    std::cout << subCond.t() << std::endl;
+    std::cout << " corresp. Sub-Condition = " << std::endl;
+    std::cout << " " << subCond.t(); // << std::endl;
 
-    BioSystem::Species   cSpec  = probS.getSpecies();
-    BioSystem::Parameter cParam = probS.getCurrentParameter();
+
+    for (unsigned j = 0; j < cParam.size(); ++j)
+    {
+        std::cout << std::setw(8) << cParam[pivot(j+1)-1];
+    }
+
+    std::cout << std::endl << std::endl;
+    std::cout << std::endl;
+
 
     std::cout << " rA = (" << reducedA.nr() << " x " << reducedA.nc() << ") " << std::endl;
     std::cout << std::setw(10) << "\t";
@@ -410,8 +422,6 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
 #endif
     //-----------------------------------------------------------------------------
 
-std::exit(-5);
-
 
     Vector syndata, synscal, vref, utmp;
 
@@ -430,121 +440,35 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 //
 //exit(-999);
 
-    Matrix Jac;
-    long   n = species.size();
-    long   T = meastp.nr();
-    long   j = 0;
-
-    utmp.zeros(3);
-
-    par["r06_K3"] = var["r06_K3"];      utmp(1) = ( par["r06_K3"] );
-    par["r07_K4"] = var["r07_K4"];      utmp(2) = ( par["r07_K4"] );
-    par["r02_K5"] = var["r02_K5"];      utmp(3) = ( par["r02_K5"] );
-
-    Jac.zeros( n*T, 7 );
-
-
-TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
-
-    Jac.set_colm( 1, 3 ) =
-        biosys.computeJacobian( par ); // * utmp.diag();  // ... * exp( u=log(par) ).diag()
-
-, std::cerr )
-
-
-    for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
-    {
-        Real   h = std::sqrt(1e-10), psav;
-        Vector vpert;
-
-        psav = par[it->first];
-        par[it->first] = psav + h; // std::exp( std::log(psav) + h );
-        vpert = biosys.computeModel(par);
-        par[it->first] = psav;
-
-        Jac.set_colm( 5+j++ ) = (1.0/h)*(vpert - vref);
-    }
-
-    std::cout << " Jacobian Jac (" << Jac.nr() << " x " << Jac.nc() << ") = " << std::endl;
-    std::cout << Jac << std::endl;
-
-
-
-// exit(42);
-
-
-
-    std::cout << std::endl;
-    std::cout << " -=-=-=-=-=-=-=- " << std::endl;
-
-    emap.clear();
-    emap = biosys.getVarExpr();
-
-    for (unsigned jj = 1, j = 0; j < species.size(); ++j)
-    {
-        std::string eqn = species[j];
-
-        for (unsigned k = 0; k < species.size(); ++k)
-        {
-            std::string s = eqn + "_" + species[k];
-            std::cout << s << " :  ";
-            std::cout << "( " << jj++ << " / " << emap.size() << " )" << std::endl;
-            std::cout << emap[s];
-            std::cout << std::endl;
-        }
-
-        for (unsigned k = 0; k < param.size(); ++k)
-        {
-            std::string s = eqn + "_" + param[k];
-            std::cout << s << " :  " << std::endl;
-            std::cout << "( " << jj++ << " / " << emap.size() << " )" << std::endl;
-            std::cout << emap[s];
-            std::cout << std::endl;
-        }
-    }
-
-    emap.clear();
-    emap = biosys.getODEExpr();
-
-    std::cout << std::endl;
-    std::cout << emap[species[species.size()-1]].df( param[param.size()-1] );
-    std::cout << std::endl;
-
-    std::cout << " -=-=-=-=-=-=-=- " << std::endl;
-
-
+/*
     Vector tp( biosys.getOdeTrajectoryTimePoints() );
     Vector x1( biosys.getOdeTrajectory(0) );
     Vector x2( biosys.getOdeTrajectory(1) );
     Vector x3( biosys.getOdeTrajectory(2) );
     Vector x4( biosys.getOdeTrajectory(3) );
-    Vector x5( biosys.getOdeTrajectory(4) );
 
     std::cout << "=====================" << std::endl;
     std::cout << " t = " << std::endl;
     std::cout << tp.t();
     std::cout << "=====================" << std::endl;
-    std::cout << " C [a.u] = " << std::endl;
+    std::cout << " " << species[0] << " [a.u] = " << std::endl;
     std::cout << x1.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " X [a.u] = " << std::endl;
+    std::cout << " " << species[1] << " [a.u] = " << std::endl;
     std::cout << x2.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " M [a.u] = " << std::endl;
+    std::cout << " " << species[2] << " [a.u] = " << std::endl;
     std::cout << x3.t();
     std::cout << "---------------------" << std::endl;
-    std::cout << " Y [a.u] = " << std::endl;
+    std::cout << " " << species[3] << " [a.u] = " << std::endl;
     std::cout << x4.t();
-    std::cout << "---------------------" << std::endl;
-    std::cout << " Z [a.u] = " << std::endl;
-    std::cout << x5.t();
     std::cout << "=====================" << std::endl;
-
+*/
     ///
     /// and, subsequently, prepare and solve for the inverse problem
     ///
 
-    Real   xTol       = 1.0e-5;
+    Real   reconXTol  = xTol;
     Real   solverRTol = rTol;
     Real   solverATol = aTol;
     Vector p, pscal;
@@ -572,8 +496,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     BioSystem::MeasurementList  newMeas;
     Vector                      newtp;
-    Real                        sigma = 0.015;   // add 1.5% white noise ...
-    unsigned                    sampleSize = 3;
+    Real                        sigma = 0.025;   // add 2.5% white noise ...
+    unsigned                    sampleSize = 1;
+    unsigned                    nSpecies = 2;
 
     newMeas.clear();
     newtp.zeros( sampleSize*meastp.nr() );
@@ -585,7 +510,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
             newMeas.push_back( MeasurementPoint() );
         }
 
-        for (unsigned j = 0; j < species.size(); ++j)
+        for (unsigned j = 0; j < nSpecies /* species.size() */; ++j)
         {
             double val = measlist[tp][species[j]].first;
 
@@ -593,8 +518,11 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
             {
                 Real newval = val + sigma*randn();
 
-                newMeas[sampleSize*tp+k][species[j]] =
-                    std::make_pair<Real,Real>( newval, 1.0 );
+                if (newval >= 0.0)
+                {
+                    newMeas[sampleSize*tp+k][species[j]] =
+                        std::make_pair<Real,Real>( newval, 1.0 );
+                }
             }
         }
     }
@@ -618,18 +546,18 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     std::ofstream out;
 
-    out.open("testsystem_aux.csv");
+    out.open("testpfizer_simple.csv");
 
     if ( !out.is_open() )
     {
-        std::cerr << "### ERROR: Could not open data file 'testsystem_aux.csv'.\n";
+        std::cerr << "### ERROR: Could not open data file 'testpfizer_simple.csv'.\n";
         return -3;
     }
 
     std::cout << "\n";
     std::cout << "Timepoint [s]";
     out << "Timepoint [s]";
-    for (unsigned j = 0; j < species.size(); ++j)
+    for (unsigned j = 0; j < nSpecies /* species.size() */; ++j)
     {
         std::cout << "\t";
         std::cout << species[j] << " [a.u.]";
@@ -642,12 +570,22 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     {
         std::cout << std::fixed << std::setw(10) << meastp(tp+1);
         out << std::fixed << std::setw(10) << meastp(tp+1);
-        for (unsigned j = 0; j < species.size(); ++j)
+        for (unsigned j = 0; j < nSpecies /* species.size() */; ++j)
         {
-            std::cout << "\t";
-            std::cout << std::scientific << measlist[tp][species[j]].first;
-            out << "\t";
-            out << std::scientific << measlist[tp][species[j]].first;
+            if ( measlist[tp].count(species[j]) > 0 )
+            {
+                std::cout << "\t";
+                std::cout << std::scientific << measlist[tp][species[j]].first;
+                out << "\t";
+                out << std::scientific << measlist[tp][species[j]].first;
+            }
+            else
+            {
+                std::cout << "\t";
+                std::cout << std::setw(13) << " ";
+                out << "\t";
+                out << std::setw(13) << " ";
+            }
         }
         std::cout << "\n";
         out << "\n";
@@ -665,6 +603,76 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 //    }
 //    std::cout << "################################################" << std::endl;
 
+
+    std::ifstream in;
+
+    // in.open("iv7mg_b.csv");
+    in.open("testpfizer_simple.csv");
+
+    if ( !in.is_open() )
+    {
+        std::cerr << "### ERROR: Could not open measurement data file 'iv7mg_b.csv'.\n";
+        return -4;
+    }
+
+    ODESolver::Grid    mTimepoint;
+    BioSystem::Species mSpecies;
+    std::string        line;
+    long               tp = 0;
+
+    mSpecies.clear();
+    newMeas.clear();
+
+    while ( std::getline(in, line) )
+    {
+        std::stringstream ss(line);
+        std::string       id, unit;
+
+        if ( mSpecies.empty() )
+        {
+            ss >> id >> unit;  // we do not check for 'Timepoint' here...
+            std::cout << id << " " << unit << "\t";
+
+            while ( ss.good() )
+            {
+                ss >> id >> unit;
+                std::cout << id << " " << unit << "\t";
+                mSpecies.push_back(id);
+            }
+            std::cout << std::endl;
+
+            continue;
+        }
+        else
+        {
+            Real measTime, measVal;
+            long j = 0;
+
+            ss >> measTime;
+            std::cout << measTime << "\t";
+
+            mTimepoint.push_back(measTime);
+            newMeas.push_back( MeasurementPoint() );
+
+            while ( ss.good() )
+            {
+                ss >> measVal;
+                std::cout << ">" << measVal << "<" << "\t";
+                newMeas[tp][mSpecies[j]] = std::make_pair<Real,Real>(measVal, 0.0);
+                ++j;
+            }
+            std::cout << std::endl;
+
+            ++tp;
+        }
+    }
+
+    in.close();
+
+    std::cout << "Read " << newMeas.size() << " timepoints with measurement data." << std::endl;
+
+
+exit(-6);
 
     //
     // Initial guess for GaussNewton
@@ -702,12 +710,12 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
 
     // if ( iopt.jacgen > 1 )
-        wk.cond = 1.0 / sqrt(solverRTol);
+        wk.cond = 1.0 / std::sqrt(solverRTol);
     // wk.nitmax = 15;
 
 
     gn.setProblem( &prob );
-    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, xTol, iopt, wk );
+    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, reconXTol, iopt, wk );
 
 
 TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::endl;
