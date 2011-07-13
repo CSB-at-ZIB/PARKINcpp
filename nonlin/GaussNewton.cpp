@@ -291,19 +291,25 @@ GaussNewton::initialise(
                 "Prescribed relative precision            (XTOL): ", _rtol
               );
 
-       std::string jacg, rsmode;
-       if ( jacgen == 1 )
-           jacg = "a user function";
-       else if ( jacgen == 2 )
-           jacg = "numerical differentiation (without feedback strategy)";
-       else if ( jacgen == 3 )
-           jacg = "numerical differentiation (feedback strategy applied)";
+        std::string jacg, rsmode, posmode;
+        if ( jacgen == 1 )
+            jacg = "a user function";
+        else if ( jacgen == 2 )
+            jacg = "numerical differentiation (without feedback strategy)";
+        else if ( jacgen == 3 )
+            jacg = "numerical differentiation (feedback strategy applied)";
         printl( _lumon, dlib::LINFO,
                 " The Jacobian is supplied by\n %s.\n", jacg.c_str()
               );
         rsmode = ( _iopt.norowscal == true) ? "inhibited" : "allowed";
         printl( _lumon, dlib::LINFO,
                 " Automatic row scaling of the Jacobian is %s.\n\n", rsmode.c_str()
+              );
+        posmode = ( _iopt.lpos == true ) ? "applied (Arrhenius Law)" : "not imposed";
+        printl( _lumon, dlib::LINFO,
+                " %s\n %s %s.\n\n",
+                "Positivity constraints on the unknown parameters",
+                "are", posmode.c_str()
               );
     }
 

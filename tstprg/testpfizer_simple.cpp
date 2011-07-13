@@ -333,7 +333,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
 
     // if ( iopt.jacgen > 1 )
-        wkS.cond = 1.0 / std::sqrt(rTol);
+        wkS.cond = 1.0 / /*std::sqrt*/(rTol);
     // wkS.nitmax = 15;
 
 
@@ -634,7 +634,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
         if ( mSpecies.empty() )
         {
-            ss >> id >> unit;  // we do not check for 'Timepoint' here...
+            ss >> id >> unit;  // we do not check for id=='Timepoint' here...
             std::cout << id << " " << unit << "\t";
 
             while ( ss.good() )
@@ -751,7 +751,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 
     // if ( iopt.jacgen > 1 )
-        wk.cond = 1.0 / std::sqrt(solverRTol);
+        wk.cond = 1.0 / /*std::sqrt*/(solverRTol);
     // wk.nitmax = 15;
 
 
@@ -786,12 +786,14 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::cout << std::endl;
 
 
-    // Expression::Param final = invBiosys.getSysPar();
+    Expression::Param final = invBiosys.getSysPar();
+    /*
     Expression::Param final = var;
     for (long j = 1; j <= psol.nr(); ++j)
     {
         final[ par1[j-1] ] = psol(j);
     }
+    */
 
     std::cout.unsetf( std::ios_base::floatfield );
     std::cout << std::endl;
