@@ -81,8 +81,8 @@
 		<Linker>
 			<Add library="pthread" />
 			<Add library="X11" />
-			<Add library="blas" />
 			<Add library="lapack" />
+			<Add library="blas" />
 		</Linker>
 		<Unit filename="addpkg/ExprEval35/defs.h">
 			<Option target="&lt;{~None~}&gt;" />
