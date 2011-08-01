@@ -119,9 +119,11 @@ namespace PARKIN
             Vector solve_A(bool, Vector&, int&);
             Vector compute_levels_and_dx(Vector const&);
             Real wnorm(Vector const&) const;
+            Real incompatible_factor(Real, Real);
 //            Real compute_norm_projection(Vector const&);
             void log_iteration_vals1(Real);
             void log_iteration_vals2(Real, unsigned, std::string);
+            void log_iteration_vals3(Real, unsigned);
             void log_solout(unsigned, Vector const&, Vector const&, int, dlib::log_level const);
             void compute_statistics(Vector const&, Vector const&);
 

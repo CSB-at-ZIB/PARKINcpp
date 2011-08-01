@@ -815,8 +815,8 @@ GaussNewton::run()
         // Print monitor header
         printl( _lumon, dlib::LVERB,
                 "\n\n\n %s\n\n %s\n",
-                "*******************************************************************",
-                "   It      Normf               Normx       Damp.Fct.   New     Rank"
+                "******************************************************************",
+                "   It     Normf               Normx         Damp.Fct.   New   Rank"
               );
 
         // Startup step
@@ -1231,6 +1231,14 @@ GaussNewton::run()
                         log_iteration_vals2( std::sqrt(_sumx/_n) , _niter , "*" ); // dlib::LTALK
                         //_timoff(5);
 
+                        if ( _fc > 0.997 )
+                        {
+                            skap = incompatible_factor(sumxa, sumxk);
+                            //_timon(5);
+                            log_iteration_vals3(skap, _niter);
+                            //_timoff(5);
+                        }
+
                         // Evaluation of reduced damping factor
                         th = _fca - 1.0;
                         // fcdnm = dlib::length_squared(
@@ -1323,6 +1331,14 @@ GaussNewton::run()
             log_iteration_vals2( std::sqrt(_sumx/_n) , _niter+1 , "*" ); // dlib::LTALK
             //_timoff(5);
 
+            if ( _fc > 0.997 )
+            {
+                skap = incompatible_factor(sumxa, sumxk);
+                //_timon(5);
+                log_iteration_vals3(skap, _niter+1);
+                //_timoff(5);
+            }
+
             // print natural level of current iteration,
             // and (it) if in single-step mode
             _sumxs = _sumx;
@@ -1366,8 +1382,16 @@ GaussNewton::run()
             if ( _irank < minmn ) _ierr = 1;
 
             //_timon(5);
-            log_iteration_vals2( std::sqrt(_sumx /_n) , _niter+1 , "."); // dlib::LVERB
+            log_iteration_vals2( std::sqrt(_sumx /_n) , _niter+1 , "." ); // dlib::LVERB
             //_timoff(5);
+
+            if ( _fc > 0.997 )
+            {
+                skap = incompatible_factor(sumxa, sumxk);
+                //_timon(5);
+                log_iteration_vals3(skap, _niter+1);
+                //_timoff(5);
+            }
 
             if ( _ierr == 0 )
             {
@@ -1403,12 +1427,14 @@ GaussNewton::run()
 
     if ( (_ierr == 0 || _ierr == 1) && _nonlin != 1 )
     {
-        if ( sumxk < _tolmin )
-            skap = -1.0;
-        else if ( sumxa  < _tolmin )
-            skap = std::sqrt(_tolmin);
-        else
-            skap = std::sqrt(sumxa / sumxk);
+        // if ( sumxk < _tolmin )
+        //     skap = -1.0;
+        // else if ( sumxa  < _tolmin )
+        //     skap = std::sqrt(_tolmin);
+        // else
+        //     skap = std::sqrt(sumxa / sumxk);
+
+        skap = incompatible_factor(sumxa, sumxk);
 
         if ( skap >= 0.0 )
         {
@@ -1957,6 +1983,23 @@ GaussNewton::wnorm(Vector const& z) const
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+Real
+GaussNewton::incompatible_factor(Real sumxa, Real sumxk)
+{
+    Real skap;
+
+    if ( sumxk < _tolmin )
+        skap = -1.0;
+    else if ( sumxa  < _tolmin )
+        skap = std::sqrt(_tolmin);
+    else
+        skap = std::sqrt(sumxa / sumxk);
+
+    return skap;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
 void
 GaussNewton::log_iteration_vals1(Real dlevx)
 {
@@ -1968,14 +2011,14 @@ GaussNewton::log_iteration_vals1(Real dlevx)
     {
         printl( _lumon, dlib::LALL,
                 " %s\n",
-                "   It      Normf               Normx       Damp.Fct.   New     Rank"
+                "   It     Normf               Normx         Damp.Fct.   New   Rank"
               );
     }
     else
     {
         printl( _lumon, dlib::LGABBY,
                 " %s\n",
-                "   It      Normf               Normx                   New     Rank"
+                "   It     Normf               Normx                     New   Rank"
               );
     }
 
@@ -1984,14 +2027,14 @@ GaussNewton::log_iteration_vals1(Real dlevx)
     if ( _niter == 0 )
     {
         printl( _lumon, dlib::LVERB,
-                "  %4d     %14.7e      %10.3e                %2d     %4d\n",
+                "  %4d    %14.7e      %10.3e                  %2d   %4d\n",
                 _niter, _dlevf, dlevx, _new, _irank
               );
     }
     else
     {
         printl( _lumon, dlib::LVERB,
-                "  %4d     %14.7e      %10.3e                %2d     %4d\n",
+                "  %4d    %14.7e      %10.3e                  %2d   %4d\n",
                 _niter, _dlevf, dlevx, _new, _irank
               );
     }
@@ -2001,7 +2044,7 @@ GaussNewton::log_iteration_vals1(Real dlevx)
     if ( (monprio != verbprio) && (_niter != 0) )
     {
         printl( _lumon, dlib::LALL,
-                "  %4d     %14.7e      %10.3e      %5.3f     %2d     %4d\n",
+                "  %4d    %14.7e      %10.3e      %7.5f     %2d   %4d\n",
                 _niter, _dlevf, dlevx, _fc, _new, _irank
               );
     }
@@ -2016,14 +2059,27 @@ GaussNewton::log_iteration_vals2(Real dlevx, unsigned niter, std::string mark)
 {
 //    printl( _lumon, dlib::LVERB,
 //            " %s\n",
-//            "   It      Normf           Normx           Damp.Fct."
+//            "   It     Normf               Normx         Damp.Fct."
 //          );
 
     printl( _lumon, dlib::LVERB,
-            "  %4d     %14.7e    %1s %10.3e      %5.3f\n",
+            "  %4d    %14.7e    %1s %10.3e      %7.5f\n",
             niter, _dlevf, mark.c_str(), dlevx, _fc
           );
 
+    return;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void
+GaussNewton::log_iteration_vals3(Real skap, unsigned niter)
+{
+    printl( _lumon, dlib::LVERB,
+         // "  %4d    %14.7e    %1s %10.3e      %7.5f\n",
+            "  %4d    %14s      %10s  kap=%7.5f\n",
+            niter, " ", " ", skap
+          );
     return;
 }
 //---------------------------------------------------------------------------
