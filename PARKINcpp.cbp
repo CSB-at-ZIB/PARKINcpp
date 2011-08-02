@@ -44,8 +44,8 @@
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-fPIC" />
-					<Add directory="/usr/include/python2.6" />
-					<Add directory="/usr/lib/python2.6/config" />
+					<Add directory="/usr/include/python2.7" />
+					<Add directory="/usr/lib/python2.7/config" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -66,8 +66,8 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-fPIC" />
-					<Add directory="/usr/include/python2.6" />
-					<Add directory="/usr/lib/python2.6/config" />
+					<Add directory="/usr/include/python2.7" />
+					<Add directory="/usr/lib/python2.7/config" />
 				</Compiler>
 				<ExtraCommands>
 					<Add before="/bin/rm -f swig/parkin_wrap.cpp obj/SharedLib/swig/parkin_wrap.o" />

@@ -1290,8 +1290,8 @@ GaussNewton::run()
                 _dxq = _dxqa;
 
                 printl( _lumon, dlib::LVERB,
-                        "    %2d %40s%5.3f     %2d     %4d\n",
-                        _niter, "not accepted damping factor: ", _fc, _new, _irank
+                        "    %2d %38s %7.5f     %2d   %4d\n",
+                        _niter, "not accepted damping factor:", _fc, _new, _irank
                      );
 
                 ifccnt = 0;
@@ -2077,8 +2077,8 @@ GaussNewton::log_iteration_vals3(Real skap, unsigned niter)
 {
     printl( _lumon, dlib::LVERB,
          // "  %4d    %14.7e    %1s %10.3e      %7.5f\n",
-            "  %4d    %14s      %10s  kap=%7.5f\n",
-            niter, " ", " ", skap
+            "  %4d %38s %7.5f\n",
+            niter, "incompatibility factor:", skap
           );
     return;
 }

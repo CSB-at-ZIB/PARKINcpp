@@ -76,9 +76,9 @@ int testpfizer_simple()
 
     //
 
-    param.push_back("dose");     var[ "dose"  ] = 35.0; // 47.297;
+    param.push_back("dose");     var[ "dose"  ] = 47.0;      // 35.0; // 47.297;
     // param.push_back("k_a");      var[ "k_a"   ] = 0.0;
-    param.push_back("k_out");    var[ "k_out" ] = 0.21984;
+    param.push_back("k_out");    var[ "k_out" ] = 0.066624;  // 0.21984;
     param.push_back("k_cp");     var[ "k_cp"  ] = 0.1229;
     param.push_back("k_pc");     var[ "k_pc"  ] = 0.1642;
     param.push_back("k_on");     var[ "k_on"  ] = 1.0e7;
@@ -716,7 +716,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     // Initial guess for GaussNewton
     //
 
-    long q = param.size();
+    long q = 3; // param.size();
 
     par1.clear();
     p.zeros( q );
@@ -728,8 +728,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
         p(j) = pscal(j) = var[ par1.back() ];
     }
 
-    p(5) = pscal(5) = 1.0;      var[ par1[4] ] = p(5);
-    p(6) = pscal(6) = 1.0;      var[ par1[5] ] = p(6);
+    // p(5) = pscal(5) = 1.0;      var[ par1[4] ] = p(5);
+    // p(6) = pscal(6) = 1.0;      var[ par1[5] ] = p(6);
 
 
     IOpt           iopt;
