@@ -34,6 +34,10 @@ namespace PARKIN
 
             ///
 
+            int integrateWithoutInterpolation();
+            int integrateWithoutInterpolation(unsigned n, double* yIni,
+                                              double tLeft, double tRight);
+
             void setODESystem(
                                 Fcn         fcn,
                                 Jac         jac,
@@ -68,6 +72,10 @@ namespace PARKIN
             double  _rOpt[5];   // input real value option field (integration control parameter)
             int*    _iPos;      // field of length n: check/garantee positive solution component, if corresponding entry is set to 1
             int     _ifail[3];  // return error indication(s)
+            int     _kOrder;            // output of current integration order (in single step mode)
+            double  _Dense[4000*30];    // output of Hermite interpolation tableau (max. size in FORTRAN size definition file...)
+            double  _t1;                // output start of current subinterval in single step mode
+            double  _t2;                // output end of current subinterval in single step mode
 
             Grid        _solPoints;
             Trajectory  _solution;

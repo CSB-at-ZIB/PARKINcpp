@@ -417,7 +417,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
 
     //-----------------------------------------------------------------------------
-#define SENSI
+// #define SENSI
 #ifdef SENSI
     double                      rtolS = 1.0e-5;
     long                        nS    = species.size();
@@ -559,12 +559,12 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 , std::cerr );
 
-//std::cerr << " vref = " << std::endl;
-//std::cerr << vref;
-//std::cerr << std::endl;
-//std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
-//
-//exit(-999);
+std::cerr << " vref = " << std::endl;
+std::cerr << vref;
+std::cerr << std::endl;
+std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
+
+exit(-999);
 
     Matrix Jac;
     long   n = species.size();

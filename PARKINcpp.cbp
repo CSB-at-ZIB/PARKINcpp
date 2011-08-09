@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="5" />
+				<Option parameters="4" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />
@@ -129,7 +129,9 @@
 		<Unit filename="addpkg/ExprEval35/vallist.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="addpkg/LIMEX4_3A/HERMINE.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMD.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMDHERM.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.h" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Dense.f" />

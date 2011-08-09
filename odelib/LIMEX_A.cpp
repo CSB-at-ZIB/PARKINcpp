@@ -81,6 +81,8 @@ LIMEX_A::initOpt()
 
     _iOpt[30] =  0;     // !!! Only available in LIMD !!!
                         // Type of left-hand side B: 0 B=id, 1 B=const., 2 variable B
+    _iOpt[31] =  1;     // !!! Only available in LIMDHERM !!!
+                        // Interpolation mode: 0 no addition output, 1 give additional output (switched on)
 
     ///
 
@@ -98,6 +100,118 @@ LIMEX_A::initOpt()
 
     return;
 }
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+int
+LIMEX_A::integrate()
+{
+    return -99; // _ifail[0];
+}
+//----------------------------------------------------------------------------
+int
+LIMEX_A::integrate( unsigned n, double* yIni,
+                    double tLeft, double tRight)
+{
+    GridIterConst dBeg = _datPoints.begin();
+    GridIterConst dEnd = _datPoints.end();
+    double*       z;
+    double*       ztmp;
+    double        t[0];
+    double        T;
+
+    if ( n != (unsigned)_n ) return -99;
+
+    if ( yIni == 0 ) z = _y0; else z = yIni;
+
+    *t = tLeft;
+    T  = tRight;
+
+    _solPoints.clear();
+    _solution.clear();
+
+    //
+
+    _iOpt[11] = 1;      // single step mode ON
+    _iOpt[12] = 0;      // no dense output
+    _iOpt[13] = 0;
+    _iOpt[14] = 0;
+
+    if ( _iOpt[15] == -1 ) {
+        _iOpt[15] = 0;  // type of call of limex_(): 0 initial call, 1 successive call
+
+        _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
+        _h = _rtol;
+    }
+
+    _iOpt[16] = 0;      // integration for t > T internally forbidden
+    _iOpt[31] = 1;      // switch on interpolation (for single step mode), only available in LIMDHERM !!!
+
+    //
+
+    while ( (_ifail[0] == 0) && (*t < T) )
+    {
+        limdherm_(
+                    &_n,
+                    _fcn, _jac,
+                    t, &T,
+                    z, _dy0,
+                    &_rtol, &_atol, &_h,
+                    _iOpt, _rOpt, _iPos,
+                    _ifail,
+                    &_kOrder, _Dense, &_t1, &_t2
+                 );
+
+        // in single step mode: save the new, adaptive time point
+        if (*t <= T)
+        {
+            _solPoints.push_back( *t );
+            ztmp = z;
+            for (long j = 0; j < _n; ++j)
+            {
+                _solution[j].push_back( *ztmp++ );
+            }
+        }
+
+        // interpolate the measurement time points in ] t1, t2 ]
+        GridIterConst gBeg = std::lower_bound( dBeg, dEnd, _t1);
+        GridIterConst gEnd = std::upper_bound( dBeg, dEnd, _t2);
+
+        for (GridIterConst it = gBeg; it != gEnd; ++it)
+        {
+            double yEval[_n];
+            double tEval = (double) *it;
+
+            if ( (_t1 < tEval) && (tEval < _t2) )
+            {
+                hermine_(
+                            &_n, &_kOrder,
+                            _Dense, &_t1, &_t2,
+                            &tEval, yEval
+                        );
+
+                ztmp = yEval;
+                for (long j = 0; j < _n; ++j)
+                {
+                    _data[j].push_back( *ztmp++ );
+                }
+            }
+            else if ( tEval == _t2 )
+            {
+                // ztmp = z;
+                for (long j = 0; j < _n; ++j)
+                {
+                    // _data[j][long(it-dBeg)] = z[j];  // allowing overwriting of data points!
+                    _data[j].push_back( z[j] );   // a simple append eventually produces double data points...
+                }
+            }
+
+        } // end for gBeg, gEnd
+
+    } // end for limdherm_
+
+    return _ifail[0];
+}
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 void
 LIMEX_A::computeAndSaveLimexTrajectory(double* t, double T, double* y)
@@ -143,7 +257,7 @@ LIMEX_A::computeAndSaveLimexTrajectory(double* t, double T, double* y)
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 int
-LIMEX_A::integrate()
+LIMEX_A::integrateWithoutInterpolation()
 {
     GridIterConst gBeg = _datPoints.begin();
     GridIterConst gEnd = _datPoints.end();
@@ -196,8 +310,8 @@ LIMEX_A::integrate()
 }
 //----------------------------------------------------------------------------
 int
-LIMEX_A::integrate( unsigned n, double* yIni,
-                    double tLeft, double tRight )
+LIMEX_A::integrateWithoutInterpolation( unsigned n, double* yIni,
+                                        double tLeft, double tRight )
 {
     // const Real reduce = 0.001;
 
@@ -270,6 +384,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
     return _ifail[0];
 }
 //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 ODESolver::Trajectory&
 LIMEX_A::getSimulatedData()
 {
@@ -293,6 +408,7 @@ LIMEX_A::setODESystem(
         delete[] _y0;    _y0   = new double[_n];
         delete[] _dy0;   _dy0  = new double[_n];
         delete[] _iPos;  _iPos = new int[_n];
+        // delete[] _Dense; _Dense = new double[4000*30];
     }
 
     _fcn = fcn;

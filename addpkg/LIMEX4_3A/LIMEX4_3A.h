@@ -1074,7 +1074,7 @@ typedef void (*Jac)(int* n,
                     double* J, int* ldJ, int* ml, int* mu,
                     int* full_or_band, int* info);
 
-
+// original LIMEX API
 extern void limex_(
             int*      n,
             Fcn       fcn,
@@ -1092,7 +1092,10 @@ extern void limex_(
             int*      ifail);
 
 
-
+// extended LIMD API: iOpt(31):
+//                      0 = B (n x n) identity,
+//                      1 = B const.,
+//                      2 = B may be variable (as in original API)
 extern void limd_(
             int*      n,
             Fcn       fcn,
@@ -1109,3 +1112,36 @@ extern void limd_(
             int*      iPos,
             int*      ifail);
 
+
+
+// extenteded API (as above) with extrapolation entry if iOpt(32)==1
+extern void limdherm_(
+            int*      n,
+            Fcn       fcn,
+            Jac       jac,
+            double*   t0,
+            double*   T,
+            double*   y0,
+            double*   dy0,
+            double*   rTol,
+            double*   aTol,
+            double*   h,
+            int*      iOpt,
+            double*   rOpt,
+            int*      iPos,
+            int*      ifail,
+            int*      kOrder,
+            double*   Dense,
+            double*   t1,
+            double*   t2);
+
+
+// corresponding Hermite interpolation evaluating according to 'Dense' tableau
+extern void hermine_(
+            int*      n,
+            int*      kOrder,
+            double*   Dense,
+            double*   t1,
+            double*   t2,
+            double*   tEval,
+            double*   yEval);

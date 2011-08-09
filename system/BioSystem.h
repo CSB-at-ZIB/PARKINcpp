@@ -61,41 +61,58 @@ namespace PARKIN
 
             void
             setSolverRTol(Real tol);
+
             void
             setSolverATol(Real tol);
 
+            //
+
             Expression::Param&
             getSysPar();
+
             Expression::Param&
             getOptPar();
 
+            //
+
             Species
             getSpecies();
+
             void
             resetSpecies(Species const& species);   // Species serve also as index
                                                     // to BioRHS, therefore we will
                                                     // have a resetSpecies method here!
-
+            //
 
             Parameter
             getParameters();
+
             void
             setParameters(Parameter const& parameter);
 
+            //
+
             Vector
             getBreakpoints();
+
             void
             setBreakpoints(Vector const& tInterval);
 
+            //
+
             ExpressionMap
             getEvent(long j) const;
+
             void
             setEvent(long j, ExpressionMap const& emap);
+
+            //
 
             BioRHS const&
             getODE() const
             { return _ode; }
 
+            //
 
             ExpressionMap const&
             getVarExpr()
@@ -105,46 +122,67 @@ namespace PARKIN
             getODEExpr()
             { return _ode.getRHS(); }
 
+            //
+
             void
             setODESystem(ExpressionMap const& elist);
 
+            //
+
             MeasurementList const&
             getMeasurementList();
+
             // void
             // setMeasurementList(ODESolver::Grid const& tp, MeasurementList const& meas);
+
             void
             setMeasurementList(Vector const& tp, MeasurementList const& meas);
+
             void
             setMeasurementList(MeasurementList const& meas);
+
             void
             setEmptyMeasurementList();
+
             Vector
             getMeasurements();
+
             Vector
             getMeasurementWeights();
+
+            //
+
 //            void
 //            setMeasurementTimePoints(ODESolver::Grid const& tp);
+
             void
             setMeasurementTimePoints(Vector const& tp);
-
 
             Vector  // ODESolver::Grid&
             getOdeTrajectoryTimePoints();
 
+            //
 
             Real
             getParamValue(std::string const& name); // const;
+
             void
             setParamValue(std::string const& name, Real value);
+
             void
             setParamValues(Expression::Param const& par);
 
+            //
+
             Real
             getInitialValue(std::string const& name); // const;
+
             void
             setInitialValue(std::string const& name, Real value);
+
             void
             setInitialValues(Expression::Param const& inipar);
+
             void
             setInitialValues(Vector const& val);
 
@@ -152,11 +190,15 @@ namespace PARKIN
 
             ODESolver::Trajectory const&
             getOdeTrajectory();
+
             Vector
             getOdeTrajectory(long j);
 
+            //
+
             Vector
             getSimTrajectoryPoints(long j);
+
             Vector
             getSimTrajectoryPoints(std::string spec);
 
@@ -164,6 +206,7 @@ namespace PARKIN
 
             void
             iniODE();
+
             void
             iniODE(long n, double* y);
 
