@@ -48,7 +48,7 @@ int testsystem_aux()
     /// cyclin: BIOMD0000000008.xml
 
     Real                        tstart = 1.0;
-    Real                        tend   = 10.0;
+    Real                        tend   = 100.0;
     Expression::Param           var, par;
 
     BioSystem::Species          species;
@@ -338,7 +338,7 @@ int testsystem_aux()
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
     Vector breaktp;
-/*
+
     breaktp.zeros(4);
     for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/3.0;
 
@@ -378,7 +378,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
         std::cout << std::endl;
     }
     std::cout << std::endl;
-*/
+
 
     emap.clear();
     emap = biosys.getODEExpr();
@@ -417,7 +417,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
 
     //-----------------------------------------------------------------------------
-// #define SENSI
+#define SENSI
 #ifdef SENSI
     double                      rtolS = 1.0e-5;
     long                        nS    = species.size();
@@ -559,12 +559,12 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 , std::cerr );
 
-std::cerr << " vref = " << std::endl;
-std::cerr << vref;
-std::cerr << std::endl;
-std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
-
-exit(-999);
+//std::cerr << " vref = " << std::endl;
+//std::cerr << vref;
+//std::cerr << std::endl;
+//std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
+//
+//exit(-999);
 
     Matrix Jac;
     long   n = species.size();

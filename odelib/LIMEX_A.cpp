@@ -112,16 +112,31 @@ int
 LIMEX_A::integrate( unsigned n, double* yIni,
                     double tLeft, double tRight)
 {
+    if ( n != (unsigned)_n ) return -99;
+
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
-    double*       z;
+    double        z[_n], yEval[_n];
     double*       ztmp;
     double        t[0];
     double        T;
+    int           maxEqns = MAX_NO_EQNS;
 
-    if ( n != (unsigned)_n ) return -99;
-
-    if ( yIni == 0 ) z = _y0; else z = yIni;
+    if ( yIni == 0 )
+    {
+        for (long j = 0; j < _n; ++j)
+        {
+            z[j] = _y0[j];
+            _dy0[j] = 0.0;
+        }
+    }
+    else
+    {
+        for (long j = 0; j < _n; ++j)
+        {
+            z[j] = yIni[j];
+        }
+    }
 
     *t = tLeft;
     T  = tRight;
@@ -129,10 +144,17 @@ LIMEX_A::integrate( unsigned n, double* yIni,
     _solPoints.clear();
     _solution.clear();
 
+//std::cerr << "*** Data time points where measurements are taken:" << std::endl;
+//    for (GridIterConst it = dBeg; it != dEnd; ++it)
+//    {
+//std::cerr << *it << ", ";
+//    }
+//std::cerr << std::endl;
+
     //
 
     _iOpt[11] = 1;      // single step mode ON
-    _iOpt[12] = 0;      // no dense output
+    _iOpt[12] = 0;      // no dense output (!), but interpolation will be used below
     _iOpt[13] = 0;
     _iOpt[14] = 0;
 
@@ -164,6 +186,8 @@ LIMEX_A::integrate( unsigned n, double* yIni,
         // in single step mode: save the new, adaptive time point
         if (*t <= T)
         {
+// std::cerr << "***" << std::endl;
+// std::cerr << "*** Next adaptive time point: " << *t << std::endl;
             _solPoints.push_back( *t );
             ztmp = z;
             for (long j = 0; j < _n; ++j)
@@ -172,42 +196,85 @@ LIMEX_A::integrate( unsigned n, double* yIni,
             }
         }
 
-        // interpolate the measurement time points in ] t1, t2 ]
-        GridIterConst gBeg = std::lower_bound( dBeg, dEnd, _t1);
-        GridIterConst gEnd = std::upper_bound( dBeg, dEnd, _t2);
+/*
+        // NOTE: This disabled snippet is possible only with adjusted limdherm_()
+        //       Basically, the '_Dense' array produced below is then already computed
+        //       by a call to comp_herm_() inside limdherm_() !
 
+        int    maxRowTab = MAX_ROW_TAB;
+        int    nj[MAX_ROW_TAB] = { 1, 2, 3, 4, 5, 6, 7 };
+        int    ipt[MAX_ROW_TAB];
+        double tempWork[_n*(MAX_ROW_TAB+1)];
+
+        ipt[0] = 3;
+        for (int i = 1; i < maxRowTab; ++i) ipt[i] = ipt[i-1] + nj[i];
+
+        comp_herm_(
+                    &_n, &maxEqns, _Dense,
+                    &_kOrder,
+                    ipt, nj,
+                    tempWork
+                  );
+*/
+
+        // interpolate the measurement time points in ] t1, t2 ] subste of [dBeg, dEnd[
+        // requirement: search range [ dBeg, dEnd [ has to be sorted!
+        GridIterConst gBeg = std::lower_bound( dBeg, dEnd, _t1);    // gBeg pointing to first element in [dBeg, dEnd[ that does *not* compare less than _t1
+        GridIterConst gEnd = std::upper_bound( dBeg, dEnd, _t2);    // gEnd pointing to first element in [dBeg, dEnd[ that compares greater than _t2
+
+// std::cerr << "*** Proceeding with subinterval ] " << _t1 << ", " << _t2 << " ]" << std::endl;
         for (GridIterConst it = gBeg; it != gEnd; ++it)
         {
-            double yEval[_n];
             double tEval = (double) *it;
 
             if ( (_t1 < tEval) && (tEval < _t2) )
             {
+                double tFrac = (tEval - _t1)/(_t2 - _t1);
+
+// std::cerr << "*** Interpolation at time = " << tEval
+//           << " ( tFraction: " << tFrac << "),"
+//           << " ( #" << long(it-dBeg) << " ),"
+//           << " Order: " << _kOrder << std::endl;
+            /*
                 hermine_(
                             &_n, &_kOrder,
                             _Dense, &_t1, &_t2,
                             &tEval, yEval
                         );
+            */
+                eval_herm_(
+                            &_n, &maxEqns, _Dense, &_kOrder,
+                            &tFrac, yEval
+                          );
 
+// std::cerr << "***    ";
                 ztmp = yEval;
                 for (long j = 0; j < _n; ++j)
                 {
-                    _data[j].push_back( *ztmp++ );
+// std::cerr << *ztmp << ", ";
+                    _data[j][long(it-dBeg)] = *ztmp++;  // see comment right below
                 }
+// std::cerr << std::endl;
+
             }
             else if ( tEval == _t2 )
             {
-                // ztmp = z;
+// std::cerr << "*** Right boundary time = " << _t2 << " ( #" << long(it-dBeg) << " )" << std::endl;
+// std::cerr << "***    ";
+                ztmp = z;
                 for (long j = 0; j < _n; ++j)
                 {
-                    // _data[j][long(it-dBeg)] = z[j];  // allowing overwriting of data points!
-                    _data[j].push_back( z[j] );   // a simple append eventually produces double data points...
+// std::cerr << *ztmp << ", ";
+                    _data[j][long(it-dBeg)] = *ztmp++;  // allowing overwriting of data points!
+                    // _data[j].push_back( z[j] );      // a simple append eventually produces double data points...
                 }
+// std::cerr << std::endl;
+
             }
 
         } // end for gBeg, gEnd
 
-    } // end for limdherm_
+    } // end while limdherm_
 
     return _ifail[0];
 }

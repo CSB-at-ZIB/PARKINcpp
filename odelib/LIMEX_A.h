@@ -73,7 +73,8 @@ namespace PARKIN
             int*    _iPos;      // field of length n: check/garantee positive solution component, if corresponding entry is set to 1
             int     _ifail[3];  // return error indication(s)
             int     _kOrder;            // output of current integration order (in single step mode)
-            double  _Dense[4000*30];    // output of Hermite interpolation tableau (max. size in FORTRAN size definition file...)
+                                        // output of Hermite interpolation tableau (max. size in FORTRAN size definition file...)
+            double  _Dense[MAX_NO_EQNS*(2+MAX_ROW_TAB*(MAX_ROW_TAB+1)/2)];
             double  _t1;                // output start of current subinterval in single step mode
             double  _t2;                // output end of current subinterval in single step mode
 

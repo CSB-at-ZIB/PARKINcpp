@@ -1063,6 +1063,9 @@ c
 c     dgetrs     Solves a general real linear system
 c
 */
+#define MAX_NO_EQNS 4000
+#define MAX_ROW_TAB 7
+
 
 typedef void (*Fcn)(int* n, int* nz,
                     double* t, double* y, double* dy,
@@ -1131,12 +1134,38 @@ extern void limdherm_(
             int*      iPos,
             int*      ifail,
             int*      kOrder,
-            double*   Dense,
+            double*   Dense,        // returns the comp_herm_() output array 'Dense' in this special version of LIMEX
             double*   t1,
             double*   t2);
 
 
+extern void eval_herm_(
+            int*      n,
+            int*      maxEqns,
+            double*   Dense,        // has to be the output array 'Dense' of comp_herm_() !
+            int*      kOrder,
+            double*   tFac,         // tFac = (tEval - t1) / (t2 - t1)
+            double*   yInterp);     // y(.) at interpolation point ( == y(tEval) )
+
+//
+/*
+extern void comp_herm_(
+            int*      n,
+            int*      maxEqns,
+            double*   Dense,
+            int*      kOrder,
+            int*      ipt,
+            int*      nj,
+            double*   Work);
+*/
+
+///
+
 // corresponding Hermite interpolation evaluating according to 'Dense' tableau
+//
+// NOTE: Currently not re-entrant since the 'Dense' array is modified by hermine_().
+//       Therefore, it is commented out.
+/*
 extern void hermine_(
             int*      n,
             int*      kOrder,
@@ -1145,3 +1174,4 @@ extern void hermine_(
             double*   t2,
             double*   tEval,
             double*   yEval);
+*/
