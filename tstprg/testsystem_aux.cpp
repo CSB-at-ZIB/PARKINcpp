@@ -339,6 +339,7 @@ int testsystem_aux()
     //
     Vector breaktp;
 
+/*
     breaktp.zeros(4);
     for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/3.0;
 
@@ -378,7 +379,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
         std::cout << std::endl;
     }
     std::cout << std::endl;
-
+*/
 
     emap.clear();
     emap = biosys.getODEExpr();

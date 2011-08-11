@@ -674,10 +674,11 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 
         dynamic_cast<LIMEX_A*>(_odeSystem) -> resetSuccessiveCallFlag();
 
-        //$$$ std::cerr << "*** dop853: rc = " <<
-        // std::cerr << "*** BioSystem::computeModel: limex_a: rc = " <<
+        //$$$ std::cerr << "\n*** dop853: rc = ";
+        // std::cerr << "\n*** BioSystem::computeModel: limex_a: rc = ";
         _odeErrorFlag = _odeSystem -> integrate(n, y, _tInterval[j-1], _tInterval[j]);
-        // std::cerr << std::endl;
+        //$$$ _odeErrorFlag = dynamic_cast<LIMEX_A*>(_odeSystem) -> integrateWithoutInterpolation(n, y, _tInterval[j-1], _tInterval[j]);
+        // std::cerr << _odeErrorFlag << std::endl;
 
         /*
         double* ytmp = y;
