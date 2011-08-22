@@ -589,11 +589,18 @@ LIMEX_A::integrateWithoutInterpolation( unsigned n, double* yIni,
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-ODESolver::Trajectory&
-LIMEX_A::getSimulatedData()
+ODESolver::Grid&
+LIMEX_A::getAdaptiveGridPoints()
 {
-    return _data;
+    return _solPoints;
 }
+//----------------------------------------------------------------------------
+ODESolver::Trajectory&
+LIMEX_A::getAdaptiveSolution()
+{
+    return _solution;
+}
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 void
 LIMEX_A::setODESystem(

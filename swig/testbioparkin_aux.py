@@ -70,7 +70,7 @@ var["compartment"] = 1.0
 var["k1"] = 1.5
 #print var.items()
 
-biosys.computeModel(var,"init")
+biosys.computeModel(var,"adaptive")
 
 # extract and print out the computed solution vectors
 tp = biosys.getOdeTrajectoryTimePoints()

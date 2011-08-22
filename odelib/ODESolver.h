@@ -30,7 +30,8 @@ namespace PARKIN
             virtual int         integrate()                            = 0;
             virtual int         integrate(unsigned n, double* yIni,
                                           double xLeft, double xRight) = 0;
-            virtual Trajectory& getSimulatedData()                     = 0;
+            virtual Grid&       getAdaptiveGridPoints()                = 0;
+            virtual Trajectory& getAdaptiveSolution()                  = 0;
 
 
             void setRTol(Real rtol) { _rtol = rtol; }

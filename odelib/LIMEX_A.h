@@ -30,7 +30,8 @@ namespace PARKIN
             virtual int integrate(unsigned n, double* yIni,
                                   double tLeft, double tRight);
 
-            virtual Trajectory& getSimulatedData();
+            virtual Grid&       getAdaptiveGridPoints();
+            virtual Trajectory& getAdaptiveSolution();
 
             ///
 

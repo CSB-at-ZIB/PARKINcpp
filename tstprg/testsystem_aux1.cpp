@@ -80,8 +80,8 @@ int testsystem_aux()
     var["k1"] = 1.5;
 
 
-    biosys.computeModel(var, "init");
-    // syndata = biosys.computeModel(var, "init");
+    biosys.computeModel(var, "adaptive");
+    // syndata = biosys.computeModel(var, "adaptive");
 
 
     Vector tp( biosys.getOdeTrajectoryTimePoints() );

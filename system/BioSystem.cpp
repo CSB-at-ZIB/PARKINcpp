@@ -651,6 +651,12 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
         _iniCond[j-1].setParBase(_parValue);
     }
 
+    if ( mode == "adaptive" )
+    {
+        _tpMeas.clear();
+        T = -1;
+    }
+
     //$$$ dynamic_cast<DOP853*>(_odeSystem) ->
     dynamic_cast<LIMEX_A*>(_odeSystem) ->
                             setODESystem(
@@ -691,8 +697,18 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 
 // , std::cerr )
 
+    ODESolver::Trajectory sim;
 
-    ODESolver::Trajectory sim = _odeSystem -> getSimulatedData();
+    if ( _tpMeas.size() <= 0 )
+    {
+        _tpMeas = _odeSystem -> getAdaptiveGridPoints();
+        T       = _tpMeas.size();
+        sim     = _odeSystem -> getAdaptiveSolution();
+    }
+    else
+    {
+        sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
+    }
 
     _synData.clear();
 
@@ -707,7 +723,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
                 _synData[tp][*it] = std::make_pair<Real,Real>( 0.0, GREAT );
     }
 
-    if ( mode == "init" ) { _measData = _synData; _totmeasData = n*T; }
+    if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = n*T; }
 
     k = 0;
     model.zeros(_totmeasData);
@@ -731,7 +747,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 }
 //---------------------------------------------------------------------------
 Matrix
-BioSystem::computeJacobian(Expression::Param const& var)
+BioSystem::computeJacobian(Expression::Param const& var, std::string mode)
 {
     Expression::ParamIterConst vBeg = var.begin();
     Expression::ParamIterConst vEnd = var.end();
@@ -744,12 +760,13 @@ BioSystem::computeJacobian(Expression::Param const& var)
         idx[it->first] = ++k;
     }
 
-    return computeJacobian(var, idx);
+    return computeJacobian(var, idx, mode);
 }
 //---------------------------------------------------------------------------
 Matrix
 BioSystem::computeJacobian(Expression::Param const& var,
-                           Expression::Param&       idx)
+                           Expression::Param&       idx,
+                           std::string              mode)
 {
     Species const&      species   = _ode.getSpecies();
     Parameter const&    parameter = _ode.getParameters();
@@ -758,7 +775,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
     long                n = species.size();
     long                q = parameter.size();
     long                qq = var.size();
-    long                T = _tpMeas.size();
+    long                T; //  = _tpMeas.size();
     long                Tb = _tInterval.size();
     long                N = n + n*qq;  // n + n*q;
     std::vector<Real>   iniValues(N, 0.0);
@@ -766,7 +783,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
     double*             Zp = yy + n;
     // Matrix              Z; // (n,qq);
     // Matrix              jacobian(n*T, qq);
-    Matrix              jacobian(_totmeasData, qq);
+    Matrix              jacobian; // (_totmeasData, qq);
     StrIterConst        sBeg = species.begin();
     StrIterConst        sEnd = species.end();
     StrIterConst        pBeg = parameter.begin();
@@ -803,13 +820,25 @@ BioSystem::computeJacobian(Expression::Param const& var,
         _iniCond[jj-1].setParBase(_parValue);
     }
 
+    ODESolver::Grid tp;
+
+    if ( mode == "adaptive" )
+    {
+        tp.clear();
+        T = -1;
+    }
+    else
+    {
+        tp = _tpMeas;
+        T = tp.size();
+    }
 
     dynamic_cast<LIMEX_A*>(_odeSystem) ->
                             setODESystem(
                                             BioSystemWrapper::fcnVar,
                                             BioSystemWrapper::jacVar,
                                             _tInterval[0], iniValues,
-                                            _tpMeas,
+                                            tp,
                                             _tInterval[Tb-1]
                                             // ,(int) n
                                             // BioSystemWrapper::outVar
@@ -861,7 +890,17 @@ BioSystem::computeJacobian(Expression::Param const& var,
 // , std::cerr )
 
 
-    ODESolver::Trajectory sim = _odeSystem -> getSimulatedData();
+    ODESolver::Trajectory sim;
+
+    if ( mode == "adaptive" )
+    {
+        T   = _odeSystem -> getAdaptiveGridPoints().size();
+        sim = _odeSystem -> getAdaptiveSolution();
+    }
+    else
+    {
+        sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
+    }
 
     _jacobian.clear();
 
@@ -884,6 +923,8 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
 
     j = 0;
+    jacobian.zeros(n*T, qq);
+
     for (long tp = 0; tp < T; ++tp)
     {
         MeasIterConst mBeg = _measData[tp].begin();

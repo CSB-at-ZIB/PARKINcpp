@@ -179,9 +179,11 @@ int testpfizer_simple()
     biosys.setInitialValue("Receptor", 10.0);
     biosys.setInitialValue("Complex",   0.0);
 
+/*
     Vector meastp(200);
     for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/200.0;
     biosys.setMeasurementTimePoints( meastp );
+*/
 
     // Breakpoints / Event Management:
     //
@@ -273,7 +275,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
 
     //-----------------------------------------------------------------------------
-#define SENSI
+// #define SENSI
 #ifdef SENSI
     double                      xTolS = xTol;
     long                        nS    = species.size();
@@ -349,8 +351,10 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     Matrix reducedA;
     Matrix A = gnS.getSensitivityMatrix();
 
-    // std::cout << "  A = (" << A.nr() << " x " << A.nc() << ") " << std::endl;
-    // std::cout << A << std::endl;
+/*
+    std::cout << "  A = (" << A.nr() << " x " << A.nc() << ") " << std::endl;
+    std::cout << A << std::endl;
+*/
 
     reducedA.zeros(nS, A.nc());
     for (unsigned k = 0; k < (unsigned)A.nc(); ++k)
@@ -359,12 +363,12 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
 
         for (unsigned j = 0; j < (unsigned)nS; ++j)
         {
-            // long   off = j + 1;
+            long   off = j + 1;
             double s = 0.0;
 
             for (unsigned tp = 0; tp < (unsigned)TS; ++tp)
             {
-                double val = v( tp*nS + j + 1 ); // off);
+                double val = v( tp*nS + off);
                 s += std::pow(val, 2.0);
             }
 
@@ -428,10 +432,12 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 //for (long n=0; n < 100; ++n)
-    vref = biosys.computeModel(var, "init");
-    // syndata = biosys.computeModel(var, "init");
+    vref = biosys.computeModel(var, "adaptive");
+    // syndata = biosys.computeModel(var, "adaptive");
 
 , std::cerr );
+
+    Vector meastp = biosys.getOdeTrajectoryTimePoints();
 
 //std::cerr << " vref = " << std::endl;
 //std::cerr << vref;
@@ -572,8 +578,10 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     out << "\n";
     for (unsigned tp = 0; tp < (unsigned)meastp.nr(); ++tp)
     {
-        std::cout << std::fixed << std::setw(10) << meastp(tp+1);
-        out << std::fixed << std::setw(10) << meastp(tp+1);
+        // std::cout << std::fixed << std::setw(10) << meastp(tp+1);
+        // out << std::fixed << std::setw(10) << meastp(tp+1);
+        std::cout << "  " << std::scientific << std::setw(6) << meastp(tp+1);
+        out << "  " << std::scientific << std::setw(6) << meastp(tp+1);
         for (unsigned j = 0; j < nSpecies /* species.size() */; ++j)
         {
             if ( measlist[tp].count(species[j]) > 0 )
@@ -716,7 +724,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     // Initial guess for GaussNewton
     //
 
-    long q = 3; // param.size();
+    long q = 2; // param.size();
 
     par1.clear();
     p.zeros( q );

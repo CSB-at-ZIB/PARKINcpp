@@ -64,8 +64,8 @@ int testsystem()
         var["b"] = j;
 
 
-        syndata = biosys.computeModel(var, "init");
-        // syndata = biosys.computeModel(var, "init");
+        syndata = biosys.computeModel(var, "adaptive");
+        // syndata = biosys.computeModel(var, "adaptive");
 
 
         Vector tp( biosys.getOdeTrajectoryTimePoints() );

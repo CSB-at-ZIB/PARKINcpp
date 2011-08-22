@@ -347,8 +347,8 @@ int testsystem_aux()
     Vector syndata, synscal;
 
 
-    biosys.computeModel(var, "init");
-    // syndata = biosys.computeModel(var, "init");
+    biosys.computeModel(var, "adaptive");
+    // syndata = biosys.computeModel(var, "adaptive");
 
     std::cout << std::endl;
     std::cout << " -=-=-=-=-=-=-=- " << std::endl;

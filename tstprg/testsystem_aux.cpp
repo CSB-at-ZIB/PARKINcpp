@@ -555,8 +555,8 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 //for (long n=0; n < 100; ++n)
-    vref = biosys.computeModel(var, "init");
-    // syndata = biosys.computeModel(var, "init");
+    vref = biosys.computeModel(var, "adaptive");
+    // syndata = biosys.computeModel(var, "adaptive");
 
 , std::cerr );
 

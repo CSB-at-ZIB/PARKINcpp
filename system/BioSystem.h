@@ -215,15 +215,20 @@ namespace PARKIN
             Vector
             computeModel(Expression::Param const&   var,
                          std::string                mode = "");
-                         // mode    -   "init"       : generate artificial data in _measData,
+                         // mode    -   "adaptive"   : generate artificial data in _measData  **and**  _tpMeas,
                          //             "any-string" : only _synData is changed
 
             Matrix
-            computeJacobian(Expression::Param const& var);
-
+            computeJacobian(Expression::Param const& var,
+                            std::string              mode = "");
+                            // mode -   "adaptive"   : generate Jacobian adaptively in _jacobian; do __NOT__ change _tpMeas,
+                            //          "any-string" : take _tpMeas as computation base, i.e. compute Jacobian at _tpMeas
             Matrix
             computeJacobian(Expression::Param const& var,
-                            Expression::Param&       idx);
+                            Expression::Param&       idx,
+                            std::string              mode = "");
+                            // mode -   "adaptive"   : generate Jacobian adaptively in _jacobian; do __NOT__ change _tpMeas,
+                            //          "any-string" : take _tpMeas as computation base, i.e. compute Jacobian at _tpMeas
 
 
             int
@@ -240,10 +245,10 @@ namespace PARKIN
             QRconDecomp
             computeSensitivity(Expression::Param&   var,
                                Expression::Param&   vscal,
-                               std::string          mode = "init");
+                               std::string          mode = "initbla");
                                // mode  -   "inner"  : use variational equation to compute Jacobian
                                //           "outer"  : use difference quotient
-                               //           "init"   : use difference quotient with newly artificial data
+                               //           "initbla": use difference quotient with newly artificial data
 
             ///
 

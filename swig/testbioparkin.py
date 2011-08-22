@@ -50,7 +50,7 @@ var[parameter[0]] = 2.0/3.0
 var[parameter[1]] = 3.0
 #print var.items()
 
-biosys.computeModel(var,"init")
+biosys.computeModel(var,"adaptive")
 #sys.exit()
 
 # extract and print out the computed solution vectors

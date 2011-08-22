@@ -61,7 +61,7 @@ BioPAR::fcn(Vector const& x, int& ifail)
     BioSystem::StrIterConst pEnd = _parameter.end();
     long                    k = 0;
 
-    // if ( ifail == 998 ) mode = "init";
+    // if ( ifail == 998 ) mode = "adaptive";
 
     for (BioSystem::StrIterConst it = pBeg; it != pEnd; ++it)
     {
