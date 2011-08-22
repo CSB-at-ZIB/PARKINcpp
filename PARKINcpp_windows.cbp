@@ -68,7 +68,9 @@
 			<Add library="gfortran" />
 			<Add directory="C:\MinGW\bin" />
 		</Linker>
+		<Unit filename="addpkg\LIMEX4_3A\HERMINE.f" />
 		<Unit filename="addpkg\LIMEX4_3A\LIMD.f" />
+		<Unit filename="addpkg\LIMEX4_3A\LIMDHERM.f" />
 		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3A.f" />
 		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3A.h" />
 		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3_Auxiliaries.f" />
@@ -179,6 +181,7 @@
 			<Option target="Release" />
 			<Option target="Debug" />
 		</Unit>
+		<Unit filename="tstprg\testpfizer_simple.cpp" />
 		<Unit filename="tstprg\testsystem.cpp">
 			<Option target="Release" />
 			<Option target="Debug" />
