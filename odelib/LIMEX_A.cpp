@@ -271,8 +271,12 @@ LIMEX_A::integrate( unsigned n, double* yIni,
     *t = tLeft;
     T  = tRight;
 
-    _solPoints.clear();
-    _solution.clear();
+    // Note here that the both solution vectors should only
+    // be reset by a call to setODESystem()
+    //
+    // _solPoints.clear();
+    // _solution.clear();
+    //
 
 //std::cerr << "*** Data time points where measurements are taken:" << std::endl;
 //    for (GridIterConst it = dBeg; it != dEnd; ++it)
@@ -534,8 +538,12 @@ LIMEX_A::integrateWithoutInterpolation( unsigned n, double* yIni,
 //        _dy0[j] = 0.0;
 //    }
 
-    _solPoints.clear();
-    _solution.clear();
+    // Note here that the both solution vectors should only
+    // be reset by a call to setODESystem()
+    //
+    // _solPoints.clear();
+    // _solution.clear();
+    //
 
     //
 

@@ -439,6 +439,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
     Vector meastp = biosys.getOdeTrajectoryTimePoints();
 
+// std::cerr << " meastp = " << std::endl;
+// std::cerr << meastp.t();
+// std::cerr << std::endl;
 //std::cerr << " vref = " << std::endl;
 //std::cerr << vref;
 //std::cerr << std::endl;
@@ -580,16 +583,16 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     {
         // std::cout << std::fixed << std::setw(10) << meastp(tp+1);
         // out << std::fixed << std::setw(10) << meastp(tp+1);
-        std::cout << "  " << std::scientific << std::setw(6) << meastp(tp+1);
-        out << "  " << std::scientific << std::setw(6) << meastp(tp+1);
+        std::cout << std::scientific << std::setprecision(3) << std::setw(11) << meastp(tp+1);
+        out << std::scientific << std::setprecision(3) << std::setw(11) << meastp(tp+1);
         for (unsigned j = 0; j < nSpecies /* species.size() */; ++j)
         {
             if ( measlist[tp].count(species[j]) > 0 )
             {
                 std::cout << "\t";
-                std::cout << std::scientific << measlist[tp][species[j]].first;
+                std::cout << std::scientific << std::setprecision(6) << measlist[tp][species[j]].first;
                 out << "\t";
-                out << std::scientific << measlist[tp][species[j]].first;
+                out << std::scientific << std::setprecision(6) << measlist[tp][species[j]].first;
             }
             else
             {
