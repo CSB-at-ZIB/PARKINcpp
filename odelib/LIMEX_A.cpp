@@ -21,7 +21,8 @@ LIMEX_A::LIMEX_A() :
     _h(0.0),
     _iOpt(), _rOpt(), _iPos(0),
     _ifail(),
-    _kOrder(0), _Dense(), _t1(0.0), _t2(0.0)
+    _kOrder(0), _Dense(), _t1(0.0), _t2(0.0),
+    _trajectory(0)
 {
     initOpt();
 }
@@ -109,7 +110,7 @@ LIMEX_A::integrate()
     int           maxEqns = (int) MAX_NO_EQNS;
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
-    double        t[1], z[_n], yEval[_n];
+    double        t[1], z[_n]; //, yEval[_n];
     double        T = 0.0;
     double*       ztmp = 0;
 
@@ -125,6 +126,7 @@ LIMEX_A::integrate()
     _solPoints.clear();
     _solution.clear();
     _data.clear();
+    _trajectory.clear();
 
     //
 
@@ -164,8 +166,10 @@ LIMEX_A::integrate()
             ztmp = z;
             for (long j = 0; j < _n; ++j)
             {
-                _solution[j].push_back( *ztmp++ );
+                 _solution[j].push_back( *ztmp++ );
             }
+
+            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
         }
 
 /*
@@ -189,6 +193,7 @@ LIMEX_A::integrate()
                   );
 */
 
+/*
         // interpolate the measurement time points in ] t1, t2 ] subste of [dBeg, dEnd[
         // requirement: search range [ dBeg, dEnd [ has to be sorted!
         GridIterConst gBeg = std::lower_bound( dBeg, dEnd, _t1);    // gBeg pointing to first element in [dBeg, dEnd[ that does *not* compare less than _t1
@@ -202,7 +207,7 @@ LIMEX_A::integrate()
             {
                 double tFrac = (tEval - _t1)/(_t2 - _t1);
 
-            /*
+           / *
              * Note: In the current version unfortunately NOT re-entrant
              *
                 hermine_(
@@ -210,7 +215,7 @@ LIMEX_A::integrate()
                             _Dense, &_t1, &_t2,
                             &tEval, yEval
                         );
-            */
+            * /
                 eval_herm_(
                             &_n, &maxEqns, _Dense, &_kOrder,
                             &tFrac, yEval
@@ -232,9 +237,28 @@ LIMEX_A::integrate()
             }
 
         } // end for gBeg, gEnd
-
+*/
     } // end while limdherm_
 
+    //
+    // Evaluate and save the _data at measuremet points
+    //
+    for (GridIterConst it = dBeg; it != dEnd; ++it)
+    {
+        double tEval = (double) *it;
+
+        std::vector<Real> yEval = _trajectory.eval( tEval );
+
+        if ( yEval.size() == (unsigned) _n )
+        {
+            for (long j = 0; j < _n; ++j)
+            {
+                _data[j].push_back( yEval[j] );
+            }
+        }
+    }
+
+    //
 
     return _ifail[0];
 }
@@ -248,7 +272,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
     int           maxEqns = (int) MAX_NO_EQNS;
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
-    double        t[1], z[_n], yEval[_n];
+    double        t[1], z[_n]; // , yEval[_n];
     double        T = 0.0;
     double*       ztmp = 0;
 
@@ -328,6 +352,8 @@ LIMEX_A::integrate( unsigned n, double* yIni,
             {
                 _solution[j].push_back( *ztmp++ );
             }
+
+            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
         }
 
 /*
@@ -351,6 +377,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
                   );
 */
 
+/*
         // interpolate the measurement time points in ] t1, t2 ] subste of [dBeg, dEnd[
         // requirement: search range [ dBeg, dEnd [ has to be sorted!
         GridIterConst gBeg = std::lower_bound( dBeg, dEnd, _t1);    // gBeg pointing to first element in [dBeg, dEnd[ that does *not* compare less than _t1
@@ -369,7 +396,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
 //          << " ( tFraction: " << tFrac << "),"
 //          << " ( #" << long(it-dBeg) << " ),"
 //          << " Order: " << _kOrder << std::endl;
-            /*
+           / *
              * Note: a call to hermine_() destroys _Dense; thus not re-entrant...
              *
                 hermine_(
@@ -377,7 +404,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
                             _Dense, &_t1, &_t2,
                             &tEval, yEval
                         );
-            */
+             * /
                 eval_herm_(
                             &_n, &maxEqns, _Dense, &_kOrder,
                             &tFrac, yEval
@@ -409,8 +436,43 @@ LIMEX_A::integrate( unsigned n, double* yIni,
             }
 
         } // end for gBeg, gEnd
-
+*/
     } // end while limdherm_
+
+
+    GridIterConst gBeg = std::lower_bound( dBeg, dEnd, tLeft);    // gBeg pointing to first element in [dBeg, dEnd[ that does *not* compare less than tLeft
+    GridIterConst gEnd = std::upper_bound( dBeg, dEnd, tRight);   // gEnd pointing to first element in [dBeg, dEnd[ that compares greater than tRight
+
+    //
+    // Evaluate and save the _data at measuremet points
+    //
+//std::cerr << std::endl;
+//std::cerr << "*** Data point eval ***" << std::endl;
+    for (GridIterConst it = gBeg; it != gEnd; ++it)
+    {
+        double tEval = (double) *it;
+
+        std::vector<Real> yEval = _trajectory.eval( tEval );
+
+//std::cerr << "     t = " << tEval << std::endl;
+//std::cerr << " yEval = " << std::endl;
+//for (unsigned j = 0; j < yEval.size(); ++j)
+//{
+//std::cerr <<  "  " << yEval[j];
+//}
+//std::cerr << std::endl << std::endl;
+
+        if ( yEval.size() == (unsigned) _n )
+        {
+            for (long j = 0; j < _n; ++j)
+            {
+                _data[j][long(it-dBeg)] = yEval[j];
+            }
+        }
+    }
+//std::cerr << "***" << std::endl;
+
+    //
 
     return _ifail[0];
 }
@@ -654,6 +716,9 @@ LIMEX_A::setODESystem(
 
     _solPoints.clear();
     _solution.clear();
+
+    _trajectory.clear();
+    _trajectory.setDim(_n);
 
     _iOpt[6] = 0;       // NO analytic Jacobian (supplied by routine 'jac')
 

@@ -439,12 +439,14 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
     Vector meastp = biosys.getOdeTrajectoryTimePoints();
 
-// std::cerr << " meastp = " << std::endl;
-// std::cerr << meastp.t();
-// std::cerr << std::endl;
+//std::cerr << " meastp = " << std::endl;
+//std::cerr << meastp.t();
+//std::cerr << std::endl;
+//
 //std::cerr << " vref = " << std::endl;
 //std::cerr << vref;
 //std::cerr << std::endl;
+//
 //std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
 //
 //exit(-999);
@@ -510,7 +512,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     BioSystem::MeasurementList  newMeas;
     Vector                      newtp;
     Real                        sigma = 0.025;   // add 2.5% white noise ...
-    unsigned                    sampleSize = 1;
+    unsigned                    sampleSize = 3;
     unsigned                    nSpecies = 2;
 
     newMeas.clear();
@@ -613,7 +615,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 //    std::cout << "####### invBiosys.computeModel() results #######" << std::endl;
 //    for (unsigned j = 0; j < species.size(); ++j)
 //    {
-//        std::cout << "  trajector for \"" << species[j] << "\" = " << std::endl;
+//        std::cout << "  trajectory for \"" << species[j] << "\" = " << std::endl;
 //        std::cout << invBiosys.getSimTrajectoryPoints(species[j]).t() << std::endl;
 //    }
 //    std::cout << "################################################" << std::endl;
@@ -721,6 +723,19 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     std::cout << std::endl;
     std::cout << "Measured  experimental  data  :  nr() = " << syndata.nr() << std::endl;
     // std::cout << syndata << std::endl;
+
+
+    vref = invBiosys.computeModel(var);
+    std::cout << std::endl;
+    std::cout << vref << std::endl;
+
+    std::cout << "####### invBiosys.computeModel() results #######" << std::endl;
+    for (unsigned j = 0; j < species.size(); ++j)
+    {
+        std::cout << "  trajectory for \"" << species[j] << "\" = " << std::endl;
+        std::cout << invBiosys.getSimTrajectoryPoints(species[j]).t() << std::endl;
+    }
+    std::cout << "################################################" << std::endl;
 
 
     //

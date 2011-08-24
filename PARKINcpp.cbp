@@ -277,9 +277,12 @@
 		<Unit filename="nonlin/YeOldeParkinCore.h" />
 		<Unit filename="odelib/DOP853.cpp" />
 		<Unit filename="odelib/DOP853.h" />
+		<Unit filename="odelib/LIMEXTrajectory.cpp" />
+		<Unit filename="odelib/LIMEXTrajectory.h" />
 		<Unit filename="odelib/LIMEX_A.cpp" />
 		<Unit filename="odelib/LIMEX_A.h" />
 		<Unit filename="odelib/ODESolver.h" />
+		<Unit filename="odelib/ODETrajectory.h" />
 		<Unit filename="swig/linalg.i">
 			<Option compile="1" />
 			<Option target="SharedLib" />

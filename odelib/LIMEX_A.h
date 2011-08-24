@@ -8,6 +8,7 @@
 #define __LIMEX_A_H
 
 #include "ODESolver.h"
+#include "LIMEXTrajectory.h"
 
 ///
 
@@ -83,6 +84,8 @@ namespace PARKIN
             Trajectory  _solution;
             Grid        _datPoints;
             Trajectory  _data;
+
+            LIMEXTrajectory _trajectory;
     };
 }
 #endif // __LIMEX_A_H
