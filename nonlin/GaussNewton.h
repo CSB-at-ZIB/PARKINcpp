@@ -81,6 +81,11 @@ namespace PARKIN
             // int resetObservation(Vector const& fobs, Vector const& fscal);
 
             // sensitivity analysis (a priori)
+            int         computeSensitivity( unsigned m,
+                                            Vector const& x, Vector const& xscal,
+                                            Real const rtol,
+                                            IOpt const& iopt, GaussNewtonWk const& wk
+                                          );
             int         computeSensitivity();
             QRconDecomp getSensitivity();
             Matrix      getSensitivityMatrix();
@@ -107,6 +112,7 @@ namespace PARKIN
 
             // helper routines
             void check_init();
+            void check_init2();
             Vector call_FCN(Vector const&, int&);   // call needed as trafo (e.g. iopt.lpos) entry point
             Matrix call_JAC(Vector const&, int&);   // call needed as trafo (e.g. iopt.lpos) entry point
             void compute_scaling_xw(unsigned, bool);
