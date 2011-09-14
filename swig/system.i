@@ -11,6 +11,7 @@
 #include <system/Expression.h>
 #include <system/BioSystem.h>
 #include <system/BioPAR.h>
+#include <system/BioProcessor.h>
 
 #include <sstream>
 %}
@@ -28,6 +29,7 @@
 %template(ValuePair)            std::pair< double, double >;                            // for MeasurementPoint, see next line
 %template(MeasurementPoint)     std::map< std::string, std::pair<double,double> >;      // mapping from species name to pair (meas.value, std.dev)
 %template(Trajectory)           std::map< unsigned, std::vector<double> >;              // for ODESolver (forward declaration)
+%template(TrajectoryMap)        std::map< std::string, std::vector<double> >;           // for BioProcessor (forward declaration)
 
 %include linalg.i
 %include nonlin.i
@@ -43,6 +45,7 @@
 %include "system/BioRHS.h"
 %include "system/BioSystem.h"
 %include "system/BioPAR.h"
+%include "system/BioProcessor.h"
 
 
 %extend PARKIN::Expression

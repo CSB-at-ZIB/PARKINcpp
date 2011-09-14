@@ -319,6 +319,8 @@
 		</Unit>
 		<Unit filename="system/BioPAR.cpp" />
 		<Unit filename="system/BioPAR.h" />
+		<Unit filename="system/BioProcessor.cpp" />
+		<Unit filename="system/BioProcessor.h" />
 		<Unit filename="system/BioRHS.cpp" />
 		<Unit filename="system/BioRHS.h" />
 		<Unit filename="system/BioSystem.cpp" />

@@ -716,11 +716,18 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     {
         k = 0;
         _synData.push_back( MeasurementPoint() );
+
         for (StrIterConst it = sBeg; it != sEnd; ++it)
+        {
             if ( k < (long)sim.size() )
+            {
                 _synData[tp][*it] = std::make_pair<Real,Real>( sim[k++][tp], 1.0 );
+            }
             else
+            {
                 _synData[tp][*it] = std::make_pair<Real,Real>( 0.0, GREAT );
+            }
+        }
     }
 
     if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = n*T; }
