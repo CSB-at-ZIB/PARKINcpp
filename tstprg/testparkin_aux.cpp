@@ -392,7 +392,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
         for (unsigned k = 0; k < species.size(); ++k)
         {
-            std::string s = eqn + "_" + species[k];
+            std::string s = eqn + " / " + species[k];
             std::cout << s << " :  ";
             std::cout << "( " << jj++ << " / " << emap.size() << " )" << std::endl;
             std::cout << emap[s];
@@ -401,7 +401,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
         for (unsigned k = 0; k < param.size(); ++k)
         {
-            std::string s = eqn + "_" + param[k];
+            std::string s = eqn + " / " + param[k];
             std::cout << s << " :  " << std::endl;
             std::cout << "( " << jj++ << " / " << emap.size() << " )" << std::endl;
             std::cout << emap[s];

@@ -418,7 +418,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::end
 
 
     //-----------------------------------------------------------------------------
-#define SENSI
+// #define SENSI
 #ifdef SENSI
     double                      rtolS = 1.0e-5;
     long                        nS    = species.size();
@@ -552,6 +552,7 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
 
     Vector syndata, synscal, vref, utmp;
 
+/*
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 //for (long n=0; n < 100; ++n)
@@ -559,6 +560,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     // syndata = biosys.computeModel(var, "adaptive");
 
 , std::cerr );
+*/
 
 //std::cerr << " vref = " << std::endl;
 //std::cerr << vref;
@@ -567,9 +569,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 //
 //exit(-999);
 
-    Matrix Jac;
-    long   n = species.size();
-    long   T = meastp.nr();
+    Matrix Jac, tmat;
+//    long   n = species.size();
+//    long   T = biosys.getOdeTrajectoryTimePoints().nr(); // meastp.nr();
     long   j = 0;
 
     utmp.zeros(3);
@@ -578,16 +580,21 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     par["r07_K4"] = var["r07_K4"];      utmp(2) = ( par["r07_K4"] );
     par["r02_K5"] = var["r02_K5"];      utmp(3) = ( par["r02_K5"] );
 
-    Jac.zeros( n*T, 7 );
+//    Jac.zeros( n*T, 7 );
 
 
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
 
-    Jac.set_colm( 1, 3 ) =
-        biosys.computeJacobian( par ); // * utmp.diag();  // ... * exp( u=log(par) ).diag()
+    // Jac.set_colm( 1, 3 ) =
+    tmat =
+        biosys.computeJacobian( par, "adaptive" ); // * utmp.diag();  // ... * exp( u=log(par) ).diag()
 
 , std::cerr )
 
+    Jac.zeros( tmat.nr(), 7 );
+    Jac.set_colm( 1 , 3 ) = tmat;
+
+//exit(-41);
 
     for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
     {
@@ -607,7 +614,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
 
 
-// exit(42);
+exit(-42);
 
 
 
@@ -623,7 +630,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
         for (unsigned k = 0; k < species.size(); ++k)
         {
-            std::string s = eqn + "_" + species[k];
+            std::string s = eqn + " / " + species[k];
             std::cout << s << " :  ";
             std::cout << "( " << jj++ << " / " << emap.size() << " )" << std::endl;
             std::cout << emap[s];
@@ -632,7 +639,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
         for (unsigned k = 0; k < param.size(); ++k)
         {
-            std::string s = eqn + "_" + param[k];
+            std::string s = eqn + " / " + param[k];
             std::cout << s << " :  " << std::endl;
             std::cout << "( " << jj++ << " / " << emap.size() << " )" << std::endl;
             std::cout << emap[s];

@@ -111,8 +111,8 @@ BioProcessor::computeSensitivityTrajectories()
     }
 
     long j = 0;
-    long k = 0;
     long J = mat.nr();
+    long k = 0;
 
     while ( j < J )
     {

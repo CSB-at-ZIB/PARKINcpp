@@ -212,7 +212,7 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
         {
             long        a = 0;
             long        b = 0;
-            std::string s = (itRHS->first) + "_" + *itSpe;
+            std::string s = (itRHS->first) + " / " + *itSpe;
 
             _drhs[s] = expr.df( *itSpe );
 
@@ -227,7 +227,7 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
         {
             long        a = 0;
             long        b = 0;
-            std::string s = (itRHS->first) + "_" + *itPar; // itPar->first;
+            std::string s = (itRHS->first) + " / " + *itPar; // itPar->first;
 
             _drhs[s] = expr.df( *itPar );
 
@@ -455,7 +455,7 @@ BioRHS::Jf(Expression::Param& par,
         {
             for (long k = 1; k <= n; ++k)
             {
-                std::string s = _species[j-1] + "_" + _species[k-1];
+                std::string s = _species[j-1] + " / " + _species[k-1];
 
                 Fz(j,k) = _drhs[s].eval(par);
             }
@@ -470,7 +470,7 @@ BioRHS::Jf(Expression::Param& par,
     {
         for (long k = 0; k < n; ++k)
         {
-            std::string s = _species[j] + "_" + _species[k];
+            std::string s = _species[j] + " / " + _species[k];
 
             J[ ldJ*k + j ] = _drhs[s].eval(par);
         }
@@ -497,7 +497,7 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
 
     for (long j = 1; j <= n; ++j)
     {
-        std::string s = _species[j-1] + "_";
+        std::string s = _species[j-1] + " / ";
 
         for (long k = 1; k <= n; ++k)
         {
@@ -551,7 +551,7 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
 
     for (long j = 0; j < n; ++j)
     {
-        std::string s = _species[j] + "_";
+        std::string s = _species[j] + " / ";
 
         for (long k = 0; k < n; ++k)
         {

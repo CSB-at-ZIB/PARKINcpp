@@ -916,38 +916,62 @@ BioSystem::computeJacobian(Expression::Param const& var,
         k = n;
         _jacobian.push_back( MeasurementPoint() );
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
+        {
             // for (StrIterConst itPar = pBeg; itPar != pEnd; ++itPar)
             for (Expression::ParamIterConst itPar = vBeg; itPar != vEnd; ++itPar)
             {
-                std::string s = *itSpe + "_" + (itPar->first);
+                std::string s = *itSpe + " / " + (itPar->first);
 
                 if ( k < (long)sim.size() )
                     _jacobian[tp][s] = std::make_pair<Real,Real>( sim[k++][tp], 1.0 );
                 else
                     _jacobian[tp][s] = std::make_pair<Real,Real>( 0.0, GREAT );
             }
+        }
     }
 
 
     j = 0;
     jacobian.zeros(n*T, qq);
 
-    for (long tp = 0; tp < T; ++tp)
+    if ( mode == "adaptive" )
     {
-        MeasIterConst mBeg = _measData[tp].begin();
-        MeasIterConst mEnd = _measData[tp].end();
-
-        for (MeasIterConst it = mBeg; it != mEnd; ++it)
+        for (long tp = 0; tp < T; ++tp)
         {
-            ++j; // k = 0;
-            for (Expression::ParamIterConst itPar = vBeg;
-                                            itPar != vEnd; ++itPar)
+            for (StrIterConst it = sBeg; it != sEnd; ++it)
             {
-                std::string s;
-                s = (it->first) + "_" + (itPar->first);
-                k = idx[(itPar->first)];
+                ++j; // k = 0;
+                for (Expression::ParamIterConst itPar = vBeg;
+                                                itPar != vEnd; ++itPar)
+                {
+                    std::string s;
+                    s = (*it) + " / " + (itPar->first);
+                    k = idx[(itPar->first)];
 
-                jacobian( j, k ) = (_jacobian[tp][s]).first;
+                    jacobian( j, k ) = (_jacobian[tp][s]).first;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (long tp = 0; tp < T; ++tp)
+        {
+            MeasIterConst mBeg = _measData[tp].begin();
+            MeasIterConst mEnd = _measData[tp].end();
+
+            for (MeasIterConst it = mBeg; it != mEnd; ++it)
+            {
+                ++j; // k = 0;
+                for (Expression::ParamIterConst itPar = vBeg;
+                                                itPar != vEnd; ++itPar)
+                {
+                    std::string s;
+                    s = (it->first) + " / " + (itPar->first);
+                    k = idx[(itPar->first)];
+
+                    jacobian( j, k ) = (_jacobian[tp][s]).first;
+                }
             }
         }
     }
@@ -1360,7 +1384,7 @@ BioSystemWrapper::jacVar(
 //        for (StrIterConst itSpec = sBeg; itSpec != sEnd; ++itSpec)
 //            for (StrIterConst itParm = pBeg; itParm != pEnd; ++itParm)
 //            {
-//                std::string s = *itSpec + "_" + *itParm;
+//                std::string s = *itSpec + " / " + *itParm;
 //
 //                vtra[s].push_back( *(yu++) );
 //            }
