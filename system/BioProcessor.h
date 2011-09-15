@@ -32,7 +32,7 @@ namespace PARKIN
             ///
 
             // c'tor
-            BioProcessor(BioSystem* biosys, int method = 0);
+            BioProcessor(BioSystem* biosys, std::string const& method = "parkin");
             // d'tor
             ~BioProcessor();
 
@@ -42,7 +42,7 @@ namespace PARKIN
             ///
 
             void
-            setProcessingMethod(int method);
+            setProcessingMethod(std::string const& method);
 
             void
             setIOpt(IOpt const& iopt);
@@ -52,6 +52,12 @@ namespace PARKIN
 
             Expression::Param const&
             getCurrentParamValues();
+
+            void
+            setCurrentParamWeights(Expression::Param& par);
+
+            Expression::Param const&
+            getCurrentParamWeights();
 
             //
 
@@ -92,14 +98,18 @@ namespace PARKIN
             // assignment
             BioProcessor const& operator= (BioProcessor const& other); // { return *this; }
 
+            Matrix computeJac(int& ifail);
+            Matrix computeJcf(int& ifail);
+
             BioSystem*          _biosys;
             BioPAR              _biopar;
-            int                 _method;
+            std::string         _method;
             IOpt                _iopt;
 
             BioSystem::Species  _curSpecies;
             Expression::Param   _optPar;
             // Expression::Param   _optIdx;
+            Expression::Param   _pw;
 
             GaussNewton         _nlscon;
             GaussNewtonWk       _nlsconWk;
