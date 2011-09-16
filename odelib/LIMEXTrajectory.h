@@ -31,6 +31,8 @@ namespace PARKIN
             explicit LIMEXTrajectory(int n);
             virtual  ~LIMEXTrajectory();
 
+            virtual LIMEXTrajectory*   clone() { return new LIMEXTrajectory(*this); }
+
             virtual void               clear();
             virtual void               insert(double t, int n, double* y);
             virtual std::vector<Real>  eval(double t);

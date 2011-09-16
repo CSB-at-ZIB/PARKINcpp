@@ -32,6 +32,8 @@ namespace PARKIN
 
             virtual ~ODETrajectory() { }
 
+            virtual ODETrajectory*     clone()                             = 0;
+
             virtual void               clear()                             = 0;
             virtual void               insert(double t, int n, double* y)  = 0;
             virtual std::vector<Real>  eval(double t)                      = 0;

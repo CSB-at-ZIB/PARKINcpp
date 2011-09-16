@@ -16,6 +16,7 @@ BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
     _curSpecies( biosys->getSpecies() ),
     _optPar(), // _optIdx(),
     _pw(),
+    _sensTraj(0),
     _nlscon(), _nlsconWk(),
     _parkin(), _parkinWk()
 {
@@ -23,6 +24,7 @@ BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
 //---------------------------------------------------------------------------
 BioProcessor::~BioProcessor()
 {
+    delete _sensTraj;
 }
 //---------------------------------------------------------------------------
 BioProcessor::BioProcessor(BioProcessor const& other) :
@@ -31,6 +33,7 @@ BioProcessor::BioProcessor(BioProcessor const& other) :
     _curSpecies(other._curSpecies),
     _optPar(other._optPar), // _optIdx(other._optIdx),
     _pw(other._pw),
+    _sensTraj(0),
     _nlscon(), _nlsconWk(),
     _parkin(), _parkinWk()
 {
@@ -142,6 +145,9 @@ BioProcessor::computeSensitivityTrajectories()
     if ( jacgen == 1 )
     {
         mat = _biosys->computeJacobian( _optPar, "adaptive" );
+
+        delete _sensTraj;
+        _sensTraj = _biosys->getEvaluationTrajectories();
 
         ifail = _biosys->getComputeErrorFlag();
     }

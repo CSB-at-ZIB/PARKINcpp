@@ -9,6 +9,7 @@
 %{
 // #include <common/Types.h>
 #include <odelib/ODESolver.h>
+#include <odelib/ODETrajectory.h>
 // #include <odelib/DOP853.h>
 %}
 
@@ -21,5 +22,6 @@
 
 %include "common/Types.h"
 %include "odelib/ODESolver.h"
+%include "odelib/ODETrajectory.h"
 // %include "odelib/DOP853.h"
 

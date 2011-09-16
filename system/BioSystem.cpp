@@ -520,6 +520,13 @@ BioSystem::setInitialValues(Vector const& val)
     }
 }
 //---------------------------------------------------------------------------
+ODETrajectory*
+BioSystem::getEvaluationTrajectories()
+{
+    //$$$ return dynamic_cast<DOP853*>(_odeSystem)->getRawTrajectory();
+    return dynamic_cast<LIMEX_A*>(_odeSystem)->getRawTrajectory();
+}
+//---------------------------------------------------------------------------
 ODESolver::Trajectory const&
 BioSystem::getOdeTrajectory()
 {

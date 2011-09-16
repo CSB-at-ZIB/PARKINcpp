@@ -50,13 +50,15 @@ namespace PARKIN
                                 int         bandwidth = 0
                              );
 
-            Grid&        getSolutionGridPoints()   { return _solPoints; }
-            Trajectory&  getSolutionTrajectory()   { return _solution; }
-            Grid&        getDataGridPoints()       { return _datPoints; }
-            Trajectory&  getDataTrajectory()       { return _data; }
+            Grid&           getSolutionGridPoints()   { return _solPoints; }
+            Trajectory&     getSolutionTrajectory()   { return _solution; }
+            Grid&           getDataGridPoints()       { return _datPoints; }
+            Trajectory&     getDataTrajectory()       { return _data; }
 
-            int          getSuccessiveCallFlag()   { return _iOpt[15]; }
-            void         resetSuccessiveCallFlag() { _iOpt[15] = -1; }
+            ODETrajectory*  getRawTrajectory()        { return _trajectory.clone(); }
+
+            int             getSuccessiveCallFlag()   { return _iOpt[15]; }
+            void            resetSuccessiveCallFlag() { _iOpt[15] = -1; }
 
         private:
             void initOpt();

@@ -47,6 +47,8 @@ namespace PARKIN
             void
             setIOpt(IOpt const& iopt);
 
+            //
+
             void
             setCurrentParamValues(Expression::Param const& par);
 
@@ -91,7 +93,6 @@ namespace PARKIN
 
             //
 
-
         protected:
 
         private:
@@ -110,6 +111,8 @@ namespace PARKIN
             Expression::Param   _optPar;
             // Expression::Param   _optIdx;
             Expression::Param   _pw;
+
+            ODETrajectory*      _sensTraj;
 
             GaussNewton         _nlscon;
             GaussNewtonWk       _nlsconWk;
