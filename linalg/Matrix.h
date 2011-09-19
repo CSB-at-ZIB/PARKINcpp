@@ -65,12 +65,12 @@ namespace PARKIN
             QRconDecomp factorQRcon(
                 long mcon = 0,
                 long rank = 0,
-                Real cond = 1.0/sqrtEPMACH,
+                Real cond = 1.0/EPMACH,
                 int  meth = 0
                 ) const;
             QRDecomp factorQR(
                 long rank = 0,
-                Real cond = 1.0/sqrtEPMACH,
+                Real cond = 1.0/EPMACH,
                 int  meth = 0
                 ) const;
             //

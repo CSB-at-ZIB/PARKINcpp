@@ -56,10 +56,18 @@ namespace PARKIN
             getCurrentParamValues();
 
             void
-            setCurrentParamWeights(Expression::Param& par);
+            setCurrentParamThres(Expression::Param& par);
 
             Expression::Param const&
-            getCurrentParamWeights();
+            getCurrentParamThres();
+
+            //
+
+            void
+            setCurrentSpeciesThres(Expression::Param& spe);
+
+            Expression::Param const&
+            getCurrentSpeciesThres();
 
             //
 
@@ -71,6 +79,9 @@ namespace PARKIN
 
             Vector
             getAdaptiveTimepoints();
+
+            TrajectoryMap
+            getScaledSensitivityTrajectories();
 
             //
 
@@ -99,26 +110,35 @@ namespace PARKIN
             // assignment
             BioProcessor const& operator= (BioProcessor const& other); // { return *this; }
 
-            Matrix computeJac(int& ifail);
-            Matrix computeJcf(int& ifail);
+            Expression::Param computeParameterScales();
+            Expression::Param computeSpeciesScales();
+            Matrix computeJac(std::string mode, int& ifail);
+            Matrix computeJcf(std::string mode, int& ifail);
 
-            BioSystem*          _biosys;
-            BioPAR              _biopar;
-            std::string         _method;
-            IOpt                _iopt;
+            BioSystem*                  _biosys;
+            BioPAR                      _biopar;
+            std::string                 _method;
+            IOpt                        _iopt;
 
-            BioSystem::Species  _curSpecies;
-            Expression::Param   _optPar;
-            // Expression::Param   _optIdx;
-            Expression::Param   _pw;
+            BioSystem::Species          _curSpecies;
+            Expression::Param           _optPar;
+            // Expression::Param           _optIdx;
+            Expression::Param           _speThres;
+            Expression::Param           _parThres;
 
-            ODETrajectory*      _sensTraj;
+            Expression::Param           _linftyModel;
 
-            GaussNewton         _nlscon;
-            GaussNewtonWk       _nlsconWk;
+            TrajectoryMap               _trajMap;
+            ODETrajectory*              _sensTraj;
 
-            YeOldeParkinCore    _parkin;
-            YeOldeParkinWk      _parkinWk;
+            std::vector<Matrix>         _sensiMat;
+            std::vector<QRconDecomp>    _sensiDcmp;
+
+            GaussNewton                 _nlscon;
+            GaussNewtonWk               _nlsconWk;
+
+            YeOldeParkinCore            _parkin;
+            YeOldeParkinWk              _parkinWk;
     };
 
 }

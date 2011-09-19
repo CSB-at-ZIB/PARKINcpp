@@ -60,6 +60,9 @@ namespace PARKIN
 
             ///
 
+            Real
+            getSolverRTol();
+
             void
             setSolverRTol(Real tol);
 
@@ -73,6 +76,11 @@ namespace PARKIN
 
             Expression::Param&
             getOptPar();
+
+            //
+
+            Expression::Param&
+            getLinftyModel();
 
             //
 
@@ -246,6 +254,11 @@ namespace PARKIN
 
         private:
 
+            //
+            //      Note:   These two methods have been taken out for good.
+            //      -----   See class 'BioProcessor' instead!
+            //
+
             QRconDecomp
             computeSensitivity(Expression::Param&   var,
                                Expression::Param&   vscal,
@@ -275,6 +288,8 @@ namespace PARKIN
             Expression::Param               _sysPar;
             Expression::Param               _optPar;
             double*                         _parValue;
+
+            Expression::Param               _linftyModel;
 
             ODESolver::Grid                 _tpMeas;
             MeasurementList                 _measData;      // e.g. _measData[3][species] = pair< value, std.dev >

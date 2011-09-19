@@ -20,6 +20,7 @@ BioSystem::BioSystem( Real tStart, Real tEnd ) :
     _ode(), _iniCond(),
     _iniPar(), _sysPar(), _optPar(),
     _parValue(0),
+    _linftyModel(),
     _tpMeas(), _measData(),
     _synData(),
     //$$$ _odeSystem( new DOP853() ),
@@ -28,6 +29,7 @@ BioSystem::BioSystem( Real tStart, Real tEnd ) :
     _totmeasData(0),
     _tInterval()
 {
+    _linftyModel.clear();
     _tpMeas.clear();
     _measData.clear();
     _tInterval.clear();
@@ -44,6 +46,7 @@ BioSystem::BioSystem( Vector const&  tInterval ) :
     _ode(), _iniCond(),
     _iniPar(), _sysPar(), _optPar(),
     _parValue(0),
+    _linftyModel(),
     _tpMeas(), _measData(),
     _synData(),
     //$$$ _odeSystem( new DOP853() ),
@@ -52,6 +55,7 @@ BioSystem::BioSystem( Vector const&  tInterval ) :
     _totmeasData(0),
     _tInterval()
 {
+    _linftyModel.clear();
     _tpMeas.clear();
     _measData.clear();
     _tInterval.clear();
@@ -73,6 +77,7 @@ BioSystem::BioSystem( ExpressionMap const&      eMap,
     _ode(eMap), _iniCond(),
     _iniPar(), _sysPar(), _optPar(),
     _parValue(0),
+    _linftyModel(),
     _tpMeas(tPoints), _measData(meas),
     _synData(),
     //$$$ _odeSystem( new DOP853() ),
@@ -81,6 +86,8 @@ BioSystem::BioSystem( ExpressionMap const&      eMap,
     _tInterval(tInterval)
 {
     long n = 0;
+
+    _linftyModel.clear();
 
     for (unsigned j = 0; j < _measData.size(); ++j)
         n += _measData[j].size();
@@ -112,8 +119,9 @@ BioSystem::~BioSystem()
          _optPar = s._optPar;
          _parValue = 0;
 
-         _tpMeas   = s._tpMeas;
-         _measData = s._measData;
+         _linftyModel = s._linftyModel;
+         _tpMeas      = s._tpMeas;
+         _measData    = s._measData;
          _synData.clear();      // = s._synData;
          _jacobian.clear();     // = s._jacobian;
          _jac = Matrix();
@@ -158,6 +166,12 @@ BioSystem::~BioSystem()
 //}
 ////---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
+Real
+BioSystem::getSolverRTol()
+{
+    return _odeSystem -> getRTol();
+}
+//---------------------------------------------------------------------------
 void
 BioSystem::setSolverRTol(Real tol)
 {
@@ -180,6 +194,12 @@ Expression::Param&
 BioSystem::getOptPar()
 {
     return _optPar;
+}
+//---------------------------------------------------------------------------
+Expression::Param&
+BioSystem::getLinftyModel()
+{
+    return _linftyModel;
 }
 //---------------------------------------------------------------------------
 BioSystem::Species
@@ -717,10 +737,32 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
         sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
     }
 
+
+    _linftyModel.clear();
     _synData.clear();
+
+    k = 0;
+    for (StrIterConst it = sBeg; it != sEnd; ++it)
+    {
+        _linftyModel[*it] = std::fabs( sim[k++][0] );
+    }
 
     for (long tp = 0; tp < T; ++tp)
     {
+        if ( tp > 0 )
+        {
+            k = 0;
+            for (StrIterConst it = sBeg; it != sEnd; ++it)
+            {
+                Real tmp = std::fabs( sim[k++][tp] );
+
+                if ( tmp > _linftyModel[*it] )
+                {
+                    _linftyModel[*it] = tmp;
+                }
+            }
+        }
+
         k = 0;
         _synData.push_back( MeasurementPoint() );
 
@@ -916,10 +958,32 @@ BioSystem::computeJacobian(Expression::Param const& var,
         sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
     }
 
+
+    _linftyModel.clear();
     _jacobian.clear();
+
+    k = 0;
+    for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
+    {
+        _linftyModel[*itSpe] = std::fabs( sim[k++][0] );
+    }
 
     for (long tp = 0; tp < T; ++tp)
     {
+        if ( tp > 0 )
+        {
+            k = 0;
+            for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
+            {
+                Real tmp = std::fabs( sim[k++][tp] );
+
+                if ( tmp > _linftyModel[*itSpe] )
+                {
+                    _linftyModel[*itSpe] = tmp;
+                }
+            }
+        }
+
         k = n;
         _jacobian.push_back( MeasurementPoint() );
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)

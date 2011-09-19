@@ -81,11 +81,6 @@ namespace PARKIN
             // int resetObservation(Vector const& fobs, Vector const& fscal);
 
             // sensitivity analysis (a priori)
-            int         computeSensitivity( unsigned m,
-                                            Vector const& x, Vector const& xscal,
-                                            Real const rtol,
-                                            IOpt const& iopt, GaussNewtonWk const& wk
-                                          );
             int         computeSensitivity();
             QRconDecomp getSensitivity();
             Matrix      getSensitivityMatrix();
