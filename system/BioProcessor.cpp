@@ -19,7 +19,8 @@ BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
     _trajMap(), _sensTraj(0),
     _sensiMat(), _sensiDcmp(),
     _nlscon(), _nlsconWk(),
-    _parkin(), _parkinWk()
+    _parkin(), _parkinWk(),
+    _idResult()
 {
 }
 //---------------------------------------------------------------------------
@@ -37,7 +38,8 @@ BioProcessor::BioProcessor(BioProcessor const& other) :
     _trajMap(), _sensTraj(0),
     _sensiMat(other._sensiMat), _sensiDcmp(other._sensiDcmp),
     _nlscon(), _nlsconWk(),
-    _parkin(), _parkinWk()
+    _parkin(), _parkinWk(),
+    _idResult(other._idResult)
 {
 }
 //---------------------------------------------------------------------------
