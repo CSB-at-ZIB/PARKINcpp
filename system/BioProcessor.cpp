@@ -473,15 +473,106 @@ BioProcessor::getSensitivityDecomps()
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 int
-BioProcessor::identifyParameters()
+BioProcessor::identifyParameters(Real xtol)
 {
-    return 0;
+    int                         rc = 0;
+    unsigned                    j, m;
+    Expression::Param           pScal;
+    Expression::ParamIterConst  pBeg = _optPar.begin();
+    Expression::ParamIterConst  pEnd = _optPar.end();
+    BioSystem::Parameter        pname;
+    Vector                      x, xscal;
+    Vector                      fobs, fscal;
+
+    fobs = _biosys->getMeasurements();
+    fscal = _biosys->getMeasurementWeights();
+
+    j = 0;
+    pname.clear();
+    x.zeros( _optPar.size() );
+
+    for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
+    {
+        pname.push_back( it->first );
+        x(++j) = it->second;
+    }
+
+
+    j = 0;
+    pScal = computeParameterScales();
+    xscal.zeros( pScal.size() );
+
+    for (Expression::ParamIterConst it = pScal.begin();
+                                    it != pScal.end();
+                                    ++it)
+    {
+        xscal(++j) = it->second;
+    }
+
+
+    m = fobs.nr();
+
+    _biopar = BioPAR( _biosys, pname );
+
+
+
+    if ( _method == "parkin" )
+    {
+        _parkin.setProblem( &_biopar );
+        _parkin.initialise( m,
+                            x, xscal,
+                            fobs, fscal,
+                            xtol, _iopt,
+                            _parkinWk
+                          );
+
+        rc = _parkin.run();
+
+        // _parkinWk = _parkin.getWk();
+        _idResult = _parkin.getSolution();
+    }
+    else if ( _method == "nlscon" )
+    {
+        _nlscon.setProblem( &_biopar );
+        _nlscon.initialise( m,
+                            x, xscal,
+                            fobs, fscal,
+                            xtol, _iopt,
+                            _nlsconWk
+                          );
+
+        rc = _nlscon.run();
+
+        // _nlsconWk = _nlscon.getWk();
+        _idResult = _nlscon.getSolution();
+    }
+    else
+    {
+        rc = -999;
+    }
+
+    return rc;
 }
 //---------------------------------------------------------------------------
 Expression::Param
 BioProcessor::getIdentificationResults()
 {
-    Expression::Param par;
+    long                    J = _idResult.nr();
+    BioSystem::Parameter    pname = _biopar.getCurrentParameter();
+    Expression::Param       par;
+
+    par.clear();
+
+    if ( pname.size() != (unsigned)J )
+    {
+        return par;
+    }
+
+    for (long j = 1; j <= J; ++j)
+    {
+        std::string s = pname[j-1];
+        par[s] = _idResult(j);
+    }
 
     return par;
 }

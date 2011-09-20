@@ -97,7 +97,7 @@ namespace PARKIN
             //
 
             int
-            identifyParameters();
+            identifyParameters(Real xtol = 1.0e-4);
 
             Expression::Param
             getIdentificationResults();
@@ -139,6 +139,8 @@ namespace PARKIN
 
             YeOldeParkinCore            _parkin;
             YeOldeParkinWk              _parkinWk;
+
+            Vector                      _idResult;
     };
 
 }
