@@ -56,7 +56,7 @@ namespace PARKIN
             getCurrentParamValues();
 
             void
-            setCurrentParamThres(Expression::Param& par);
+            setCurrentParamThres(Expression::Param const& par);
 
             Expression::Param const&
             getCurrentParamThres();

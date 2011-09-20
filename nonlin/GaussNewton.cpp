@@ -228,7 +228,8 @@ GaussNewton::initialise(
 
         _x.zeros(_n);
         // scaling switched off ==> absolute error measure is applied
-        _xscal.ones(_n);
+        // iopt.iscal = 1;
+        _xscal = xScal;   //  !!!  instead of   _xscal.ones(_n);
 
         // iteration takes place in log-space
         for (unsigned j = 1; j <= _n; ++j)
@@ -250,6 +251,11 @@ GaussNewton::initialise(
 
     setIOpt(iopt);
     setWk(wk);
+
+    if ( iopt.lpos == true )
+    {
+        _iopt.iscal = 1;
+    }
 
     if ( !qsucc )
         printl( _lumon, dlib::LINFO,

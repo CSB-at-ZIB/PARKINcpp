@@ -57,10 +57,28 @@ BioProcessor::setIOpt(IOpt const& iopt)
 void
 BioProcessor::setCurrentParamValues(Expression::Param const& par)
 {
-    Expression::ParamIterConst pBeg = par.begin();
-    Expression::ParamIterConst pEnd = par.end();
+    // bool                        lpos = _iopt.lpos;
+    Expression::ParamIterConst  pBeg = par.begin();
+    Expression::ParamIterConst  pEnd = par.end();
 
-    _optPar = par;
+    /*
+    if ( lpos == true )
+    {
+        _optPar.clear();
+
+        for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
+        {
+            Real tmp = it->second;
+
+            _optPar[it->first] = (tmp > 0.0) ? std::log(tmp) : -1.0e-38;
+        }
+    }
+    else
+    */
+    {
+        _optPar = par;
+    }
+
 
     _parThres.clear();
 
@@ -73,11 +91,36 @@ BioProcessor::setCurrentParamValues(Expression::Param const& par)
 Expression::Param const&
 BioProcessor::getCurrentParamValues()
 {
+    /*
+    bool                        lpos = _iopt.lpos;
+    Expression::ParamIterConst  pBeg = _optPar.begin();
+    Expression::ParamIterConst  pEnd = _optPar.end();
+    Expression::Param           par;
+
+    par.clear();
+
+    if ( lpos == true )
+    {
+        for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
+        {
+            Real tmp = it->second;
+
+            par[it->first] = std::exp( tmp );
+        }
+    }
+    else
+    {
+        par = _optPar;
+    }
+
+    return par;
+    */
+
     return _optPar;
 }
 //---------------------------------------------------------------------------
 void
-BioProcessor::setCurrentParamThres(Expression::Param& par)
+BioProcessor::setCurrentParamThres(Expression::Param const& par)
 {
     Expression::ParamIterConst pBeg = _optPar.begin();
     Expression::ParamIterConst pEnd = _optPar.end();
@@ -86,14 +129,14 @@ BioProcessor::setCurrentParamThres(Expression::Param& par)
 
     for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
     {
-        _parThres[it->first] = par[it->first];
+        _parThres[it->first] = it->second;
     }
 }
 //---------------------------------------------------------------------------
 Expression::Param const&
-BioProcessor::getCurrentSpeciesThres()
+BioProcessor::getCurrentParamThres()
 {
-    return _speThres;
+    return _parThres;
 }
 //---------------------------------------------------------------------------
 void
@@ -111,9 +154,9 @@ BioProcessor::setCurrentSpeciesThres(Expression::Param& par)
 }
 //---------------------------------------------------------------------------
 Expression::Param const&
-BioProcessor::getCurrentParamThres()
+BioProcessor::getCurrentSpeciesThres()
 {
-    return _parThres;
+    return _speThres;
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -151,16 +194,17 @@ BioProcessor::computeModel()
 BioProcessor::TrajectoryMap
 BioProcessor::computeSensitivityTrajectories()
 {
-    int                        jacgen = _iopt.jacgen;   // 1: variational eqn
-                                                        // 2: num.diff.
-                                                        // 3: num.diff.(with feedback)
-    BioSystem::StrIterConst    sBeg = _curSpecies.begin();
-    BioSystem::StrIterConst    sEnd = _curSpecies.end();
-    Expression::ParamIterConst pBeg = _optPar.begin();
-    Expression::ParamIterConst pEnd = _optPar.end();
-    // TrajectoryMap              trajMap;
-    Matrix                     mat;
-    int                        ifail = 0;
+    bool                        lpos = _iopt.lpos;
+    int                         jacgen = _iopt.jacgen;   // 1: variational eqn
+                                                         // 2: num.diff.
+                                                         // 3: num.diff.(with feedback)
+    BioSystem::StrIterConst     sBeg = _curSpecies.begin();
+    BioSystem::StrIterConst     sEnd = _curSpecies.end();
+    Expression::ParamIterConst  pBeg = _optPar.begin();
+    Expression::ParamIterConst  pEnd = _optPar.end();
+    // TrajectoryMap               trajMap;
+    Matrix                      mat;
+    int                         ifail = 0;
 
     _trajMap.clear();
 
@@ -192,6 +236,24 @@ BioProcessor::computeSensitivityTrajectories()
     {
         return _trajMap;
     }
+
+
+    if ( lpos == true )
+    {
+        Vector y;
+        long   j = mat.nc();
+
+        y.zeros( j );
+        j = 0;
+
+        for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
+        {
+            y(++j) = it->second;
+        }
+
+        mat = mat * y.diag();
+    }
+
 
     long j = 0;
     long J = mat.nr();
@@ -228,11 +290,14 @@ BioProcessor::getScaledSensitivityTrajectories()
     BioSystem::StrIterConst     sEnd = _curSpecies.end();
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
-    Expression::Param           parScale = computeParameterScales();
-    Expression::Param           speScale = computeSpeciesScales();
+    Expression::Param           parScale;
+    Expression::Param           speScale;
     TrajectoryMap               scaledTrajMap;
 
     scaledTrajMap.clear();
+
+    parScale = computeParameterScales();
+    speScale = computeSpeciesScales();
 
     for (BioSystem::StrIterConst it = sBeg; it != sEnd; ++it)
     {
@@ -265,6 +330,7 @@ BioProcessor::getScaledSensitivityTrajectories()
 int
 BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 {
+    bool                lpos = _iopt.lpos;
     int                 jacgen = _iopt.jacgen;
     Expression::Param   parScale = computeParameterScales();
     Expression::Param   speScale = computeSpeciesScales();
@@ -290,9 +356,21 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         Real tmp = speScale[*itSpe++];
         one_fw(k) = (tmp > 0.0) ? 1.0/tmp : 0.0;
     }
-    for (long l = 1; l <= q; ++l)
+    if ( lpos == true )
     {
-        pw(l) = parScale[(itPar++)->first];
+        for (long l = 1; l <= q; ++l)
+        {
+            pw(l) = parScale[itPar->first] * (itPar->second);
+            ++itPar;
+        }
+    }
+    else
+    {
+        for (long l = 1; l <= q; ++l)
+        {
+            pw(l) = parScale[itPar->first];
+            ++itPar;
+        }
     }
 
     if ( jacgen == 1 )
@@ -306,7 +384,7 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         {
             Vector v = _sensTraj->eval( tp(j) );
             Matrix mat;
-            long n = m;
+            long   n = m;
 
             mat.zeros(m,q);
 
