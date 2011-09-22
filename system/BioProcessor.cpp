@@ -316,6 +316,8 @@ BioProcessor::getScaledSensitivityTrajectories()
                 long T = _trajMap[s].size();
                 Real pScale = parScale[itPar->first];
 
+                scaledTrajMap[s].resize(T);
+
                 for (long tp = 0; tp < T; ++tp)
                 {
                     scaledTrajMap[s][tp] =
