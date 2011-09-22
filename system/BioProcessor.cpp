@@ -303,15 +303,14 @@ BioProcessor::getScaledSensitivityTrajectories()
 
     for (BioSystem::StrIterConst it = sBeg; it != sEnd; ++it)
     {
-        std::string s = *it + " / ";
-        Real        yScale = speScale[*it];
+        Real yScale = speScale[*it];
 
         if ( yScale > 0.0 )
         {
             for (Expression::ParamIterConst itPar = pBeg;
                                             itPar != pEnd; ++itPar)
             {
-                s += itPar->first;
+                std::string s = *it + " / " + itPar->first;
 
                 long T = _trajMap[s].size();
                 Real pScale = parScale[itPar->first];
