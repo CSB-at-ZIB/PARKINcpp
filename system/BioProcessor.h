@@ -8,13 +8,13 @@
 #define __BIO_PROCESSOR_H
 
 
-#include <common/Types.h>
+#include "common/Types.h"
 
-#include <linalg/Matrix.h>
-#include <linalg/QRconDecomp.h>
+#include "linalg/Matrix.h"
+#include "linalg/QRconDecomp.h"
 
-#include <nonlin/GaussNewton.h>
-#include <nonlin/YeOldeParkinCore.h>
+#include "nonlin/GaussNewton.h"
+#include "nonlin/YeOldeParkinCore.h"
 
 #include "BioSystem.h"
 #include "BioPAR.h"

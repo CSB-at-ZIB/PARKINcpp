@@ -26,6 +26,8 @@
 %template(StringList)           std::vector< std::string >;                             // for Species, Parameter, Auxiliary
 %template(ValueList)            std::vector< double >;                                  // for ODESolver::Grid
 %template(VectorList)           std::vector< PARKIN::Vector >;                          // for ODESolver::Grid
+%template(MatrixList)           std::vector< PARKIN::Matrix >;                          // for BioProcessor (forward declaration)
+%template(QRconDecompList)      std::vector< PARKIN::QRconDecomp >;                     // for BioProcessor (forward declaration)
 %template(ValuePair)            std::pair< double, double >;                            // for MeasurementPoint, see next line
 %template(MeasurementPoint)     std::map< std::string, std::pair<double,double> >;      // mapping from species name to pair (meas.value, std.dev)
 %template(Trajectory)           std::map< unsigned, std::vector<double> >;              // for ODESolver (forward declaration)

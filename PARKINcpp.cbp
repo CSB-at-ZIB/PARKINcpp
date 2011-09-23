@@ -77,6 +77,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="." />
 		</Compiler>
 		<Linker>
 			<Add library="pthread" />
