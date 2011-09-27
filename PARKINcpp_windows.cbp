@@ -41,14 +41,14 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add directory="C:\Python26\include" />
+					<Add directory="C:\Python27\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add option="-static-libstdc++" />
 					<Add library="m" />
-					<Add library="python26" />
+					<Add library="python27" />
 					<Add directory="C:\Python26\libs" />
 				</Linker>
 			</Target>
