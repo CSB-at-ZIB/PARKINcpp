@@ -605,7 +605,7 @@ int YeOldeParkinCore::initial_scaling()
 	for (unsigned k = 1; k <= _n; ++k)
 	{
 	    Real s = _x(k);
-	    if ( _lpos == true ) s = std::log(s);
+	    if ( _lpos == true ) s = (s > 0.0) ? std::log(s) : -1.0e38;
 	    _x(k) = s;
 	    if ( s < _epmach ) s = _epmach;
 	    if ( _lpos == true ) s = 1.0;

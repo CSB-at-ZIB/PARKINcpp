@@ -159,6 +159,7 @@ LIMEX_A::integrate()
                     &_kOrder, _Dense, &_t1, &_t2
                  );
 
+/*
         // possibly very dangerous: cleaning up for numerical errors...
         ztmp = z;
         for (long j = 0; j < _n; ++j)
@@ -166,6 +167,7 @@ LIMEX_A::integrate()
             if ( std::fabs( *ztmp ) < EPMACH ) *ztmp = 0.0;
             ++ztmp;
         }
+*/
 
         // in single step mode: save the new, adaptive time point
         if (*t <= T)
@@ -349,6 +351,8 @@ LIMEX_A::integrate( unsigned n, double* yIni,
                     &_kOrder, _Dense, &_t1, &_t2
                  );
 
+
+/*
         // possibly very dangerous: cleaning up for numerical errors...
         ztmp = z;
         for (long j = 0; j < _n; ++j)
@@ -356,6 +360,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
             if ( std::fabs( *ztmp ) < EPMACH ) *ztmp = 0.0;
             ++ztmp;
         }
+*/
 
         // in single step mode: save the new, adaptive time point
         if (*t <= T)

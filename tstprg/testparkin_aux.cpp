@@ -326,6 +326,7 @@ int testparkin_aux()
 
     Vector syndata, synscal, vref, utmp;
 
+/*
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 //for (long n=0; n < 100; ++n)
@@ -333,13 +334,15 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     // syndata = biosys.computeModel(var, "adaptive");
 
 , std::cerr );
+*/
+
 //std::cerr << std::endl;
 //std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
 
 
-    Matrix Jac;
-    long   n = species.size();
-    long   T = meastp.nr();
+    Matrix Jac, tmat;
+//    long   n = species.size();
+//    long   T = meastp.nr();
     long   j = 0;
 
     utmp.zeros(3);
@@ -348,16 +351,21 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     par["p02"] = var["p02"];      utmp(2) = ( par["p02"] );
     par["p03"] = var["p03"];      utmp(3) = ( par["p03"] );
 
-    Jac.zeros( n*T, 7 );
+//    Jac.zeros( n*T, 7 );
 
 
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
 
-    Jac.set_colm( 1, 3 ) =
-        biosys.computeJacobian( par ); //  * utmp.diag();  // ... * exp( u=log(par) ).diag()
+//    Jac.set_colm( 1, 3 ) =
+    tmat =
+        biosys.computeJacobian( par, "adaptive" ); //  * utmp.diag();  // ... * exp( u=log(par) ).diag()
 
 , std::cerr )
 
+    Jac.zeros( tmat.nr(), 7 );
+    Jac.set_colm( 1, 3 ) = tmat;
+
+    vref = biosys.computeModel(par);
 
     for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
     {
@@ -376,7 +384,10 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     std::cout << Jac << std::endl;
 
 
-// exit(42);
+// exit(-42);
+
+    biosys.setMeasurementTimePoints( meastp );
+    biosys.computeModel(par, "init");
 
 
 

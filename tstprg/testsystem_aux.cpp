@@ -331,7 +331,7 @@ int testsystem_aux()
 
     Vector meastp(20);
     for (long j=1; j <= meastp.nr(); ++j) meastp(j) = tstart + j*(tend-tstart)/20.0;
-    biosys.setMeasurementTimePoints( meastp );
+//    biosys.setMeasurementTimePoints( meastp );
 
     // Breakpoints / Event Management:
     //
@@ -596,6 +596,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
 //exit(-41);
 
+    vref = biosys.computeModel(par);
+
     for (Expression::ParamIterConst it = par.begin(); it != par.end(); ++it)
     {
         Real   h = std::sqrt(1e-10), psav;
@@ -614,8 +616,10 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
 
 
-exit(-42);
+// exit(-42);
 
+    biosys.setMeasurementTimePoints( meastp );
+    biosys.computeModel(par, "init");
 
 
     std::cout << std::endl;

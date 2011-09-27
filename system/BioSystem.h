@@ -228,18 +228,19 @@ namespace PARKIN
             computeModel(Expression::Param const&   var,
                          std::string                mode = "");
                          // mode    -   "adaptive"   : generate artificial data in _measData  **and**  _tpMeas,
+                         //             "init"       : compute _sysData at _tpMeas; and initialise _measData with these values,
                          //             "any-string" : only _synData is changed
 
             Matrix
             computeJacobian(Expression::Param const& var,
                             std::string              mode = "");
-                            // mode -   "adaptive"   : generate Jacobian adaptively in _jacobian; do __NOT__ change _tpMeas,
+                            // mode -   "adaptive"   : generate Jacobian adaptively in _jacobian; **and** simultaneously change _tpMeas, _measData,
                             //          "any-string" : take _tpMeas as computation base, i.e. compute Jacobian at _tpMeas
             Matrix
             computeJacobian(Expression::Param const& var,
                             Expression::Param&       idx,
                             std::string              mode = "");
-                            // mode -   "adaptive"   : generate Jacobian adaptively in _jacobian; do __NOT__ change _tpMeas,
+                            // mode -   "adaptive"   : generate Jacobian adaptively in _jacobian; **and** simultaneously change _tpMeas, _measData,
                             //          "any-string" : take _tpMeas as computation base, i.e. compute Jacobian at _tpMeas
 
 

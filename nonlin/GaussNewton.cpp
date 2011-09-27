@@ -234,7 +234,7 @@ GaussNewton::initialise(
         // iteration takes place in log-space
         for (unsigned j = 1; j <= _n; ++j)
         {
-            _x(j) = (x(j) > 0.0) ? std::log( x(j) ) : -1.0e-38;
+            _x(j) = (x(j) > 0.0) ? std::log( x(j) ) : -1.0e38;
         }
     }
     else

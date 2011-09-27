@@ -389,7 +389,7 @@ BioSystem::setEmptyMeasurementList()
     {
         T = 100;
         _tpMeas.clear();
-        for (long j = 0; j < T; ++j) _tpMeas.push_back(j);
+        for (long j = 0; j < T; ++j) _tpMeas.push_back(j+1);
     }
 
     _measData.clear();
@@ -643,7 +643,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     long                k = 0;
     long                n = species.size();
     long                q = parameter.size();
-    long                T  = _tpMeas.size();
+    long                T; //  = _tpMeas.size();
     long                Tb = _tInterval.size();
     StrIterConst        sBeg = species.begin();
     StrIterConst        sEnd = species.end();
@@ -728,12 +728,17 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 
     if ( _tpMeas.size() <= 0 )
     {
-        _tpMeas = _odeSystem -> getAdaptiveGridPoints();
-        T       = _tpMeas.size();
-        sim     = _odeSystem -> getAdaptiveSolution();
+        ODESolver::Grid grid = _odeSystem -> getAdaptiveGridPoints();
+        T = grid.size();
+        for (long tp = 0; tp < T; ++tp)
+        {
+            _tpMeas.push_back( grid[tp] );
+        }
+        sim = _odeSystem -> getAdaptiveSolution();
     }
     else
     {
+        T = _tpMeas.size();
         sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
     }
 
@@ -780,6 +785,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     }
 
     if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = n*T; }
+    if ( mode == "init" ) { _measData = _synData; _totmeasData = n*T; }
 
     k = 0;
     model.zeros(_totmeasData);
@@ -876,25 +882,21 @@ BioSystem::computeJacobian(Expression::Param const& var,
         _iniCond[jj-1].setParBase(_parValue);
     }
 
-    ODESolver::Grid tp;
+    /// ODESolver::Grid tp;
 
     if ( mode == "adaptive" )
     {
-        tp.clear();
+        _tpMeas.clear();
         T = -1;
     }
-    else
-    {
-        tp = _tpMeas;
-        T = tp.size();
-    }
+
 
     dynamic_cast<LIMEX_A*>(_odeSystem) ->
                             setODESystem(
                                             BioSystemWrapper::fcnVar,
                                             BioSystemWrapper::jacVar,
                                             _tInterval[0], iniValues,
-                                            tp,
+                                            _tpMeas,
                                             _tInterval[Tb-1]
                                             // ,(int) n
                                             // BioSystemWrapper::outVar
@@ -948,18 +950,25 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
     ODESolver::Trajectory sim;
 
-    if ( mode == "adaptive" )
+    if ( _tpMeas.size() <= 0 )
     {
-        T   = _odeSystem -> getAdaptiveGridPoints().size();
+        ODESolver::Grid grid = _odeSystem -> getAdaptiveGridPoints();
+        T = grid.size();
+        for (long tp = 0; tp < T; ++tp)
+        {
+            _tpMeas.push_back( grid[tp] );
+        }
         sim = _odeSystem -> getAdaptiveSolution();
     }
     else
     {
+        T = _tpMeas.size();
         sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
     }
 
 
     _linftyModel.clear();
+    _synData.clear();
     _jacobian.clear();
 
     k = 0;
@@ -984,6 +993,21 @@ BioSystem::computeJacobian(Expression::Param const& var,
             }
         }
 
+        k = 0;
+        _synData.push_back( MeasurementPoint() );
+
+        for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
+        {
+            if ( k < n )
+            {
+                _synData[tp][*itSpe] = std::make_pair<Real,Real>( sim[k++][tp], 1.0 );
+            }
+            else
+            {
+                _synData[tp][*itSpe] = std::make_pair<Real,Real>( 0.0, GREAT );
+            }
+        }
+
         k = n;
         _jacobian.push_back( MeasurementPoint() );
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
@@ -1001,10 +1025,12 @@ BioSystem::computeJacobian(Expression::Param const& var,
         }
     }
 
+    if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = n*T; }
 
     j = 0;
-    jacobian.zeros(n*T, qq);
+    jacobian.zeros(_totmeasData, qq);
 
+    /*
     if ( mode == "adaptive" )
     {
         for (long tp = 0; tp < T; ++tp)
@@ -1025,6 +1051,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
         }
     }
     else
+    */
     {
         for (long tp = 0; tp < T; ++tp)
         {
