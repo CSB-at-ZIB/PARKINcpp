@@ -30,7 +30,7 @@ namespace PARKIN
     {
         // Real    ;
         int       iscal, mode, iterm, jacgen, boundeddamp;
-        int       nonlin, rscal;
+        int       nonlin, rscal, itmax;
         int       mprerr, mprmon, mprsol, mprtim;
         bool      lpos, norowscal, qrank1, qstat;
 
@@ -40,7 +40,7 @@ namespace PARKIN
 
         IOpt() :
             iscal(0), mode(0), iterm(0), jacgen(0), boundeddamp(0),
-            nonlin(0), rscal(0),
+            nonlin(0), rscal(0), itmax(50),
             mprerr(1), mprmon(0), mprsol(0), mprtim(0),
             lpos(false), norowscal(false), qrank1(false), qstat(false)
         { }

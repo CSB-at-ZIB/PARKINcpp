@@ -32,7 +32,8 @@ namespace PARKIN
             ///
 
             // c'tor
-            BioProcessor(BioSystem* biosys, std::string const& method = "parkin");
+            BioProcessor(BioSystem const&   biosys,
+                         std::string const& method = "parkin");
             // d'tor
             ~BioProcessor();
 
@@ -64,7 +65,7 @@ namespace PARKIN
             //
 
             void
-            setCurrentSpeciesThres(Expression::Param& spe);
+            setCurrentSpeciesThres(Expression::Param const& spe);
 
             Expression::Param const&
             getCurrentSpeciesThres();
@@ -115,7 +116,7 @@ namespace PARKIN
             Matrix computeJac(std::string mode, int& ifail);
             Matrix computeJcf(std::string mode, int& ifail);
 
-            BioSystem*                  _biosys;
+            BioSystem                   _biosys;
             BioPAR                      _biopar;
             std::string                 _method;
             IOpt                        _iopt;

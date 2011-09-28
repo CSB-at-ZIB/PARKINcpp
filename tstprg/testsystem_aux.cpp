@@ -15,9 +15,11 @@
 #include "linalg/Vector.h"
 #include "system/Expression.h"
 #include "system/BioSystem.h"
-#include "system/BioPAR.h"
+#include "system/BioProcessor.h"
 
-#include "nonlin/GaussNewton.h"
+// #include "system/BioPAR.h"
+//
+// #include "nonlin/GaussNewton.h"
 
 
 using namespace PARKIN;
@@ -49,7 +51,7 @@ int testsystem_aux()
 
     Real                        tstart = 1.0;
     Real                        tend   = 100.0;
-    Expression::Param           var, par;
+    Expression::Param           par, var, varThres;
 
     BioSystem::Species          species;
     BioSystem::Parameter        param;
@@ -692,8 +694,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     /// and, subsequently, prepare and solve for the inverse problem
     ///
 
-    Real   rtol       = 1.0e-5;
-    Real   solverRTol = 1.0e-5;
+    Real   xtol       = 1.0e-5;
+    Real   solverRTol = 1.0e-8;
     Real   solverATol = 1.0e-8;
     Vector p, pscal;
     // Vector syndata, synscal;
@@ -719,7 +721,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     //
 
     BioSystem::MeasurementList  newMeas;
-    Vector                      newtp;
+    Vector                      newtp, savtp;
     Real                        sigma = 0.015;   // add 1.5% white noise ...
     unsigned                    sampleSize = 3;
 
@@ -753,6 +755,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     invBiosys.setMeasurementList( newtp, newMeas );
 
+    savtp = meastp;
     meastp = newtp; // invBiosys.getMeasurementTimePoints();
     measlist = invBiosys.getMeasurementList();
 
@@ -803,6 +806,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     out.close();
 
+
+    ///
+
 //    invBiosys.computeModel(var);
 //
 //    std::cout << "####### invBiosys.computeModel() results #######" << std::endl;
@@ -826,15 +832,28 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
 
     par1.clear();
     var.clear();
+    varThres.clear();
 
-    par1.push_back( "r06_K3" );         var[ "r06_K3" ] = p(1);
-    par1.push_back( "r07_K4" );         var[ "r07_K4" ] = p(2);
-    par1.push_back( "r02_K5" );         var[ "r02_K5" ] = p(3);
+    par1.push_back( "r06_K3" );     var[ "r06_K3" ] = p(1);     varThres[ "r06_K3" ] = EPMACH;
+    par1.push_back( "r07_K4" );     var[ "r07_K4" ] = p(2);     varThres[ "r07_K4" ] = EPMACH;
+    par1.push_back( "r02_K5" );     var[ "r02_K5" ] = p(3);     varThres[ "r02_K5" ] = EPMACH;
+
+
+/*
+TIME_THIS_TO( std::cerr << " *** Call: invBiosys.computeJacobian() *** " << std::endl;
+
+    tmat =
+        invBiosys.computeJacobian( var, "adaptive" );
+
+, std::cerr )
+*/
+
 
     IOpt           iopt;
-    GaussNewtonWk  wk;
-    GaussNewton    gn;
-    BioPAR         prob( &invBiosys, par1 );
+//    GaussNewtonWk  wk;
+//    GaussNewton    gn;
+//    BioPAR         prob( &invBiosys, par1 );
+    BioProcessor   proc( invBiosys, "nlscon" );
 
     iopt.mode      = 0;     // 0:normal run, 1:single step
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
@@ -849,13 +868,56 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     iopt.mprerr    = 1;
 
 
+    proc.setIOpt( iopt );
+
+    proc.setCurrentParamValues( var );
+    proc.setCurrentParamThres( varThres );
+
+    Expression::Param speThres( proc.getCurrentSpeciesThres() );
+    for (Expression::ParamIterConst it = speThres.begin();
+                                    it != speThres.end(); ++it)
+    {
+        speThres[it->first] = EPMACH;
+    }
+    proc.setCurrentSpeciesThres( speThres );
+
+/*
+TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() *** " << std::endl;
+    std::cerr << "sensTraj.size() = " << proc.computeSensitivityTrajectories().size() << std::endl;
+, std::cerr )
+*/
+
+TIME_THIS_TO( std::cerr <<  " *** call: proc.prepareDetailedSensitivities() *** " << std::endl;
+    std::cerr << "rc = " << proc.prepareDetailedSensitivities( savtp ) << std::endl;
+, std::cerr )
+
+
+    std::vector<Matrix> sensMatList = proc.getSensitivityMatrices();
+
+    for (unsigned j = 0; j < sensMatList.size(); ++j)
+    {
+        std::cout << " Sensitivity for timepoint #" << j+1 << " (t = " << savtp(j+1) << ") :" << std::endl;
+        std::cout << " mat (" << sensMatList[j].nr() << " x " << sensMatList[j].nc() << ") = " << std::endl;
+        std::cout << sensMatList[j] << std::endl;
+    }
+
+
+exit(-43);
+
+
+    proc.identifyParameters(xtol);
+
+/*
+    GaussNewtonWk  wk;
+    GaussNewton    gn;
+    BioPAR         prob( &invBiosys, par1 );
+
     // if ( iopt.jacgen > 1 )
         // wk.cond = 1.0 / sqrt(solverRTol);
     // wk.nitmax = 15;
 
-
     gn.setProblem( &prob );
-    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, rtol, iopt, wk );
+    gn.initialise( syndata.nr(), p, pscal, syndata, synscal, xtol, iopt, wk );
 
 
 TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::endl;
@@ -904,6 +966,6 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
                      std::setw(15) << std::left << final[param[j]] <<
                      std::setw(20) << std::left << var[param[j]] <<
                      std::endl;
-
+*/
     return 0;
 }

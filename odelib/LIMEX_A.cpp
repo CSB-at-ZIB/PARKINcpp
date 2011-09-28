@@ -312,6 +312,16 @@ LIMEX_A::integrate( unsigned n, double* yIni,
     // _solution.clear();
     //
 
+
+//std::cerr << "*** Initial values for LIMEX_A::integrate(a,b):" << std::endl;
+//    for (long j = 0; j < _n; ++j)
+//    {
+//std::cerr << j << ": (" << z[j] << ", " << _dy0[j] << "), ";
+//    }
+//std::cerr << std::endl;
+//std::cerr << "***" << std::endl;
+
+
 //std::cerr << "*** Data time points where measurements are taken:" << std::endl;
 //    for (GridIterConst it = dBeg; it != dEnd; ++it)
 //    {
@@ -351,6 +361,13 @@ LIMEX_A::integrate( unsigned n, double* yIni,
                     &_kOrder, _Dense, &_t1, &_t2
                  );
 
+//std::cerr << "*** Intermediate values for LIMEX_A::integrate(a,b), following a single step:" << std::endl;
+//    for (long j = 0; j < _n; ++j)
+//    {
+//std::cerr << j << ": (" << z[j] << ", " << _dy0[j] << "), ";
+//    }
+//std::cerr << std::endl;
+//std::cerr << "***" << std::endl;
 
 /*
         // possibly very dangerous: cleaning up for numerical errors...

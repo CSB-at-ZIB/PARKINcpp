@@ -117,7 +117,10 @@ BioSystem::~BioSystem()
          _iniPar = s._iniPar;
          _sysPar = s._sysPar;
          _optPar = s._optPar;
-         _parValue = 0;
+
+         long q = s._ode.getParameters().size();
+
+         _parValue = new double[q];
 
          _linftyModel = s._linftyModel;
          _tpMeas      = s._tpMeas;
@@ -128,6 +131,8 @@ BioSystem::~BioSystem()
 
          //$$$ _odeSystem = new DOP853();
          _odeSystem = new LIMEX_A();
+         _odeSystem->setRTol( s._odeSystem->getRTol() );
+         _odeSystem->setATol( s._odeSystem->getATol() );
          _odeErrorFlag = 0;
 
          _totmeasData = s._totmeasData;
@@ -869,6 +874,13 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
     _optPar = var;
 
+//std::cerr << "*** BioSystem::computeJacobian(...) : current parameter values ***" << std::endl;
+//    k = 0;
+//    for (StrIterConst it = pBeg; it != pEnd; ++it)
+//    {
+//std::cerr << std::setw(5) << k++ << ": '" << *it << "' = " << _sysPar[*it] << std::endl;
+//    }
+//std::cerr << "***" << std::endl;
 
     k = 0;
     for (StrIterConst it = pBeg; it != pEnd; ++it)
