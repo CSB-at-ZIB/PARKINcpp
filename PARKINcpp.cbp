@@ -52,6 +52,7 @@
 				</Linker>
 				<ExtraCommands>
 					<Add before="/bin/rm -f swig/parkin_wrap.cpp obj/SharedLib/swig/parkin_wrap.o" />
+					<Add after="/bin/cp swig/parkin.py swig/_parkin.so ../../Eric4/BioPARKIN/src/parkincpp/" />
 				</ExtraCommands>
 			</Target>
 			<Target title="SharedLibDebug">

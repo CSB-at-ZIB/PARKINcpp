@@ -217,6 +217,21 @@ BioProcessor::computeSensitivityTrajectories()
     Matrix                      mat;
     int                         ifail = 0;
 
+    std::string tstr;
+
+    switch ( jacgen )
+    {
+        case 1 : tstr = "Variational equation";     break;
+        case 2 : tstr = "Num. diff.";               break;
+        case 3 : tstr = "Num. diff. w/ feedback";   break;
+        default: tstr = " N/A ";                    break;
+    }
+    std::cout << std::endl;
+    std::cout << "*** BioProcessor::computeSensitivityTrajectories() ***" << std::endl;
+    std::cout << " jacgen = " << jacgen << "(" << tstr << ")" << std::endl;
+    std::cout << "***" << std::endl;
+
+
     _trajMap.clear();
 
     if ( jacgen == 1 )
