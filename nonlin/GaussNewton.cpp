@@ -260,7 +260,7 @@ GaussNewton::initialise(
     if ( !qsucc )
         printl( _lumon, dlib::LINFO,
                 "\n    %s\n    %s\n    %s\n    %s\n\n",
-                "********* PARKIN : Gauß-Newton *********",
+                "********* NLSCON : Gauß-Newton *********",
                 "* Method for the solution of nonlinear *",
                 "* least-squares problems               *",
                 "****************************************"

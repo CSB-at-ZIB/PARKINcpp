@@ -853,7 +853,7 @@ TIME_THIS_TO( std::cerr << " *** Call: invBiosys.computeJacobian() *** " << std:
 //    GaussNewtonWk  wk;
 //    GaussNewton    gn;
 //    BioPAR         prob( &invBiosys, par1 );
-    BioProcessor   proc( invBiosys, "nlscon" );
+    BioProcessor   proc( &invBiosys, "nlscon" );
 
     iopt.mode      = 0;     // 0:normal run, 1:single step
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
@@ -864,6 +864,8 @@ TIME_THIS_TO( std::cerr << " *** Call: invBiosys.computeJacobian() *** " << std:
     iopt.lpos      = false;     // force solution vector to be positive (all components > 0.0)
                             //          _mprmon =   0      1      2      3      4       5       6
                             //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE
+    iopt.itmax     = 45;
+
     iopt.mprmon    = 2;
     iopt.mprerr    = 1;
 
@@ -902,10 +904,21 @@ TIME_THIS_TO( std::cerr <<  " *** call: proc.prepareDetailedSensitivities() *** 
     }
 
 
-exit(-43);
+// exit(-43);
 
+    //
+    // !!! !!! !!!
+    //
+
+    invBiosys.setMeasurementList( measlist );
+
+    //
+    // !!! !!! !!!
+    //
 
     proc.identifyParameters(xtol);
+
+    // Expression::Param final = proc.getIdentificationResults();
 
 /*
     GaussNewtonWk  wk;
@@ -944,8 +957,9 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     for (unsigned j = 0; j < piter.size(); ++j)
         std::cout << "it = " << j << "\n" << piter[j].t();
     std::cout << std::endl;
-
+*/
     Expression::Param final = invBiosys.getSysPar();
+
 
     std::cout.unsetf( std::ios_base::floatfield );
     std::cout << std::endl;
@@ -966,6 +980,6 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
                      std::setw(15) << std::left << final[param[j]] <<
                      std::setw(20) << std::left << var[param[j]] <<
                      std::endl;
-*/
+
     return 0;
 }

@@ -10,10 +10,10 @@
 using namespace PARKIN;
 
 //---------------------------------------------------------------------------
-BioProcessor::BioProcessor(BioSystem const& biosys, std::string const& method) :
-    _biosys(biosys), _biopar(&_biosys),
+BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
+    _biosys(biosys), _biopar(biosys),
     _method(method), _iopt(),
-    _curSpecies( _biosys.getSpecies() ),
+    _curSpecies( _biosys->getSpecies() ),
     _optPar(), // _optIdx(),
     _speThres(), _parThres(),
     _trajMap(), _sensTraj(0),
@@ -39,7 +39,7 @@ BioProcessor::~BioProcessor()
 }
 //---------------------------------------------------------------------------
 BioProcessor::BioProcessor(BioProcessor const& other) :
-    _biosys(other._biosys), _biopar(other._biopar),
+    _biosys(other._biosys), _biopar(other._biosys),
     _method(other._method), _iopt(other._iopt),
     _curSpecies(other._curSpecies),
     _optPar(other._optPar), // _optIdx(other._optIdx),
@@ -181,9 +181,9 @@ BioProcessor::computeModel()
 
     trajectory.clear();
 
-    model = _biosys.computeModel( _optPar, "adaptive" );
+    model = _biosys->computeModel( _optPar, "adaptive" );
 
-    if ( _biosys.getComputeErrorFlag() != 0 )
+    if ( _biosys->getComputeErrorFlag() != 0 )
     {
         return trajectory;
     }
@@ -221,13 +221,13 @@ BioProcessor::computeSensitivityTrajectories()
 
     if ( jacgen == 1 )
     {
-        mat = _biosys.computeJacobian( _optPar, "adaptive" );
-        ifail = _biosys.getComputeErrorFlag();
+        mat = _biosys->computeJacobian( _optPar, "adaptive" );
+        ifail = _biosys->getComputeErrorFlag();
 
         delete _sensTraj;
-        _sensTraj = _biosys.getEvaluationTrajectories();
+        _sensTraj = _biosys->getEvaluationTrajectories();
 
-        _linftyModel = _biosys.getLinftyModel();
+        _linftyModel = _biosys->getLinftyModel();
     }
     else if ( jacgen == 2 )
     {
@@ -291,7 +291,7 @@ BioProcessor::computeSensitivityTrajectories()
 Vector
 BioProcessor::getAdaptiveTimepoints()
 {
-    return _biosys.getOdeTrajectoryTimePoints();
+    return _biosys->getOdeTrajectoryTimePoints();
 }
 //---------------------------------------------------------------------------
 BioProcessor::TrajectoryMap
@@ -347,8 +347,8 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
     Expression::Param   parScale = computeParameterScales();
     Expression::Param   speScale = computeSpeciesScales();
     unsigned            mcon = 0;
-    unsigned            irank = 0;
-    Real                cond = 1.0/( _biosys.getSolverRTol() );
+    unsigned            irankMax = 0;
+    Real                condMax = 1.0/( _biosys->getSolverRTol() );
     long                T = tp.nr();
     long                m = _curSpecies.size();
     long                q = _optPar.size();
@@ -389,9 +389,9 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
     {
         if ( _sensTraj == 0 )
         {
-            _biosys.computeJacobian( _optPar, "adaptive" );
+            _biosys->computeJacobian( _optPar, "adaptive" );
 
-            int ifail = _biosys.getComputeErrorFlag();
+            int ifail = _biosys->getComputeErrorFlag();
 
             if ( ifail != 0 )
             {
@@ -399,9 +399,9 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
             }
 
             delete _sensTraj;
-            _sensTraj = _biosys.getEvaluationTrajectories();
+            _sensTraj = _biosys->getEvaluationTrajectories();
 
-            _linftyModel = _biosys.getLinftyModel();
+            _linftyModel = _biosys->getLinftyModel();
         }
 
 
@@ -435,17 +435,17 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 
             mat = one_fw.diag() * mat * pw.diag();
 
+            unsigned irank = irankMax;
+            Real     cond = condMax;
+
             _sensiMat.push_back( mat );
             _sensiDcmp.push_back( mat.factorQRcon(mcon, irank, cond) );
-
-            mcon = irank = 0;
-            cond = 1.0/( _biosys.getSolverRTol() );
         }
     }
     else if ( jacgen == 2 )
     {
-        // _biosys.setEmptyMeasurementList();
-        _biosys.setMeasurementTimePoints( tp );
+        // _biosys->setEmptyMeasurementList();
+        _biosys->setMeasurementTimePoints( tp );
 
         int ifail = 0;
         Matrix Jac = computeJac( "init", ifail );
@@ -471,17 +471,17 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 
             mat = one_fw.diag() * mat * pw.diag();
 
+            unsigned irank = irankMax;
+            Real     cond = condMax;
+
             _sensiMat.push_back( mat );
             _sensiDcmp.push_back( mat.factorQRcon(mcon, irank, cond) );
-
-            mcon = irank = 0;
-            cond = 1.0/( _biosys.getSolverRTol() );
         }
     }
     else if ( jacgen == 3 )
     {
-        // _biosys.setEmptyMeasurementList();
-        _biosys.setMeasurementTimePoints( tp );
+        // _biosys->setEmptyMeasurementList();
+        _biosys->setMeasurementTimePoints( tp );
 
         int ifail = 0;
         Matrix Jac = computeJcf( "init", ifail );
@@ -507,11 +507,11 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 
             mat = one_fw.diag() * mat * pw.diag();
 
+            unsigned irank = irankMax;
+            Real     cond = condMax;
+
             _sensiMat.push_back( mat );
             _sensiDcmp.push_back( mat.factorQRcon(mcon, irank, cond) );
-
-            mcon = irank = 0;
-            cond = 1.0/( _biosys.getSolverRTol() );
         }
     }
     else
@@ -540,15 +540,15 @@ BioProcessor::identifyParameters(Real xtol)
 {
     int                         rc = 0;
     unsigned                    j, m;
-    Expression::Param           pScal;
+    Expression::Param           parScal;
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
     BioSystem::Parameter        pname;
     Vector                      x, xscal;
     Vector                      fobs, fscal;
 
-    fobs = _biosys.getMeasurements();
-    fscal = _biosys.getMeasurementWeights();
+    fobs = _biosys->getMeasurements();
+    fscal = _biosys->getMeasurementWeights();
 
     j = 0;
     pname.clear();
@@ -562,11 +562,11 @@ BioProcessor::identifyParameters(Real xtol)
 
 
     j = 0;
-    pScal = computeParameterScales();
-    xscal.zeros( pScal.size() );
+    parScal = computeParameterScales();
+    xscal.zeros( parScal.size() );
 
-    for (Expression::ParamIterConst it = pScal.begin();
-                                    it != pScal.end();
+    for (Expression::ParamIterConst it = parScal.begin();
+                                    it != parScal.end();
                                     ++it)
     {
         xscal(++j) = it->second;
@@ -575,8 +575,8 @@ BioProcessor::identifyParameters(Real xtol)
 
     m = fobs.nr();
 
-    _biopar = BioPAR( &_biosys, pname );
-
+    // _biopar = BioPAR( _biosys, pname );
+    _biopar.setCurrentParameter( pname );
 
 
     if ( _method == "parkin" )
@@ -612,6 +612,21 @@ BioProcessor::identifyParameters(Real xtol)
 
         // _nlsconWk = _nlscon.getWk();
         _idResult = _nlscon.getSolution();
+
+        ///
+
+        std::vector<Vector> piter = _nlscon.getSolutionIter();
+
+        std::cout << std::endl;
+        std::cout << "         ------------------------------------" << std::endl;
+        std::cout << "         NLSCON: Inv.Prob. solution iteration" << std::endl;
+        std::cout << "         ------------------------------------" << std::endl;
+        for (unsigned j = 0; j < piter.size(); ++j)
+        {
+            std::cout << "it = " << j << "\n" << piter[j].t();
+        }
+        std::cout << std::endl;
+
     }
     else
     {
@@ -703,15 +718,15 @@ BioProcessor::computeJac(std::string mode, int& ifail)
 
     Matrix mat;
     Vector fh;
-    Vector f = _biosys.computeModel( _optPar, mode );
+    Vector f = _biosys->computeModel( _optPar, mode );
 
-    ifail = _biosys.getComputeErrorFlag();
+    ifail = _biosys->getComputeErrorFlag();
     if ( ifail != 0 )
     {
         return mat;
     }
 
-    _linftyModel = _biosys.getLinftyModel();
+    _linftyModel = _biosys->getLinftyModel();
 
 
     long k = 0;
@@ -730,7 +745,7 @@ BioProcessor::computeJac(std::string mode, int& ifail)
         u *= (ajdelta * su);
         _optPar[itPar->first] = w + u;
 
-        fh = _biosys.computeModel( _optPar );
+        fh = _biosys->computeModel( _optPar );
 
         _optPar[itPar->first] = w;
         mat.set_colm(k) = (1.0/u) * Matrix(fh - f);
@@ -756,15 +771,15 @@ BioProcessor::computeJcf(std::string mode, int& ifail)
 
     Matrix mat;
     Vector fu;
-    Vector f = _biosys.computeModel( _optPar, mode );
+    Vector f = _biosys->computeModel( _optPar, mode );
 
-    ifail = _biosys.getComputeErrorFlag();
+    ifail = _biosys->getComputeErrorFlag();
     if ( ifail != 0 )
     {
         return mat;
     }
 
-    _linftyModel = _biosys.getLinftyModel();
+    _linftyModel = _biosys->getLinftyModel();
 
 
     Vector v;  v.ones( f.nr() );
@@ -793,11 +808,12 @@ BioProcessor::computeJcf(std::string mode, int& ifail)
 
             _optPar[it->first] = w + u;
 
-            fu = _biosys.computeModel( _optPar );
+            fu = _biosys->computeModel( _optPar );
 
             _optPar[it->first] = w;
 
-            ifail = _biosys.getComputeErrorFlag();
+            ifail = _biosys->getComputeErrorFlag();
+
             if ( ifail != 0 )
             {
                 qexit = true; break;

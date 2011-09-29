@@ -107,20 +107,35 @@ invbiosys.setParamValue( parameter[1], var[parameter[1]] )
 
 invbiosys.setMeasurementList( meastp, mlist )
 
-# setting solution accuracies
 invbiosys.setSolverRTol(1.0e-7)
 invbiosys.setSolverATol(1.0e-8)
-xtol = 1.0e-4
 
+xtol    = 1.0e-4
+p       = Vector()
+pscal   = Vector()
+p.zeros(1)
+p[0] = 0.8
+# p[1] = 2.0
+pscal.zeros(1)
 
-par1 = Param()
-# par1["compartment"] = 2.0
-par1["k1"] = 0.8
+synscal = Vector()
+syndata = invbiosys.getMeasurements()
+synscal.zeros( syndata.nr() )
 
-par1Thres = Param()
-# par1Thres["compartment"] = EPMACH
-par1Thres["k1"] = EPMACH
+print
+print "  Simulated  Experimental  Data  :   nr() = ", syndata.nr()
+print syndata
+print
 
+par1 = StringList()
+# par1.push_back( "compartment" )
+par1.push_back( "k1" )
+
+prob = BioPAR( invbiosys, par1 )
+# prob.setParameter(par1)
+
+gn = GaussNewton()
+wk = gn.getWk()
 iopt = IOpt()
 
 iopt.mode      = 0      # 0: normal run, 1: single step
@@ -134,65 +149,30 @@ iopt.mprmon    = 2
 iopt.mprerr    = 1
 
 
-proc = BioProcessor( invbiosys, "nlscon" )
-proc.setIOpt( iopt )
-proc.setCurrentParamValues( par1 )
-proc.setCurrentParamThres( par1Thres )
+wk.nitmax = iopt.itmax
+wk.cond = 1.0 / 1.0e-4; # max. condition for rank decision shall be roughly 1/sqrt(SolverRTol)
+                        # if outer differentiation for Jacobian is used (i.e. jacgen > 1)
 
 
-speThres = proc.getCurrentSpeciesThres()
+gn.setProblem( prob )
+gn.initialise( syndata.nr(),  p,pscal,  syndata,synscal,  xtol,  iopt,wk )
 
-for species in speThres.keys():
-    speThres[species] = EPMACH
-
-proc.setCurrentSpeciesThres( speThres );
-
-
-# ... and identify!
-proc.identifyParameters(xtol)
-
+gn.run()
+#gn.analyse()
+gn.printCounter()
 #sys.exit()
 
-final = proc.getIdentificationResults()
 print
-print "Inv.Prob. solution:"
 print "-------------------"
-for parm in final.keys():
-    var[parm] = final[parm]
-    print "%10s = %e" % ( parm, final[parm] )
-print
-
-
-print
-print "Final Solution (for all system parameters)"
-print "------------------------------------------"
-print "%25s:  %f" % ( parameter[0], var[parameter[0]] )
-print "%25s:  %f" % ( parameter[1], var[parameter[1]] )
-
-
-## from here start sensitivity computation
-#
-proc.setCurrentParamValues( par1 )
-proc.setCurrentParamThres( par1Thres )
-
-
-speThres = proc.getCurrentSpeciesThres()
-
-for species in speThres.keys():
-    speThres[species] = EPMACH
-
-proc.setCurrentSpeciesThres( speThres )
+print "Inv.Prob. Iteration"
+print "-------------------"
+piter = gn.getSolutionIter()
+for j in range(0, gn.getWk().niter):
+    print "it = %d:\n%s" % ( j, piter[j].t() )
 
 print
-print
-print "*** prepDetailedSens() ***"
-print "rc = %d" % (proc.prepareDetailedSensitivities( meastp ))
-print "***"
-
-sensMat = proc.getSensitivityMatrices()
-
-for j in range(0, len(sensMat)):
-    print "Sensitivity for timepoint #%d (t = %f)" % (j+1, meastp[j])
-    print "mat (%d x %d) =" % (sensMat[j].nr(), sensMat[j].nc())
-    print sensMat[j]
+print "Final Solution from BioSystem"
+print "-----------------------------"
+print "%25s:  %f" % ( parameter[0], invbiosys.getParamValue(parameter[0]) )
+print "%25s:  %f" % ( parameter[1], invbiosys.getParamValue(parameter[1]) )
 
