@@ -511,6 +511,15 @@ LIMEX_A::integrate( unsigned n, double* yIni,
 //std::cerr << "***" << std::endl;
 
     //
+    if ( (_ifail[0] == 0) && (yIni != 0) )
+    {
+        ztmp = z;
+        for (long j = 0; j < _n; ++j)
+        {
+            yIni[j] = *ztmp++;
+        }
+    }
+    //
 
     return _ifail[0];
 }

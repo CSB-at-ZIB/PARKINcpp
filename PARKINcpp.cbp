@@ -311,13 +311,13 @@
 			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/testbioparkin.py">
-			<Option target="SharedLib" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_aux.py">
-			<Option target="SharedLib" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_helper.py">
-			<Option target="SharedLib" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="system/BioPAR.cpp" />
 		<Unit filename="system/BioPAR.h" />

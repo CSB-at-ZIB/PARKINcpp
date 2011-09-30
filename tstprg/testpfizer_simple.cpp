@@ -15,9 +15,11 @@
 #include "linalg/Vector.h"
 #include "system/Expression.h"
 #include "system/BioSystem.h"
-#include "system/BioPAR.h"
+#include "system/BioProcessor.h"
 
-#include "nonlin/GaussNewton.h"
+// #include "system/BioPAR.h"
+//
+// #include "nonlin/GaussNewton.h"
 
 
 using namespace PARKIN;
@@ -53,7 +55,7 @@ int testpfizer_simple()
 
     Real                        tstart = -10.0;
     Real                        tend   = 100.0;
-    Expression::Param           var, par;
+    Expression::Param           var, par, parThres;
 
     BioSystem::Species          species;
     BioSystem::Parameter        param;
@@ -744,6 +746,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
     long q = 2; // param.size();
 
+    par.clear();
     par1.clear();
     p.zeros( q );
     pscal.zeros( q );
@@ -752,6 +755,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     {
         par1.push_back( param[j-1] );
         p(j) = pscal(j) = var[ par1.back() ];
+        par[ par1.back() ] = p(j);     parThres[ par1.back()] = EPMACH;
     }
 
     // p(5) = pscal(5) = 1.0;      var[ par1[4] ] = p(5);
@@ -759,9 +763,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 
     IOpt           iopt;
-    GaussNewtonWk  wk;
-    GaussNewton    gn;
-    BioPAR         prob( &invBiosys, par1 );
+//    GaussNewtonWk  wk;
+//    GaussNewton    gn;
+//    BioPAR         prob( &invBiosys, par1 );
 
     iopt.mode      = 0;     // 0:normal run, 1:single step
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
@@ -777,11 +781,38 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
 
     // if ( iopt.jacgen > 1 )
-        wk.cond = 1.0 / /*std::sqrt*/(solverRTol);
+    //    wk.cond = 1.0 / /*std::sqrt*/(solverRTol);
     // wk.nitmax = 15;
 
 
-    gn.setProblem( &prob );
+    BioProcessor proc( &invBiosys, "nlscon" );
+
+    proc.setIOpt( iopt );
+
+    proc.setCurrentParamValues( par );
+    proc.setCurrentParamThres( parThres );
+
+        Expression::Param speThres( proc.getCurrentSpeciesThres() );
+    for (Expression::ParamIterConst it = speThres.begin();
+                                    it != speThres.end(); ++it)
+    {
+        speThres[it->first] = EPMACH;
+    }
+    proc.setCurrentSpeciesThres( speThres );
+
+
+TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() *** " << std::endl;
+    std::cerr << "sensTraj.size() = " << proc.computeSensitivityTrajectories().size() << std::endl;
+, std::cerr )
+
+
+
+exit(-43);
+
+
+
+//    gn.setProblem( &prob );
+
 /*
     gn.initialise( syndata.nr(), p, pscal, syndata, synscal, reconXTol, iopt, wk );
 
@@ -795,7 +826,7 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::cout << " qrA.getDiag() = " << std::endl;
     std::cout << gn.getSensitivity().getDiag().t() << std::endl;
 */
-
+/*
     gn.initialise( syndata.nr(), p, pscal, syndata, synscal, reconXTol, iopt, wk );
     gn.run();
     // gn.analyse();
@@ -804,13 +835,14 @@ TIME_THIS_TO( std::cerr << " *** Call: gn.computeSensitivity() *** " << std::end
     std::vector<Vector> piter = gn.getSolutionIter();
     Vector psol = gn.getSolution();
 
+
     std::cout << std::endl;
     std::cout << "Inv.Prob. solution iteration" << std::endl;
     std::cout << "----------------------------" << std::endl;
     for (unsigned j = 0; j < piter.size(); ++j)
         std::cout << "it = " << j << "\n" << piter[j].t();
     std::cout << std::endl;
-
+*/
 
     Expression::Param final = invBiosys.getSysPar();
     /*
