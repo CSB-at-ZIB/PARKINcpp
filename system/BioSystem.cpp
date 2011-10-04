@@ -475,6 +475,12 @@ BioSystem::setMeasurementTimePoints(Vector const& tp)
     setEmptyMeasurementList();
 }
 //---------------------------------------------------------------------------
+Vector
+BioSystem::getMeasurementTimePoints()
+{
+    return Vector( _tpMeas );
+}
+//---------------------------------------------------------------------------
 Vector //ODESolver::Grid&
 BioSystem::getOdeTrajectoryTimePoints()
 {

@@ -306,7 +306,8 @@ BioProcessor::computeSensitivityTrajectories()
 Vector
 BioProcessor::getAdaptiveTimepoints()
 {
-    return _biosys->getOdeTrajectoryTimePoints();
+    /// return _biosys->getOdeTrajectoryTimePoints(); // not quite working?!?
+    return _biosys->getMeasurementTimePoints();
 }
 //---------------------------------------------------------------------------
 BioProcessor::TrajectoryMap

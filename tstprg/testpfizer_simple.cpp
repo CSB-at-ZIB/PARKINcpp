@@ -806,6 +806,40 @@ TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() **
 , std::cerr )
 
 
+/*
+    par[ par1[0] ] *= (1.0 + 0.01);
+
+    proc.setCurrentParamValues( par );
+    proc.setCurrentParamThres( parThres );
+
+TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() *** " << std::endl;
+    std::cerr << "sensTraj.size() = " << proc.computeSensitivityTrajectories().size() << std::endl;
+, std::cerr )
+*/
+
+
+    Vector                      tpoints = proc.getAdaptiveTimepoints();
+    BioProcessor::TrajectoryMap sensTraj = proc.getScaledSensitivityTrajectories();
+
+
+    std::cout << "####### proc.getScaledSensitivityTrajectories() results #######" << std::endl;
+    std::cout << std::endl;
+    std::cout << " adaptive timepoints = (" << tpoints.nr() << ")" << std::endl;
+    std::cout << tpoints.t() << std::endl;
+
+    for (unsigned j = 0; j < species.size(); ++j)
+    {
+        for (unsigned k = 0; k < param.size(); ++k)
+        {
+            std::string s = species[j] + " / " + param[k];
+            Vector      v( sensTraj[s] );
+
+            std::cout << "  trajectory for '" << s << "' = (" << v.nr() << ")" << std::endl;
+            std::cout << v.t() << std::endl;
+
+        }
+    }
+    std::cout << "###############################################################" << std::endl;
 
 exit(-43);
 

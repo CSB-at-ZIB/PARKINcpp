@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="4" />
+				<Option parameters="5" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />
@@ -33,8 +33,8 @@
 				</Linker>
 			</Target>
 			<Target title="SharedLib">
-				<Option output="swig/_parkin" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="swig/" />
+				<Option output="bin/SharedLib/swig/_parkin" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="bin/SharedLib/swig/" />
 				<Option object_output="obj/SharedLib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -51,13 +51,13 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="/bin/rm -f swig/parkin_wrap.cpp obj/SharedLib/swig/parkin_wrap.o" />
-					<Add after="/bin/cp swig/parkin.py swig/_parkin.so ../../Eric4/BioPARKIN/src/parkincpp/" />
+					<Add before="/bin/rm -f swig/parkin_wrap.cxx obj/SharedLib/swig/parkin_wrap.o" />
+					<Add after="/bin/cp swig/parkin.py bin/SharedLib/swig/_parkin.so link2BioPARKIN/parkincpp/" />
 				</ExtraCommands>
 			</Target>
 			<Target title="SharedLibDebug">
-				<Option output="swig/_parkin" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="swig/" />
+				<Option output="bin/SharedLibDebug/swig/_parkin" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="bin/SharedLibDebug/swig/" />
 				<Option object_output="obj/SharedLibDebug" />
 				<Option type="3" />
 				<Option compiler="gcc" />

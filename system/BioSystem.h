@@ -167,6 +167,9 @@ namespace PARKIN
             void
             setMeasurementTimePoints(Vector const& tp);
 
+            Vector
+            getMeasurementTimePoints();
+
             Vector  // ODESolver::Grid&
             getOdeTrajectoryTimePoints();
 
