@@ -716,7 +716,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 
     std::cout << "Read " << newMeas.size() << " timepoint(s) with measurement data." << std::endl;
 
-    invBiosys.setMeasurementList( Vector(mTimepoint), newMeas );
+    invBiosys.setMeasurementList( /*Vector*/(mTimepoint), newMeas );
 
     syndata = invBiosys.getMeasurements();
     synscal.ones( syndata.nr() );
@@ -726,7 +726,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     std::cout << "Measured  experimental  data  :  nr() = " << syndata.nr() << std::endl;
     // std::cout << syndata << std::endl;
 
-
+/*
     vref = invBiosys.computeModel(var);
     std::cout << std::endl;
     std::cout << vref << std::endl;
@@ -738,7 +738,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
         std::cout << invBiosys.getSimTrajectoryPoints(species[j]).t() << std::endl;
     }
     std::cout << "################################################" << std::endl;
-
+*/
 
     //
     // Initial guess for GaussNewton
@@ -800,22 +800,22 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
     }
     proc.setCurrentSpeciesThres( speThres );
 
-
+/*
 TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() *** " << std::endl;
     std::cerr << "sensTraj.size() = " << proc.computeSensitivityTrajectories().size() << std::endl;
 , std::cerr )
+*/
 
-
-/*
     par[ par1[0] ] *= (1.0 + 0.01);
 
     proc.setCurrentParamValues( par );
     proc.setCurrentParamThres( parThres );
 
+/*
 TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() *** " << std::endl;
     std::cerr << "sensTraj.size() = " << proc.computeSensitivityTrajectories().size() << std::endl;
 , std::cerr )
-*/
+
 
 
     Vector                      tpoints = proc.getAdaptiveTimepoints();
@@ -840,6 +840,34 @@ TIME_THIS_TO( std::cerr <<  " *** call: proc.computeSensitivityTrajectories() **
         }
     }
     std::cout << "###############################################################" << std::endl;
+*/
+
+
+    Vector tTimepoint;
+
+    tTimepoint.zeros(3);
+    tTimepoint(1) = 1.3783531;
+    tTimepoint(2) = 33.6;
+    tTimepoint(3) = 95.0;
+
+TIME_THIS_TO( std::cerr <<  " *** call: proc.prepareDetailedSensitivities() *** " << std::endl;
+    std::cerr << "rc = " << proc.prepareDetailedSensitivities(mTimepoint) << std::endl;
+, std::cerr )
+
+    std::vector<Matrix> sensMat = proc.getSensitivityMatrices();
+
+    std::cout << "########## proc.getSensitivityMatrices() results ############" << std::endl;
+    std::cout << std::endl;
+    for (unsigned j = 0; j < sensMat.size(); ++j)
+    {
+        std::cout << "  mTimepoint #" << j+1 << " = " << mTimepoint[j] << std::endl;
+        std::cout << std::endl;
+        std::cout << "sensMat (" << sensMat[j].nr() << " x " << sensMat[j].nc() << ") = " << std::endl;
+        std::cout << sensMat[j].t() << std::endl;
+    }
+    std::cout << std::endl;
+    std::cout << "#############################################################" << std::endl;
+
 
 exit(-43);
 
