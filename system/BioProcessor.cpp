@@ -598,6 +598,7 @@ BioProcessor::identifyParameters(Real xtol)
     if ( _method == "parkin" )
     {
         _parkinWk.itmax = _iopt.itmax;
+        _parkinWk.cond = 1.0 / (_biosys->getSolverRTol() );
 
         _parkin.setProblem( &_biopar );
         _parkin.initialise( m,
@@ -615,6 +616,7 @@ BioProcessor::identifyParameters(Real xtol)
     else if ( _method == "nlscon" )
     {
         _nlsconWk.nitmax = _iopt.itmax;
+        _nlsconWk.cond = 1.0 / ( _biosys->getSolverRTol() );
 
         _nlscon.setProblem( &_biopar );
         _nlscon.initialise( m,
@@ -632,12 +634,13 @@ BioProcessor::identifyParameters(Real xtol)
         ///
 
         std::vector<Vector> piter = _nlscon.getSolutionIter();
+        GaussNewtonWk       wk = _nlscon.getWk();
 
         std::cout << std::endl;
-        std::cout << "         ------------------------------------" << std::endl;
-        std::cout << "         NLSCON: Inv.Prob. solution iteration" << std::endl;
-        std::cout << "         ------------------------------------" << std::endl;
-        for (unsigned j = 0; j < piter.size(); ++j)
+        std::cout << "         ------------------------------------------" << std::endl;
+        std::cout << "         NLSCON: Inverse Problem Solution Iteration" << std::endl;
+        std::cout << "         ------------------------------------------" << std::endl;
+        for (long j = 0; j <= wk.niter; ++j)
         {
             std::cout << "it = " << j << "\n" << piter[j].t();
         }
