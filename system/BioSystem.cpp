@@ -118,9 +118,9 @@ BioSystem::~BioSystem()
          _sysPar = s._sysPar;
          _optPar = s._optPar;
 
-         long q = s._ode.getParameters().size();
+         // long q = s._ode.getParameters().size();
 
-         _parValue = new double[q];
+         _parValue = 0; // new double[q];
 
          _linftyModel = s._linftyModel;
          _tpMeas      = s._tpMeas;

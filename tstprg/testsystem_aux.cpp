@@ -853,7 +853,12 @@ TIME_THIS_TO( std::cerr << " *** Call: invBiosys.computeJacobian() *** " << std:
 //    GaussNewtonWk  wk;
 //    GaussNewton    gn;
 //    BioPAR         prob( &invBiosys, par1 );
-    BioProcessor   proc( &invBiosys, "nlscon" );
+    std::string    gnMethod;
+
+    // gnMethod = "nlscon";
+    gnMethod = "parkin";
+
+    BioProcessor   proc( &invBiosys, gnMethod );
 
     iopt.mode      = 0;     // 0:normal run, 1:single step
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
@@ -910,7 +915,7 @@ TIME_THIS_TO( std::cerr <<  " *** call: proc.prepareDetailedSensitivities() *** 
     // !!! !!! !!!
     //
 
-    invBiosys.setMeasurementList( measlist );
+    invBiosys.setMeasurementList( newtp, newMeas );
 
     //
     // !!! !!! !!!

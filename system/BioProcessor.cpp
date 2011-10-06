@@ -598,7 +598,7 @@ BioProcessor::identifyParameters(Real xtol)
     if ( _method == "parkin" )
     {
         _parkinWk.itmax = _iopt.itmax;
-        _parkinWk.cond = 1.0 / (_biosys->getSolverRTol() );
+        _parkinWk.cond = 1.0 / (xtol * 1.0e-1); /* (_biosys->getSolverRTol() ); */
 
         _parkin.setProblem( &_biopar );
         _parkin.initialise( m,

@@ -83,6 +83,16 @@ YeOldeParkinCore::setProblem(UserFunc* fun)
 Vector
 YeOldeParkinCore::getSolution()
 {
+    if ( _lpos == true )
+    {
+        long   n = _x.nr();
+        Vector y(n);
+
+        for (long k = 1; k <= n; ++k) y(k) = std::exp( _x(k) );
+
+        return y;
+    }
+
     return _x;
 }
 //---------------------------------------------------------------------------
@@ -243,7 +253,14 @@ L2:
 	// C-----------------------------------------------
 	// C  (NUMERICAL INTEGRATION OF VARIATIONAL EQUATION)
 
-	while ( approximate_negative_jacobian() == 25 ) ;
+	while ( (done = approximate_negative_jacobian()) == 25 ) ;
+
+    switch ( done )
+    {
+        case   0: break;
+        case  26:
+        default : return -999;
+    }
 
 	// C-------------------------------
 	// C  SOLUTION OF THE LINEAR SYSTEM
@@ -469,14 +486,17 @@ int YeOldeParkinCore::set_internal_parameters()
 
     _fcmin2 = _fcmin * _fcmin;
 
-    Real const epsmin = 1.0e-5;
+    Real const epsmin = 1.0e-6;
     Real const epsmax = 1.0e-2;
-    _tolmin = 1.0e-7;
+    _tolmin = 1.0e-9;
     _tolmax = 1.0e-3;
 
     _qkap = 1.0e-3;
 
-    if ( (_epsu < epsmin) || (_epsu > epsmax) ) _epsu = epsmax;
+    if ( (_epsu < epsmin) || (_epsu > epsmax) )
+    {
+        _epsu = 0.5*(epsmax + epsmin);
+    }
 
     _epmach = EPMACH;
     _tol    = _epsu * 1.0e-1;
@@ -742,17 +762,27 @@ int YeOldeParkinCore::approximate_negative_jacobian()
     ++_ijgn;
 
 	// if ( kflag < 0 )
-	if ( ifail != 0 )
+	if ( (ifail != 0) && (_iscal != 0) )
 	{
 	    _iscal = 0;
 
 	    printl( _lumon, dlib::LINFO,
-                "\n %s\n %s %d\n\n",
-                "EVALUATION OF GN-JACOBIAN FAILED;",
+                "\n %s %d%s\n %s %d\n\n",
+                "EVALUATION OF GN-JACOBIAN FAILED (IFAIL =", ifail, ");",
                 "RESTART WITH ISCAL =", _iscal
               );
 
 		return 25;
+	}
+	else if ( (ifail != 0) && (_iscal == 0) )
+	{
+	    printl( _lumon, dlib::LINFO,
+                "\n %s %d%s\n %s\n\n",
+                "EVALUATION OF GN-JACOBIAN FAILED (IFAIL =", ifail, ");",
+                "STOP."
+              );
+
+	    return 26;
 	}
 
 //std::cerr << "\n ***** YeOldeParkinCore::approximate_negative_jacobian() *****\n";
@@ -1347,7 +1377,7 @@ int YeOldeParkinCore::exit_solution_entry2()
 {
     printl( _lumon, dlib::LINFO,
             "\n    %s\n\n",
-            "FINAL PARAMETER ITERATES:"
+            "LAST PARAMETER ITERATES:"
           );
 
 	return exit_sub82();
@@ -1368,17 +1398,26 @@ int YeOldeParkinCore::exit_sub82()
 
 	printl( _lumon, dlib::LINFO,
             "\n\n  %s   %s %12.3e\n",
-            "FINALLY ACHIVED ACCURACY :",
+            "FINALLY ACHIEVED ACCURACY :",
             "  EPS =", _tmin
           );
 
     char line[256]; *line='\0';
 
-    std::sprintf( line, "%s %10.6f\n",
-                 "KAPPA =", _skap
-                );
-    if ( _sfc1 >  1.0e-35 ) std::sprintf(line, "%s\n", "NOT AVAILABLE");
-    if ( _skap <= 0.0 ) std::sprintf(line, "%s\n", "NOT AVAILABLE");
+    std::sprintf(line, "%s\n", "NOT AVAILABLE");
+
+    if ( _sfc1 <=  1.0e-35 )
+    {
+        std::sprintf( line, "%s %10.6f\n",
+                     "KAPPA =", _skap
+                    );
+    }
+    if ( _skap > 0.0 )
+    {
+        std::sprintf( line, "%s %10.6f\n",
+                     "KAPPA =", _skap
+                    );
+    }
 
 	printl( _lumon, dlib::LINFO,
             "\n  %s   %s\n",
@@ -1397,8 +1436,12 @@ int YeOldeParkinCore::exit_sub88()
           );
     for (unsigned k = 1; k <= _n; ++k)
     {
+        Real s = _x(k);
+
+        s = ( _lpos == true ) ? std::exp(s) : s;
+
         printl( _lumon, dlib::LINFO,
-               "  %6d     %19.10e\n", k, _x(k)
+               "  %6d     %19.10e\n", k, s
               );
     }
     printl( _lumon, dlib::LINFO,
