@@ -148,26 +148,26 @@ for species in speThres.keys():
 proc.setCurrentSpeciesThres( speThres );
 
 
-# ... and identify!
-proc.identifyParameters(xtol)
-
-#sys.exit()
-
-final = proc.getIdentificationResults()
-print
-print "Inv.Prob. solution:"
-print "-------------------"
-for parm in final.keys():
-    var[parm] = final[parm]
-    print "%10s = %e" % ( parm, final[parm] )
-print
-
-
-print
-print "Final Solution (for all system parameters)"
-print "------------------------------------------"
-print "%25s:  %f" % ( parameter[0], var[parameter[0]] )
-print "%25s:  %f" % ( parameter[1], var[parameter[1]] )
+## ... and identify!
+#proc.identifyParameters(xtol)
+#
+##sys.exit()
+#
+#final = proc.getIdentificationResults()
+#print
+#print "Inv.Prob. solution:"
+#print "-------------------"
+#for parm in final.keys():
+#    var[parm] = final[parm]
+#    print "%10s = %e" % ( parm, final[parm] )
+#print
+#
+#
+#print
+#print "Final Solution (for all system parameters)"
+#print "------------------------------------------"
+#print "%25s:  %f" % ( parameter[0], var[parameter[0]] )
+#print "%25s:  %f" % ( parameter[1], var[parameter[1]] )
 
 
 ## from here start sensitivity computation
@@ -183,16 +183,21 @@ for species in speThres.keys():
 
 proc.setCurrentSpeciesThres( speThres )
 
+timepoints = [ 5.56, 10.5 ]
+tsttp = Vector( ValueList(timepoints) )
+#tsttp.zeros(1)
+#tsttp[0] = 10.5
+
 print
 print
 print "*** prepDetailedSens() ***"
-print "rc = %d" % (proc.prepareDetailedSensitivities( meastp ))
+print "rc = %d" % (proc.prepareDetailedSensitivities( tsttp ))
 print "***"
 
 sensMat = proc.getSensitivityMatrices()
 
 for j in range(0, len(sensMat)):
-    print "Sensitivity for timepoint #%d (t = %f)" % (j+1, meastp[j])
+    print "Sensitivity for timepoint #%d (t = %f)" % (j+1, tsttp[j])
     print "mat (%d x %d) =" % (sensMat[j].nr(), sensMat[j].nc())
     print sensMat[j]
 
