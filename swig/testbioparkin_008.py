@@ -12,6 +12,10 @@ __copyright__ = "Copyright (C) 2010-2011  ZIB - Zuse Institute Berlin, Germany"
 import sys		# for sys.exit()
 #from parkin import *
 
+jacgen = 3
+args = sys.argv
+if len(args) > 1:
+    jacgen = int(args[1])
 #
 
 tstart = 0.0
@@ -313,33 +317,32 @@ print meastp.t()
 #print breaktp.t()
 
 
-biosys.setSolverRTol(1.0e-6)
-biosys.setSolverATol(1.0e-8)
+biosys.setSolverRTol(1.0e-7)
+biosys.setSolverATol(1.0e-9)
 
-# compute trajectories of model (i.e. model values) for a specific set of variables / parameters
-
-
-biosys.computeModel(parValues,"init")
-
-# extract and print out the computed solution vectors
-tp = biosys.getOdeTrajectoryTimePoints()
-print "t =\n%s" % tp.t()
-
-for i in xrange(len(speciesIDs)):
-#for i in xrange(2):
-    speciesTrajectory = biosys.getOdeTrajectory(i)
-    print("%s =\n%s" % (speciesIDs[i],speciesTrajectory.t()))
+## compute trajectories of model (i.e. model values) for a specific set of variables / parameters
+#
+#biosys.computeModel(parValues,"init")
+#
+## extract and print out the computed solution vectors
+#tp = biosys.getOdeTrajectoryTimePoints()
+#print "t =\n%s" % tp.t()
+#
+#for i in xrange(len(speciesIDs)):
+##for i in xrange(2):
+#    speciesTrajectory = biosys.getOdeTrajectory(i)
+#    print("%s =\n%s" % (speciesIDs[i],speciesTrajectory.t()))
 
 
 ## from here start sensitivity computation
 #
 iopt = IOpt()
 
-iopt.mode      = 0      # 0: normal run, 1: single step
-iopt.jacgen    = 3      # 1: user supplied Jacobian, 2: num.diff., 3: num.diff.(with feedback)
-iopt.qrank1    = False  # allow Broyden rank-1 updates if True
-iopt.nonlin    = 3      # 1: linear, 2: mildly nonlin., 3: highly nonlin., 4: extremely nonlin.
-iopt.norowscal = False  # allow for automatic row scaling of Jacobian if False
+iopt.mode      = 0       # 0: normal run, 1: single step
+iopt.jacgen    = jacgen  # 1: user supplied Jacobian, 2: num.diff., 3: num.diff.(with feedback)
+iopt.qrank1    = False   # allow Broyden rank-1 updates if True
+iopt.nonlin    = 3       # 1: linear, 2: mildly nonlin., 3: highly nonlin., 4: extremely nonlin.
+iopt.norowscal = False   # allow for automatic row scaling of Jacobian if False
 iopt.lpos      = False
 iopt.itmax     = 45
 iopt.mprmon    = 2
@@ -374,7 +377,7 @@ proc.setCurrentSpeciesThres( speThres )
 
 
 
-timepoints = [ 5.56, 10.5 ]
+timepoints = [ 30.005 ]
 tsttp = Vector( ValueList(timepoints) )
 
 print

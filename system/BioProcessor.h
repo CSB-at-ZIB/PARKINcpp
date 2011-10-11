@@ -28,6 +28,8 @@ namespace PARKIN
         public:
 
             typedef std::map< std::string, std::vector<Real> >  TrajectoryMap;
+            typedef std::vector< Matrix >                       MatrixList;
+            typedef std::vector< QRconDecomp >                  QRconDecompList;
 
             ///
 
@@ -89,10 +91,10 @@ namespace PARKIN
             int
             prepareDetailedSensitivities(Vector const& tp);
 
-            std::vector<Matrix>
+            MatrixList
             getSensitivityMatrices();
 
-            std::vector<QRconDecomp>
+            QRconDecompList
             getSensitivityDecomps();
 
             //
@@ -113,8 +115,8 @@ namespace PARKIN
 
             Expression::Param computeParameterScales();
             Expression::Param computeSpeciesScales();
-            Matrix computeJac(std::string mode, int& ifail);
-            Matrix computeJcf(std::string mode, int& ifail);
+            Matrix computeJac(std::string const& mode, int& ifail);
+            Matrix computeJcf(std::string const& mode, int& ifail);
 
             BioSystem*                  _biosys;
             BioPAR                      _biopar;
@@ -132,8 +134,8 @@ namespace PARKIN
             TrajectoryMap               _trajMap;
             ODETrajectory*              _sensTraj;
 
-            std::vector<Matrix>         _sensiMat;
-            std::vector<QRconDecomp>    _sensiDcmp;
+            MatrixList                  _sensiMat;
+            QRconDecompList             _sensiDcmp;
 
             GaussNewton                 _nlscon;
             GaussNewtonWk               _nlsconWk;

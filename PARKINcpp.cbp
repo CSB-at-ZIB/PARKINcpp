@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="5" />
+				<Option parameters="4" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />
@@ -38,7 +38,7 @@
 				<Option object_output="obj/SharedLib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option parameters='-e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_aux.py&quot;' />
+				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -311,6 +311,9 @@
 			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/testbioparkin.py">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="swig/testbioparkin_008.py">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_aux.py">

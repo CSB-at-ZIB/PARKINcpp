@@ -360,8 +360,9 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 {
     bool                lpos = _iopt.lpos;
     int                 jacgen = _iopt.jacgen;
+    int                 ifail;
     Expression::Param   parScale = computeParameterScales();
-    Expression::Param   speScale = computeSpeciesScales();
+    Expression::Param   speScale;  //  = computeSpeciesScales();
     unsigned            mcon = 0;
     unsigned            irankMax = 0;
     Real                condMax = 1.0/( _biosys->getSolverRTol() );
@@ -379,11 +380,14 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
     one_fw.zeros(m);
     pw.zeros(q);
 
-    // for (long k = 1; k <= m; ++k)
-    // {
-    //     Real tmp = speScale[*itSpe++];
-    //     one_fw(k) = (tmp > 0.0) ? 1.0/tmp : 0.0;
-    // }
+//std::cerr << std::endl;
+//std::cerr << "entering: ### BioProcessor::prepareDetailedSensitivities() ###\n";
+//std::cerr << "        m = " << m << std::endl;
+//std::cerr << "        q = " << q << std::endl;
+//std::cerr << "        T = " << T << std::endl;
+//std::cerr << "   jacgen = " << jacgen << std::endl;
+//std::cerr << "     lpos = " << ((lpos == true) ? "true" : "false") << std::endl;
+
     if ( lpos == true )
     {
         for (long l = 1; l <= q; ++l)
@@ -401,13 +405,38 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         }
     }
 
+    ///
+
+    _biosys->computeModel( _optPar, "adaptive" );
+
+    ifail = _biosys->getComputeErrorFlag();
+
+    if ( ifail != 0 )
+    {
+        return /* -1000 */ ifail;
+    }
+
+    _linftyModel.clear();
+    _linftyModel = _biosys->getLinftyModel();
+
+    speScale = computeSpeciesScales();
+    itSpe = _curSpecies.begin();
+
+    for (long k = 1; k <= m; ++k)
+    {
+        Real tmp = speScale[*itSpe++];
+        one_fw(k) = (tmp > 0.0) ? (1.0/tmp) : 0.0;
+    }
+
+    ///
+
     if ( jacgen == 1 )
     {
-        if ( _sensTraj == 0 )
-        {
+        // if ( _sensTraj == 0 )
+        // {
             _biosys->computeJacobian( _optPar, "adaptive" );
 
-            int ifail = _biosys->getComputeErrorFlag();
+            ifail = _biosys->getComputeErrorFlag();
 
             if ( ifail != 0 )
             {
@@ -416,19 +445,15 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 
             delete _sensTraj;
             _sensTraj = _biosys->getEvaluationTrajectories();
+        // }
 
-            _linftyModel = _biosys->getLinftyModel();
-        }
-
-
-        speScale = computeSpeciesScales();
-        itSpe = _curSpecies.begin();
-        for (long k = 1; k <= m; ++k)
-        {
-            Real tmp = speScale[*itSpe++];
-            one_fw(k) = (tmp > 0.0) ? 1.0/tmp : 0.0;
-        }
-
+        // speScale = computeSpeciesScales();
+        // itSpe = _curSpecies.begin();
+        // for (long k = 1; k <= m; ++k)
+        // {
+        //     Real tmp = speScale[*itSpe++];
+        //     one_fw(k) = (tmp > 0.0) ? (1.0/tmp) : 0.0;
+        // }
 
         for (long j = 1; j <= T; ++j)
         {
@@ -442,14 +467,18 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
             {
                 for (long k = 1; k <= m; ++k)
                 {
+                    Real r = one_fw(k);
+
                     for (long l = 1; l <= q; ++l)
                     {
-                        mat(k,l) = v(++n);
+                        Real s = pw(l);
+
+                        mat(k,l) = r * v(++n) * s;
                     }
                 }
             }
 
-            mat = one_fw.diag() * mat * pw.diag();
+            // mat = one_fw.diag() * mat * pw.diag();
 
             unsigned irank = irankMax;
             Real     cond = condMax;
@@ -471,21 +500,34 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
             return (ifail == 0) ? -1002 : ifail;
         }
 
-
-        speScale = computeSpeciesScales();
-        itSpe = _curSpecies.begin();
-        for (long k = 1; k <= m; ++k)
-        {
-            Real tmp = speScale[*itSpe++];
-            one_fw(k) = (tmp > 0.0) ? 1.0/tmp : 0.0;
-        }
-
+        // speScale = computeSpeciesScales();
+        // itSpe = _curSpecies.begin();
+        // for (long k = 1; k <= m; ++k)
+        // {
+        //     Real tmp = speScale[*itSpe++];
+        //     one_fw(k) = (tmp > 0.0) ? (1.0/tmp) : 0.0;
+        // }
 
         for (long j = 1; j <= T; ++j)
         {
-            Matrix mat = Jac.rowm( (j-1)*m + 1, j*m );
+            Matrix mat;
 
-            mat = one_fw.diag() * mat * pw.diag();
+            // mat.zeros(m,q);
+            mat = Jac.rowm( (j-1)*m + 1, j*m );
+
+            for (long k = 1; k <= m; ++k)
+            {
+                Real r = one_fw(k);
+
+                for (long l = 1; l <= q; ++l)
+                {
+                    Real s = pw(l);
+
+                    mat(k,l) *= (r * s);
+                }
+            }
+
+            // mat = one_fw.diag() * mat * pw.diag();
 
             unsigned irank = irankMax;
             Real     cond = condMax;
@@ -507,21 +549,34 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
             return (ifail == 0) ? -1003 : ifail;
         }
 
-
-        speScale = computeSpeciesScales();
-        itSpe = _curSpecies.begin();
-        for (long k = 1; k <= m; ++k)
-        {
-            Real tmp = speScale[*itSpe++];
-            one_fw(k) = (tmp > 0.0) ? 1.0/tmp : 0.0;
-        }
-
+        // speScale = computeSpeciesScales();
+        // itSpe = _curSpecies.begin();
+        // for (long k = 1; k <= m; ++k)
+        // {
+        //     Real tmp = speScale[*itSpe++];
+        //     one_fw(k) = (tmp > 0.0) ? (1.0/tmp) : 0.0;
+        // }
 
         for (long j = 1; j <= T; ++j)
         {
-            Matrix mat = Jac.rowm( (j-1)*m + 1, j*m );
+            Matrix mat;
 
-            mat = one_fw.diag() * mat * pw.diag();
+            // mat.zeros(m,q);
+            mat = Jac.rowm( (j-1)*m + 1, j*m );
+
+            for (long k = 1; k <= m; ++k)
+            {
+                Real r = one_fw(k);
+
+                for (long l = 1; l <= q; ++l)
+                {
+                    Real s = pw(l);
+
+                    mat(k,l) *= (r * s);
+                }
+            }
+
+            // mat = one_fw.diag() * mat * pw.diag();
 
             unsigned irank = irankMax;
             Real     cond = condMax;
@@ -535,16 +590,23 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         return -1004;
     }
 
+//std::cerr << std::endl;
+//std::cerr << " pw = " << std::endl;
+//std::cerr << pw.t() << std::endl;
+//std::cerr << " one_fw = " << std::endl;
+//std::cerr << one_fw.t() << std::endl;
+//std::cerr << "### BioProcessor::prepareDetailedSensitivities() ###\n";
+
     return 0;
 }
 //---------------------------------------------------------------------------
-std::vector<Matrix>
+BioProcessor::MatrixList
 BioProcessor::getSensitivityMatrices()
 {
     return _sensiMat;
 }
 //---------------------------------------------------------------------------
-std::vector<QRconDecomp>
+BioProcessor::QRconDecompList
 BioProcessor::getSensitivityDecomps()
 {
     return _sensiDcmp;
@@ -724,7 +786,7 @@ BioProcessor::computeSpeciesScales()
 }
 //---------------------------------------------------------------------------
 Matrix
-BioProcessor::computeJac(std::string mode, int& ifail)
+BioProcessor::computeJac(std::string const& mode, int& ifail)
 {
     Expression::ParamIterConst pBeg = _optPar.begin();
     Expression::ParamIterConst pEnd = _optPar.end();
@@ -732,8 +794,6 @@ BioProcessor::computeJac(std::string mode, int& ifail)
 
     Real   ajmin = SMALL;
     Real   ajdelta = std::sqrt(10.0*EPMACH);
-
-    _linftyModel.clear();
 
     Matrix mat;
     Vector fh;
@@ -745,17 +805,21 @@ BioProcessor::computeJac(std::string mode, int& ifail)
         return mat;
     }
 
-    _linftyModel = _biosys->getLinftyModel();
+    // _linftyModel.clear();
+    // _linftyModel = _biosys->getLinftyModel();
 
 
-    long k = 0;
+    long k = 1;
     mat.zeros( f.nr(), _optPar.size() );
 
-    for (Expression::ParamIterConst itPar = pBeg;
-                                    itPar != pEnd; ++itPar)
-    {
-        ++k;
+//std::cerr << std::endl;
+//std::cerr << "### BioProcessor::computeJac(...) ###" << std::endl;
+//std::cerr << std::endl;
+//std::cerr << "  Parameter:" << std::endl;
 
+    for (Expression::ParamIterConst itPar = pBeg;
+                                    itPar != pEnd; ++itPar, ++k)
+    {
         Real w  = itPar->second;
 
         int  su = ( w < 0.0 ) ? -1 : 1;
@@ -768,13 +832,24 @@ BioProcessor::computeJac(std::string mode, int& ifail)
 
         _optPar[itPar->first] = w;
         mat.set_colm(k) = (1.0/u) * Matrix(fh - f);
+
+//std::cerr << std::right << std::setw(4) << k << ": ";
+//std::cerr << std::left << std::setw(15) << itPar->first << " ";
+//std::cerr << mat.colm(k).t();
+//std::cerr << std::setw(22) << " " << "w=" << w << ",  u=" << u << ",  w+u=" << w+u << std::endl;
+//std::cerr << std::setw(22) << " " << fh.t();
+//std::cerr << std::setw(22) << " " << f.t();
+//std::cerr << std::setw(22) << " " << Matrix(fh - f).t();
     }
+
+//std::cerr << std::endl;
+//std::cerr << "###" << std::endl;
 
     return mat;
 }
 //---------------------------------------------------------------------------
 Matrix
-BioProcessor::computeJcf(std::string mode, int& ifail)
+BioProcessor::computeJcf(std::string const& mode, int& ifail)
 {
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
@@ -786,8 +861,6 @@ BioProcessor::computeJcf(std::string mode, int& ifail)
     Real   etamax = std::sqrt(epdiff);
     Real   etamin = epdiff*etamax;
 
-    _linftyModel.clear();
-
     Matrix mat;
     Vector fu;
     Vector f = _biosys->computeModel( _optPar, mode );
@@ -798,32 +871,43 @@ BioProcessor::computeJcf(std::string mode, int& ifail)
         return mat;
     }
 
-    _linftyModel = _biosys->getLinftyModel();
-
-
-    Vector v;  v.ones( f.nr() );
-    Vector eta = etaini * v;
+    // _linftyModel.clear();
+    // _linftyModel = _biosys->getLinftyModel();
 
     long m = f.nr();
     long n = _optPar.size();
+    // Vector v;  v.ones( n );
+    Vector eta;
+
+    eta.zeros( n );
+    for (long k = 1; k <= n; ++k)
+    {
+        eta(k) = etaini;
+    }
 
     mat.zeros(m,n);
-    long k = 0;
+    long k = 1;
+
+//std::cerr << std::endl;
+//std::cerr << "### BioProcessor::computeJcf(...) ###" << std::endl;
+//std::cerr << std::endl;
+//std::cerr << "  Parameter:" << std::endl;
 
     for (Expression::ParamIterConst it = pBeg;
-                                    it != pEnd; ++it)
+                                    it != pEnd; ++it, ++k)
     {
+        Real sumd, hg, fhj;
+        Real w = 0.0, u = 0.0;
+        int  su = 0;
         bool is = false;
         bool qexit = false;
         bool qfine = false;
 
-        ++k;
-
         while ( !qfine )
         {
-            Real w  = _optPar[it->first];
-            int  su = ( w < 0.0 ) ? -1 : 1;
-            Real u  = eta(k) * parScale[it->first] * su;
+            w  = _optPar[it->first];
+            su = ( w < 0.0 ) ? -1 : 1;
+            u  = eta(k) * parScale[it->first] * su;
 
             _optPar[it->first] = w + u;
 
@@ -838,11 +922,11 @@ BioProcessor::computeJcf(std::string mode, int& ifail)
                 qexit = true; break;
             }
 
-            Real sumd = 0.0;
+            sumd = 0.0;
             for (long j = 1; j <= m; ++j)
             {
-                Real hg = std::max( std::fabs( f(j) ), std::fabs( fu(j) ) );
-                Real fhj = fu(j) - f(j);
+                hg = std::max( std::fabs( f(j) ), std::fabs( fu(j) ) );
+                fhj = fu(j) - f(j);
                 if ( hg != 0.0 ) sumd += (fhj/hg)*(fhj/hg);
 
                 mat(j,k) = fhj / u;
@@ -863,7 +947,19 @@ BioProcessor::computeJcf(std::string mode, int& ifail)
         }
 
         if ( qexit ) break;
+
+//std::cerr << std::right << std::setw(4) << k << ": ";
+//std::cerr << std::left << std::setw(15) << it->first << " ";
+//std::cerr << mat.colm(k).t();
+//std::cerr << std::setw(22) << " " << "eta(k)=" << eta(k) << std::endl;
+//std::cerr << std::setw(22) << " " << "w=" << w << ",  u=" << u << ",  w+u=" << w+u << std::endl;
+//std::cerr << std::setw(22) << " " << fu.t();
+//std::cerr << std::setw(22) << " " << f.t();
+//std::cerr << std::setw(22) << " " << Matrix(fu - f).t();
     }
+
+//std::cerr << std::endl;
+//std::cerr << "###" << std::endl;
 
     return mat;
 }
