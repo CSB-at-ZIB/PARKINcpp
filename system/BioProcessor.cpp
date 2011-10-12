@@ -217,32 +217,43 @@ BioProcessor::computeSensitivityTrajectories()
     Matrix                      mat;
     int                         ifail = 0;
 
-    std::string tstr;
 
-    switch ( jacgen )
-    {
-        case 1 : tstr = "Variational equation";     break;
-        case 2 : tstr = "Num. diff.";               break;
-        case 3 : tstr = "Num. diff. w/ feedback";   break;
-        default: tstr = " N/A ";                    break;
-    }
-    std::cout << std::endl;
-    std::cout << "*** BioProcessor::computeSensitivityTrajectories() ***" << std::endl;
-    std::cout << " jacgen = " << jacgen << "(" << tstr << ")" << std::endl;
-    std::cout << "***" << std::endl;
+//    std::string tstr;
+//
+//    switch ( jacgen )
+//    {
+//        case 1 : tstr = "Variational equation";     break;
+//        case 2 : tstr = "Num. diff.";               break;
+//        case 3 : tstr = "Num. diff. w/ feedback";   break;
+//        default: tstr = " N/A ";                    break;
+//    }
+//    std::cout << std::endl;
+//    std::cout << "*** BioProcessor::computeSensitivityTrajectories() ***" << std::endl;
+//    std::cout << " jacgen = " << jacgen << "(" << tstr << ")" << std::endl;
+//    std::cout << "***" << std::endl;
 
 
     _trajMap.clear();
+    _linftyModel.clear();
+
+    _biosys -> computeModel( _optPar, "adaptive" );
+    ifail = _biosys->getComputeErrorFlag();
+    if ( ifail != 0 )
+    {
+        return _trajMap;
+    }
+    _linftyModel = _biosys->getLinftyModel();
+
 
     if ( jacgen == 1 )
     {
         mat = _biosys->computeJacobian( _optPar, "adaptive" );
         ifail = _biosys->getComputeErrorFlag();
 
-        delete _sensTraj;
-        _sensTraj = _biosys->getEvaluationTrajectories();
+        // delete _sensTraj;
+        // _sensTraj = _biosys->getEvaluationTrajectories();
 
-        _linftyModel = _biosys->getLinftyModel();
+        // _linftyModel = _biosys->getLinftyModel();
     }
     else if ( jacgen == 2 )
     {
