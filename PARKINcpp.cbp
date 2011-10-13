@@ -51,7 +51,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="/bin/rm -f swig/parkin_wrap.cxx obj/SharedLib/swig/parkin_wrap.o" />
+					<Add before="/bin/rm -f swig/parkin.cxx obj/SharedLib/swig/parkin.o" />
 					<Add after="/bin/cp swig/parkin.py bin/SharedLib/swig/_parkin.so link2BioPARKIN/parkincpp/" />
 				</ExtraCommands>
 			</Target>
@@ -71,7 +71,8 @@
 					<Add directory="/usr/lib/python2.7/config" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="/bin/rm -f swig/parkin_wrap.cpp obj/SharedLib/swig/parkin_wrap.o" />
+					<Add before="/bin/rm -f swig/parkin.cxx obj/SharedLibDebug/swig/parkin.o" />
+					<Add after="/bin/cp swig/parkin.py bin/SharedLibDebug/swig/_parkin.so link2BioPARKIN/parkincpp/" />
 				</ExtraCommands>
 			</Target>
 		</Build>
