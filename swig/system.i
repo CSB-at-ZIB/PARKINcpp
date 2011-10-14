@@ -9,6 +9,7 @@
 %{
 #include <common/Types.h>
 #include <system/Expression.h>
+#include <system/BioRHS.h>
 #include <system/BioSystem.h>
 #include <system/BioPAR.h>
 #include <system/BioProcessor.h>
@@ -21,6 +22,7 @@
 %include <std_vector.i>
 %include <std_map.i>
 %include <std_pair.i>
+// %include <stl.i>
 
 %template(Param)                std::map< std::string, double >;
 %template(StringList)           std::vector< std::string >;                             // for Species, Parameter, Auxiliary
@@ -33,9 +35,11 @@
 %template(Trajectory)           std::map< unsigned, std::vector<double> >;              // for ODESolver (forward declaration)
 %template(TrajectoryMap)        std::map< std::string, std::vector<double> >;           // for BioProcessor (forward declaration)
 
+
 %include linalg.i
 %include nonlin.i
 %include odelib.i
+
 
 %ignore PARKIN::Expression::operator=;
 %ignore PARKIN::BioRHS::operator=;
@@ -70,3 +74,13 @@
 %template(ExpressionMap)        std::map< std::string, PARKIN::Expression >;
 
 
+// %ignore std::vector< PARKIN::Vector >::vector(size_type);
+// %ignore std::vector< PARKIN::Vector >::resize(size_type);
+// %ignore std::vector< PARKIN::Matrix >::vector(size_type);
+// %ignore std::vector< PARKIN::Matrix >::resize(size_type);
+// %ignore std::vector< PARKIN::QRconDecomp >::vector(size_type);
+// %ignore std::vector< PARKIN::QRconDecomp >::resize(size_type);
+//
+// %template(VectorList)           std::vector< PARKIN::Vector >;                          // for ODESolver::Grid
+// %template(MatrixList)           std::vector< PARKIN::Matrix >;                          // for BioProcessor (forward declaration)
+// %template(QRconDecompList)      std::vector< PARKIN::QRconDecomp >;                     // for BioProcessor (forward declaration)

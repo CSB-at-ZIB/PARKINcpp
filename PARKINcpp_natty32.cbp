@@ -33,33 +33,59 @@
 				</Linker>
 			</Target>
 			<Target title="SharedLib">
-				<Option output="swig/_parkin" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/SharedLib/swig/_parkin" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="swig/" />
 				<Option object_output="obj/SharedLib" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
+				<Option host_application="xterm" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-fPIC" />
+					<Add directory="/usr/include/python2.7" />
+					<Add directory="/usr/lib/python2.7/config" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="/bin/rm -f swig/parkin.cxx obj/SharedLib/swig/parkin.o" />
+					<Add after="/bin/cp swig/parkin.py bin/SharedLib/swig/_parkin.so link2BioPARKIN/parkincpp/" />
+				</ExtraCommands>
+			</Target>
+			<Target title="SharedLibDebug">
+				<Option output="bin/SharedLibDebug/swig/_parkin" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="bin/SharedLibDebug/swig/" />
+				<Option object_output="obj/SharedLibDebug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option parameters="-e /usr/bin/python -i testbioparkin_aux.py" />
 				<Option host_application="xterm" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-g" />
 					<Add option="-fPIC" />
 					<Add directory="/usr/include/python2.7" />
+					<Add directory="/usr/lib/python2.7/config" />
 				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
+				<ExtraCommands>
+					<Add before="/bin/rm -f swig/parkin.cxx obj/SharedLibDebug/swig/parkin.o" />
+					<Add after="/bin/cp swig/parkin.py bin/SharedLibDebug/swig/_parkin.so link2BioPARKIN/parkincpp/" />
+				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="." />
 		</Compiler>
 		<Linker>
 			<Add library="pthread" />
 			<Add library="X11" />
-			<Add library="blas" />
 			<Add library="lapack" />
+			<Add library="blas" />
 		</Linker>
 		<Unit filename="addpkg/ExprEval35/defs.h">
 			<Option target="&lt;{~None~}&gt;" />
@@ -106,7 +132,9 @@
 		<Unit filename="addpkg/ExprEval35/vallist.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="addpkg/LIMEX4_3A/HERMINE.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMD.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMDHERM.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.h" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Dense.f" />
@@ -252,55 +280,53 @@
 		<Unit filename="nonlin/YeOldeParkinCore.h" />
 		<Unit filename="odelib/DOP853.cpp" />
 		<Unit filename="odelib/DOP853.h" />
+		<Unit filename="odelib/LIMEXTrajectory.cpp" />
+		<Unit filename="odelib/LIMEXTrajectory.h" />
 		<Unit filename="odelib/LIMEX_A.cpp" />
 		<Unit filename="odelib/LIMEX_A.h" />
 		<Unit filename="odelib/ODESolver.h" />
+		<Unit filename="odelib/ODETrajectory.h" />
 		<Unit filename="swig/linalg.i">
 			<Option compile="1" />
 			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig/linalg_wrap.cpp">
-			<Option target="SharedLib" />
+			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/nonlin.i">
 			<Option compile="1" />
 			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig/nonlin_wrap.cpp">
-			<Option target="SharedLib" />
+			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/odelib.i">
 			<Option compile="1" />
 			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig/odelib_wrap.cpp">
-			<Option target="SharedLib" />
+			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/parkin.i">
 			<Option compile="1" />
 			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig/parkin_wrap.cpp">
-			<Option target="SharedLib" />
+			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/system.i">
 			<Option compile="1" />
 			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig/system_wrap.cpp">
-			<Option target="SharedLib" />
+			<Option target="SharedLibDebug" />
 		</Unit>
 		<Unit filename="swig/testbioparkin.py">
-			<Option target="SharedLib" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="swig/testbioparkin_008.py">
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_aux.py">
-			<Option target="SharedLib" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="swig/testbioparkin_helper.py">
-			<Option target="SharedLib" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="system/BioPAR.cpp" />
 		<Unit filename="system/BioPAR.h" />
+		<Unit filename="system/BioProcessor.cpp" />
+		<Unit filename="system/BioProcessor.h" />
 		<Unit filename="system/BioRHS.cpp" />
 		<Unit filename="system/BioRHS.h" />
 		<Unit filename="system/BioSystem.cpp" />
@@ -338,6 +364,10 @@
 		</Unit>
 		<Unit filename="tstprg/testparkin_aux2.cpp">
 			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="tstprg/testpfizer_simple.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
 		</Unit>
 		<Unit filename="tstprg/testsystem.cpp">
 			<Option target="Debug" />
