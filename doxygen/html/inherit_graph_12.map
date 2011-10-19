@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$classPARKIN_1_1GenericQRPseudoInv.html" title="Interface class for computing rank&#45;deficient pseudo&#45;inverse." alt="" coords="5,59,213,88"/>
+<area shape="rect" id="node3" href="$classPARKIN_1_1QRCholesky.html" title="Pseudo&#45;inverse computation by Cholesky decomposition." alt="" coords="283,5,437,35"/>
+<area shape="rect" id="node5" href="$classPARKIN_1_1QRMoorePenrose.html" title="Pseudo&#45;inverse computation by (classic) Moore&#45;Penrose inversion." alt="" coords="268,59,452,88"/>
+<area shape="rect" id="node7" href="$classPARKIN_1_1QRPetersWilkinson.html" title="Pseudo&#45;inverse computation by method of Peters &amp; Wilkinson." alt="" coords="263,112,457,141"/>
+</map>

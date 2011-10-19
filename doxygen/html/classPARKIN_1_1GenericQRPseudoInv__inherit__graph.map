@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classPARKIN_1_1QRCholesky.html" title="Pseudo&#45;inverse computation by Cholesky decomposition." alt="" coords="5,83,160,112"/>
+<area shape="rect" id="node5" href="$classPARKIN_1_1QRMoorePenrose.html" title="Pseudo&#45;inverse computation by (classic) Moore&#45;Penrose inversion." alt="" coords="184,83,368,112"/>
+<area shape="rect" id="node7" href="$classPARKIN_1_1QRPetersWilkinson.html" title="Pseudo&#45;inverse computation by method of Peters &amp; Wilkinson." alt="" coords="392,83,587,112"/>
+</map>

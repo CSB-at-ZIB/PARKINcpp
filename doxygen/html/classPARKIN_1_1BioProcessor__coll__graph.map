@@ -1,0 +1,29 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$structPARKIN_1_1GaussNewtonWk.html" title="PARKIN::GaussNewtonWk" alt="" coords="1592,704,1776,733"/>
+<area shape="rect" id="node91" href="$classPARKIN_1_1GaussNewton.html" title="PARKIN::GaussNewton" alt="" coords="2120,584,2283,613"/>
+<area shape="rect" id="node4" href="$classPARKIN_1_1Vector.html" title="PARKIN::Vector" alt="" coords="936,361,1053,391"/>
+<area shape="rect" id="node12" href="$classPARKIN_1_1YeOldeParkinCore.html" title="PARKIN::YeOldeParkinCore" alt="" coords="2107,269,2296,299"/>
+<area shape="rect" id="node16" href="$classPARKIN_1_1QRDecomp.html" title="PARKIN::QRDecomp" alt="" coords="1355,593,1504,623"/>
+<area shape="rect" id="node6" href="$classPARKIN_1_1GenericMatrixImpl.html" title="PARKIN::GenericMatrixImpl" alt="" coords="259,379,445,408"/>
+<area shape="rect" id="node8" href="$classPARKIN_1_1Matrix.html" title="PARKIN::Matrix" alt="" coords="603,704,720,733"/>
+<area shape="rect" id="node28" href="$classPARKIN_1_1GenericQRPseudoInv.html" title="Interface class for computing rank&#45;deficient pseudo&#45;inverse." alt="" coords="891,612,1099,641"/>
+<area shape="rect" id="node40" href="$classPARKIN_1_1BioSystem.html" title="PARKIN::BioSystem" alt="" coords="1819,1287,1963,1316"/>
+<area shape="rect" id="node100" href="$classPARKIN_1_1QRconDecomp.html" title="PARKIN::QRconDecomp" alt="" coords="1805,616,1976,645"/>
+<area shape="rect" id="node18" href="$classPARKIN_1_1GenericDecomp.html" title="PARKIN::GenericDecomp" alt="" coords="908,559,1081,588"/>
+<area shape="rect" id="node20" href="$classPARKIN_1_1ErrType.html" title="PARKIN::ErrType" alt="" coords="599,621,724,651"/>
+<area shape="rect" id="node22" title="STL class." alt="" coords="312,1284,392,1313"/>
+<area shape="rect" id="node24" title="STL class." alt="" coords="7,1284,172,1313"/>
+<area shape="rect" id="node31" href="$classPARKIN_1_1UserFunc.html" title="PARKIN::UserFunc" alt="" coords="1821,563,1960,592"/>
+<area shape="rect" id="node37" href="$classPARKIN_1_1BioPAR.html" title="PARKIN::BioPAR" alt="" coords="2137,1165,2265,1195"/>
+<area shape="rect" id="node33" href="$structPARKIN_1_1IOpt.html" title="PARKIN::IOpt" alt="" coords="1837,167,1944,196"/>
+<area shape="rect" id="node35" href="$structPARKIN_1_1YeOldeParkinWk.html" title="PARKIN::YeOldeParkinWk" alt="" coords="1800,92,1981,121"/>
+<area shape="rect" id="node83" href="$structPARKIN_1_1TrajData.html" title="PARKIN::TrajData" alt="" coords="1364,983,1495,1012"/>
+<area shape="rect" id="node45" href="$classPARKIN_1_1BioRHS.html" title="PARKIN::BioRHS" alt="" coords="931,1343,1059,1372"/>
+<area shape="rect" id="node49" href="$classPARKIN_1_1Expression.html" title="PARKIN::Expression" alt="" coords="279,1119,425,1148"/>
+<area shape="rect" id="node51" href="$classPARKIN_1_1ExprNode.html" title="PARKIN::ExprNode" alt="" coords="20,1119,159,1148"/>
+<area shape="rect" id="node59" title="STL class." alt="" coords="933,1480,1056,1509"/>
+<area shape="rect" id="node74" title="STL class." alt="" coords="1833,1352,1948,1381"/>
+<area shape="rect" id="node65" href="$classPARKIN_1_1ODESolver.html" title="PARKIN::ODESolver" alt="" coords="1356,1427,1503,1456"/>
+<area shape="rect" id="node79" href="$classPARKIN_1_1ODETrajectory.html" title="PARKIN::ODETrajectory" alt="" coords="2117,961,2285,991"/>
+<area shape="rect" id="node93" href="$structPARKIN_1_1Info.html" title="PARKIN::Info" alt="" coords="1840,509,1941,539"/>
+</map>
