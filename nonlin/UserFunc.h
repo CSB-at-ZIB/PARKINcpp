@@ -1,3 +1,6 @@
+#ifndef HEADER_E02FD863C9C791A0
+#define HEADER_E02FD863C9C791A0
+
 // Copyright (C) 2010 - 2011
 // ZIB - Zuse Institute Berlin, Germany
 //
@@ -32,6 +35,8 @@ namespace PARKIN
         int       iscal, mode, iterm, jacgen, boundeddamp;
         int       nonlin, rscal, itmax;
         int       mprerr, mprmon, mprsol, mprtim;
+        int       transf;
+        Vector    itrans;
         bool      lpos, norowscal, qrank1, qstat;
 
         //          _mprmon =   0      1      2      3      4       5       6
@@ -42,6 +47,7 @@ namespace PARKIN
             iscal(0), mode(0), iterm(0), jacgen(0), boundeddamp(0),
             nonlin(0), rscal(0), itmax(50),
             mprerr(1), mprmon(0), mprsol(0), mprtim(0),
+            transf(0), itrans(),
             lpos(false), norowscal(false), qrank1(false), qstat(false)
         { }
     };
@@ -56,3 +62,5 @@ namespace PARKIN
 
 }
 #endif // __USER_FUNC_H
+
+#endif // header guard 

@@ -100,12 +100,34 @@ GaussNewton::setProblem(UserFunc* fun)
 Vector
 GaussNewton::getSolution()
 {
-    if ( _iopt.lpos == true )
+    // if ( _iopt.lpos == true )
+    if ( _iopt.transf > 0 )
     {
         long   n = _x.nr();
         Vector y(n);
 
-        for (long j = 1; j <= n; ++j) y(j) = std::exp( _x(j) );
+        // for (long j = 1; j <= n; ++j) y(j) = std::exp( _x(j) );
+        for (long j = 1; j <= n; ++j)
+        {
+            y(j) = _x(j);
+
+            if ( _iopt.itrans(j) == 1.0 )
+            {
+                y(j) = std::exp( _x(j) );
+            }
+            else if ( _iopt.itrans(j) == 2.0 )
+            {
+                y(j) = -1.0 + _wk.xlb(j) + std::sqrt( 1.0 + _x(j)*_x(j) );
+            }
+            else if ( _iopt.itrans(j) == 3.0 )
+            {
+                y(j) =  1.0 + _wk.xub(j) - std::sqrt( 1.0 + _x(j)*_x(j) );
+            }
+            else if ( _iopt.itrans(j) == 4.0 )
+            {
+                y(j) = _wk.xlb(j) + 0.5*(_wk.xub(j) - _wk.xlb(j))*( 1.0 + std::sin( _x(j) ) );
+            }
+        }
 
         return y;
     }
@@ -118,14 +140,35 @@ GaussNewton::getSolution()
 std::vector<Vector>
 GaussNewton::getSolutionIter()
 {
-    if ( _iopt.lpos == true )
+    // if ( _iopt.lpos == true )
+    if ( _iopt.transf > 0 )
     {
         std::vector<Vector> yiter( _xiter.size() );
 
         for (unsigned k = 0; k < _niter; ++k)
         {
             Vector y = _xiter[k];
-            for (long j = 1; j <= y.nr(); ++j) y(j) = std::exp( y(j) );
+            // for (long j = 1; j <= y.nr(); ++j) y(j) = std::exp( y(j) );
+            for (long j = 1; j <= y.nr(); ++j)
+            {
+                if ( _iopt.itrans(j) == 1.0 )
+                {
+                    y(j) = std::exp( y(j) );
+                }
+                else if ( _iopt.itrans(j) == 2.0 )
+                {
+                    y(j) = -1.0 + _wk.xlb(j) + std::sqrt( 1.0 + y(j)*y(j) );
+                }
+                else if ( _iopt.itrans(j) == 3.0 )
+                {
+                    y(j) =  1.0 + _wk.xub(j) - std::sqrt( 1.0 + y(j)*y(j) );
+                }
+                else if ( _iopt.itrans(j) == 4.0 )
+                {
+                    y(j) = _wk.xlb(j) + 0.5*(_wk.xub(j) - _wk.xlb(j))*( 1.0 + std::sin( y(j) ) );
+                }
+            }
+
             yiter[k] = y;
         }
 
@@ -133,6 +176,14 @@ GaussNewton::getSolutionIter()
     }
 
     return _xiter;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+IOpt
+GaussNewton::getIOpt()
+{
+    return _iopt;
 }
 //---------------------------------------------------------------------------
 
@@ -223,6 +274,7 @@ GaussNewton::initialise(
     _n = x.nr();
     _mfit = fObs.nr();
 
+    /*
     if ( iopt.lpos == true )
     {
 
@@ -242,6 +294,7 @@ GaussNewton::initialise(
         _x = x;
         _xscal = xScal;
     }
+    */
 
     _fi = fObs;
 
@@ -252,8 +305,31 @@ GaussNewton::initialise(
     setIOpt(iopt);
     setWk(wk);
 
-    if ( iopt.lpos == true )
+    ///
+
+    if ( iopt.itrans.nr() != (long)_n )
     {
+        _iopt.itrans.ones(_n);
+        _iopt.itrans = iopt.transf * _iopt.itrans;
+    }
+
+    if ( wk.xlb.nr() != (long)_n )
+    {
+        _wk.xlb.zeros(_n);
+        for (long j = 1; j <= (long)_n; ++j) _wk.xlb(j) = x(j) - 0.1*std::max( 1.0, std::fabs(x(j)) );
+    }
+    if ( wk.xub.nr() != (long)_n )
+    {
+        _wk.xub.zeros(_n);
+        for (long j = 1; j <= (long)_n; ++j) _wk.xub(j) = x(j) + 0.1*std::max( 1.0, std::fabs(x(j)) );
+    }
+
+
+    transform_x( x, xScal );
+
+    // if ( _iopt.lpos == true )
+    if ( iopt.transf == 1 )  // switch off internal scaling mechanism
+    {                         // only for exponential trafo
         _iopt.iscal = 1;
     }
 
@@ -311,12 +387,14 @@ GaussNewton::initialise(
         printl( _lumon, dlib::LINFO,
                 " Automatic row scaling of the Jacobian is %s.\n\n", rsmode.c_str()
               );
+        /*
         posmode = ( _iopt.lpos == true ) ? "applied (Arrhenius Law)" : "not imposed";
         printl( _lumon, dlib::LINFO,
                 " %s\n %s %s.\n\n",
                 "Positivity constraints on the unknown parameters",
                 "are", posmode.c_str()
               );
+        */
     }
 
     _nonlin = _iopt.nonlin;
@@ -1601,12 +1679,34 @@ Vector
 GaussNewton::call_FCN(Vector const& x, int& ifail)
 {
 
-    if ( _iopt.lpos == true )
+    // if ( _iopt.lpos == true )
+    if ( _iopt.transf > 0 )
     {
         long   n = x.nr();
         Vector y(n);
 
-        for(long j = 1; j <= n; ++j) y(j) = std::exp( x(j) );
+        // for (long j = 1; j <= n; ++j) y(j) = std::exp( x(j) );
+        for (long j = 1; j <= n; ++j)
+        {
+            y(j) = x(j);
+
+            if ( _iopt.itrans(j) == 1.0 )
+            {
+                y(j) = std::exp( x(j) );
+            }
+            else if ( _iopt.itrans(j) == 2.0 )
+            {
+                y(j) = -1.0 + _wk.xlb(j) + std::sqrt( 1.0 + x(j)*x(j) );
+            }
+            else if ( _iopt.itrans(j) == 3.0 )
+            {
+                y(j) =  1.0 + _wk.xub(j) - std::sqrt( 1.0 + x(j)*x(j) );
+            }
+            else if ( _iopt.itrans(j) == 4.0 )
+            {
+                y(j) = _wk.xlb(j) + 0.5*(_wk.xub(j) - _wk.xlb(j))*( 1.0 + std::sin( x(j) ) );
+            }
+        }
 
         return _fun->fcn( y, ifail );
     }
@@ -1620,19 +1720,121 @@ Matrix
 GaussNewton::call_JAC(Vector const& x, int& ifail)
 {
 
-    if ( _iopt.lpos == true )
+    // if ( _iopt.lpos == true )
+    if ( _iopt.transf > 0 )
     {
         long   n = x.nr();
-        Vector y(n);
+        Vector y(n), dy(n);
 
-        for(long j = 1; j <= n; ++j) y(j) = std::exp( x(j) );
+        // for (long j = 1; j <= n; ++j) y(j) = std::exp( x(j) );
+        for (long j = 1; j <= n; ++j)
+        {
+            y(j)  = x(j);
+            dy(j) = 1.0;
+
+            if ( _iopt.itrans(j) == 1.0 )
+            {
+                y(j)  = std::exp( x(j) );
+                dy(j) = y(j);
+            }
+            else if ( _iopt.itrans(j) == 2.0 )
+            {
+                y(j)  = -1.0 + _wk.xlb(j) + std::sqrt( 1.0 + x(j)*x(j) );
+                dy(j) = x(j) / std::sqrt( 1.0 + x(j)*x(j) );
+            }
+            else if ( _iopt.itrans(j) == 3.0 )
+            {
+                y(j)  =  1.0 + _wk.xub(j) - std::sqrt( 1.0 + x(j)*x(j) );
+                dy(j) = -x(j) / sqrt( 1.0 + x(j)*x(j) );
+            }
+            else if ( _iopt.itrans(j) == 4.0 )
+            {
+                y(j)  = _wk.xlb(j) + 0.5*(_wk.xub(j) - _wk.xlb(j))*( 1.0 + std::sin( x(j) ) );
+                dy(j) = 0.5*(_wk.xub(j) - _wk.xlb(j))*std::cos( x(j) );
+            }
+        }
 
         Matrix J = _fun->jac( y, ifail );
 
-        return J * y.diag();
+        return J * dy.diag();
     }
 
     return _fun->jac( x, ifail );
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void
+GaussNewton::transform_x(Vector const& x, Vector const& xScal)
+{
+    _x = x;
+    _xscal = xScal;
+
+    if ( _iopt.transf > 0 )
+    {
+        for (long j = 1; j <= (long)_n; ++j)
+        {
+            double xtmp;
+
+            if ( _iopt.itrans(j) == 1.0 )
+            {
+                _x(j) = -1.0e38;
+                if ( x(j) > 0.0 )
+                {
+                    _x(j) = std::log( x(j) );
+                }
+            }
+            else if ( _iopt.itrans(j) == 2.0 )
+            {
+                xtmp = 1.0 - _wk.xlb(j) + x(j);
+                _x(j) = std::sqrt( -1.0 + xtmp*xtmp );
+            }
+            else if ( _iopt.itrans(j) == 3.0 )
+            {
+                xtmp = 1.0 +_wk.xub(j) - x(j);
+                _x(j) = std::sqrt( -1.0 + xtmp*xtmp );
+            }
+            else if ( _iopt.itrans(j) == 4.0 )
+            {
+                xtmp = (x(j) - _wk.xlb(j)) / (_wk.xub(j) - _wk.xlb(j));
+                _x(j) = std::asin( -1.0 + 2.0 * xtmp );
+            }
+        }
+    }
+
+    return;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void
+GaussNewton::backtransform_x(Vector const& x)
+{
+    _x = x;
+    if ( _iopt.transf > 0 )
+    {
+        for (long j = 1; j <= (long)_n; ++j)
+        {
+            if ( _iopt.itrans(j) == 1.0 )
+            {
+                _x(j) = std::exp( x(j) );
+            }
+            else if ( _iopt.itrans(j) == 2.0 )
+            {
+                _x(j) = -1.0 + _wk.xlb(j) + std::sqrt( 1.0 + x(j)*x(j) );
+            }
+            else if ( _iopt.itrans(j) == 3.0 )
+            {
+                _x(j) =  1.0 + _wk.xub(j) - std::sqrt( 1.0 + x(j)*x(j) );
+            }
+            else if ( _iopt.itrans(j) == 4.0 )
+            {
+                _x(j) = _wk.xlb(j) + 0.5*(_wk.xub(j) - _wk.xlb(j))*( 1.0 + std::sin( x(j) ) );
+            }
+        }
+    }
+
+    return;
 }
 //---------------------------------------------------------------------------
 

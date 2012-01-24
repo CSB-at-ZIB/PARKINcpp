@@ -1,3 +1,6 @@
+#ifndef HEADER_267BBB40FE2ED049
+#define HEADER_267BBB40FE2ED049
+
 // Copyright (C) 2010 - 2011
 // ZIB - Zuse Institute Berlin, Germany
 //
@@ -49,6 +52,12 @@ namespace PARKIN
 
             void
             setIOpt(IOpt const& iopt);
+
+            IOpt
+            getIOpt();
+
+            void
+            setParameterConstraints(Vector const& itrans, Vector const& xlb, Vector const& xub);
 
             //
 
@@ -148,3 +157,5 @@ namespace PARKIN
 
 }
 #endif // __BIO_PROCESSOR_H
+
+#endif // header guard

@@ -1,3 +1,6 @@
+#ifndef HEADER_6E3A0F78CE82C81
+#define HEADER_6E3A0F78CE82C81
+
 // Copyright (C) 2010
 // ZIB - Zuse Institute Berlin, Germany
 //
@@ -35,6 +38,7 @@ namespace PARKIN
     {
         Matrix  vcv;
         Vector  fw, xl, xr;
+        Vector  xlb, xub;
         Real    fcbnd, ajdel, ajmin, etadif, etaini;
         Real    dlevf, sumx, prec, skap, sigma2;
         Real    fcstart, fcmin, sigma, cond;
@@ -46,6 +50,7 @@ namespace PARKIN
         GaussNewtonWk() :
             vcv(),
             fw(), xl(), xr(),
+            xlb(), xub(),
             fcbnd(0.0), ajdel(0.0), ajmin(0.0), etadif(0.0), etaini(0.0),
             dlevf(0.0), sumx(0.0), prec(0.0), skap(0.0), sigma2(0.0),
             fcstart(0.0), fcmin(0.0), sigma(0.0), cond(0.0),
@@ -94,6 +99,7 @@ namespace PARKIN
             // get current iteration information
             Vector          getSolution();
             //Info            getInfo();
+            IOpt            getIOpt();
             GaussNewtonWk   getWk();
             void            printCounter();
 
@@ -110,6 +116,8 @@ namespace PARKIN
             void check_init2();
             Vector call_FCN(Vector const&, int&);   // call needed as trafo (e.g. iopt.lpos) entry point
             Matrix call_JAC(Vector const&, int&);   // call needed as trafo (e.g. iopt.lpos) entry point
+            void transform_x(Vector const&,Vector const&);
+            void backtransform_x(Vector const&);
             void compute_scaling_xw(unsigned, bool);
             void compute_scaling_fw(unsigned);
             void compute_jcf_AA(Real, Real, Real, int&);
@@ -169,3 +177,5 @@ namespace PARKIN
 
 }
 #endif // __GAUSS_NEWTON_H
+
+#endif // header guard

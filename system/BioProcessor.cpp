@@ -65,6 +65,22 @@ BioProcessor::setIOpt(IOpt const& iopt)
     _iopt = iopt;
 }
 //---------------------------------------------------------------------------
+IOpt
+BioProcessor::getIOpt()
+{
+    return _iopt;
+}
+//---------------------------------------------------------------------------
+void
+BioProcessor::setParameterConstraints(Vector const& itrans,
+                                      Vector const& xlb, Vector const& xub)
+{
+    _iopt.transf = 1;
+    _iopt.itrans = itrans;
+    _nlsconWk.xlb = xlb;
+    _nlsconWk.xub = xub;
+}
+//---------------------------------------------------------------------------
 void
 BioProcessor::setCurrentParamValues(Expression::Param const& par)
 {
@@ -688,6 +704,8 @@ BioProcessor::identifyParameters(Real xtol)
     }
     else if ( _method == "nlscon" )
     {
+        // _nlsconWk.xlb = _xlb;
+
         _nlsconWk.nitmax = _iopt.itmax;
         _nlsconWk.cond = 1.0 / ( _biosys->getSolverRTol() );
 
