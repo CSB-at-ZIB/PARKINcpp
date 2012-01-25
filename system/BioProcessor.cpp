@@ -705,7 +705,7 @@ BioProcessor::identifyParameters(Real xtol)
     else if ( _method == "nlscon" )
     {
         // _nlsconWk.xlb = _xlb;
-
+        // _nlsconWk.xub = _xub;
         _nlsconWk.nitmax = _iopt.itmax;
         _nlsconWk.cond = 1.0 / ( _biosys->getSolverRTol() );
 

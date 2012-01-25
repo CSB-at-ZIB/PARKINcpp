@@ -373,7 +373,7 @@ GaussNewton::initialise(
                 "Prescribed relative precision            (XTOL): ", _rtol
               );
 
-        std::string jacg, rsmode, posmode;
+        std::string jacg, rsmode, trmode; // posmode;
         if ( jacgen == 1 )
             jacg = "a user function";
         else if ( jacgen == 2 )
@@ -395,6 +395,42 @@ GaussNewton::initialise(
                 "are", posmode.c_str()
               );
         */
+        char trans1[2048];
+        char trans2[2048];
+        char trans3[2048];
+        char trans4[2048];
+
+        trmode = ( _iopt.transf > 0 ) ? "Transformation" : "No transformation";
+        if ( _iopt.transf > 0 )
+        {
+            *trans1 = *trans2 = *trans3 = *trans4 = '\0';
+            for (unsigned j = 1; j <= _n; ++j)
+            {
+                if ( _iopt.itrans(j) == 1.0 )
+                    sprintf( trans1, "%s %d", trans1, j );
+                else if ( _iopt.itrans(j) == 2.0 )
+                    sprintf( trans2, "%s %d", trans2, j );
+                else if ( _iopt.itrans(j) == 3.0 )
+                    sprintf( trans3, "%s %d", trans3, j );
+                else if ( _iopt.itrans(j) == 4.0 )
+                    sprintf( trans4, "%s %d", trans4, j );
+            }
+        }
+
+        printl( _lumon, dlib::LINFO,
+                "\n %s applied on unkown parameter(s)\n", trmode.c_str()
+              );
+        if ( _iopt.transf > 0 )
+        {
+            printl( _lumon, dlib::LINFO,
+                    "\n                 Parameter #\n"
+                    "   Exponential : >%s<\n"
+                    "   Lower       : >%s<\n"
+                    "   Upper       : >%s<\n"
+                    "   Interval    : >%s<\n\n",
+                    trans1, trans2, trans3, trans4
+                  );
+        }
     }
 
     _nonlin = _iopt.nonlin;
