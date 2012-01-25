@@ -75,10 +75,17 @@ void
 BioProcessor::setParameterConstraints(Vector const& itrans,
                                       Vector const& xlb, Vector const& xub)
 {
-    _iopt.transf = 1;
-    _iopt.itrans = itrans;
-    _nlsconWk.xlb = xlb;
-    _nlsconWk.xub = xub;
+    if ( itrans.nr() > 0 )
+    {
+        _iopt.transf = 1;
+        _iopt.itrans = itrans;
+        _nlsconWk.xlb = xlb;
+        _nlsconWk.xub = xub;
+    }
+    else
+    {
+        _iopt.transf = 0;
+    }
 }
 //---------------------------------------------------------------------------
 void
