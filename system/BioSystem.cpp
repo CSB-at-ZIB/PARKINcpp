@@ -291,14 +291,14 @@ BioSystem::setBreakpoints(Vector const& tInterval)
     }
 }
 //---------------------------------------------------------------------------
-BioRHS::ExpressionMap
+BioSystem::ExpressionMap
 BioSystem::getEvent(long j) const
 {
     long Tb = _tInterval.size();
 
     if ( (0 <= j) && (j < Tb) ) return _iniCond[j].getRHS();
 
-    return BioRHS::ExpressionMap();
+    return ExpressionMap();
 }
 //---------------------------------------------------------------------------
 void

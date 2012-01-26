@@ -351,7 +351,7 @@ BioRHS::setParameters(Expression::Param const& param)
 }
 //----------------------------------------------------------------------------
 void
-BioRHS::setParameters(BioRHS::Parameter const& param)
+BioRHS::setParameters(Parameter const& param)
 {
     // _parameter.clear();
     _parameter = param;

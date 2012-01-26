@@ -38,7 +38,7 @@ namespace PARKIN
             BioSystem(  Real tStart = 0.0, Real tEnd = 1.0 );
             BioSystem(  Vector const& tInterval );
 
-            BioSystem(  BioRHS::ExpressionMap const&    eList,
+            BioSystem(  ExpressionMap const&            eList,
                         ODESolver::Grid const&          tPoints,
                         MeasurementList const&          meas,
                         ODESolver::Grid const&          tInterval

@@ -1,6 +1,3 @@
-#ifndef HEADER_E02FD863C9C791A0
-#define HEADER_E02FD863C9C791A0
-
 // Copyright (C) 2010 - 2011
 // ZIB - Zuse Institute Berlin, Germany
 //
@@ -62,5 +59,3 @@ namespace PARKIN
 
 }
 #endif // __USER_FUNC_H
-
-#endif // header guard 

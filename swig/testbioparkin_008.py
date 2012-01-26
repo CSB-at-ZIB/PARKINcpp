@@ -31,7 +31,6 @@ biosys = BioSystem(tstart, tend)
 aux = ExpressionMap()
 emap = ExpressionMap()
 
-
 # set names / identifies of species
 speciesIDs.push_back("C")
 speciesIDs.push_back("X")
@@ -69,8 +68,6 @@ paramIDs.push_back("r13_d1");      parValues["r13_d1"]  = 0.05
 paramIDs.push_back("r12_vs");      parValues["r12_vs"]  = 0.2
 paramIDs.push_back("r10_alpha");   parValues["r10_alpha"] = 0.1
 paramIDs.push_back("r11_alpha");   parValues["r11_alpha"] = 0.1
-
-
 
 
 aux["glo_V1"] = Expression(
@@ -283,6 +280,7 @@ emap["Z"] = Expression(
                             )
                         )
                     )
+
 
 
 biosys.setODESystem(emap)

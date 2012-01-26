@@ -1,6 +1,3 @@
-#ifndef HEADER_6E3A0F78CE82C81
-#define HEADER_6E3A0F78CE82C81
-
 // Copyright (C) 2010
 // ZIB - Zuse Institute Berlin, Germany
 //
@@ -177,5 +174,3 @@ namespace PARKIN
 
 }
 #endif // __GAUSS_NEWTON_H
-
-#endif // header guard

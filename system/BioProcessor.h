@@ -1,6 +1,3 @@
-#ifndef HEADER_267BBB40FE2ED049
-#define HEADER_267BBB40FE2ED049
-
 // Copyright (C) 2010 - 2011
 // ZIB - Zuse Institute Berlin, Germany
 //
@@ -16,6 +13,7 @@
 #include "linalg/Matrix.h"
 #include "linalg/QRconDecomp.h"
 
+#include "nonlin/UserFunc.h"
 #include "nonlin/GaussNewton.h"
 #include "nonlin/YeOldeParkinCore.h"
 
@@ -25,6 +23,7 @@
 
 namespace PARKIN
 {
+    // class IOpt;
 
     class BioProcessor
     {
@@ -157,5 +156,3 @@ namespace PARKIN
 
 }
 #endif // __BIO_PROCESSOR_H
-
-#endif // header guard

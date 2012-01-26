@@ -4,8 +4,8 @@
 // first added : 2010-12-07 td
 // last changed:
 //
-#ifndef ODE_SOLVER_H
-#define ODE_SOLVER_H
+#ifndef __ODE_SOLVER_H
+#define __ODE_SOLVER_H
 
 #include <vector>
 #include <map>
@@ -51,4 +51,4 @@ namespace PARKIN
     };
 
 }
-#endif // ODE_SOLVER_H
+#endif // __ODE_SOLVER_H

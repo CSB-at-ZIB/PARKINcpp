@@ -4,8 +4,8 @@
 // first added : 2010-11-29 td
 // last changed:
 //
-#ifndef _EXPR_NODE_H
-#define _EXPR_NODE_H
+#ifndef __EXPR_NODE_H
+#define __EXPR_NODE_H
 
 #include <iostream>
 #include <string>
@@ -214,4 +214,4 @@ namespace PARKIN
 
     Real sign(Real x);
 }
-#endif // _EXPR_NODE_H
+#endif // __EXPR_NODE_H
