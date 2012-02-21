@@ -325,10 +325,10 @@ GaussNewton::initialise(
     }
 
 
-    transform_x( x, xScal );
+    transform_x( x, xScal );  // set _x := transform(x,xScal) of GaussNewton object
 
     // if ( _iopt.lpos == true )
-    if ( iopt.transf == 1 )  // switch off internal scaling mechanism
+    if ( iopt.transf == 1 )   // switch off internal scaling mechanism
     {                         // only for exponential trafo
         _iopt.iscal = 1;
     }
@@ -1740,7 +1740,9 @@ GaussNewton::call_FCN(Vector const& x, int& ifail)
             }
             else if ( _iopt.itrans(j) == 4.0 )
             {
-                y(j) = _wk.xlb(j) + 0.5*(_wk.xub(j) - _wk.xlb(j))*( 1.0 + std::sin( x(j) ) );
+                y(j) = _wk.xlb(j) +
+                       0.5*(_wk.xub(j) - _wk.xlb(j)) *
+                           ( 1.0 + std::sin( x(j) ) );
             }
         }
 
@@ -1819,21 +1821,34 @@ GaussNewton::transform_x(Vector const& x, Vector const& xScal)
                 {
                     _x(j) = std::log( x(j) );
                 }
+                if ( xScal(j) > 0.0 )
+                {
+                    _xscal(j) = std::log( xScal(j) );
+                }
             }
             else if ( _iopt.itrans(j) == 2.0 )
             {
                 xtmp = 1.0 - _wk.xlb(j) + x(j);
                 _x(j) = std::sqrt( -1.0 + xtmp*xtmp );
+
+                xtmp = 1.0 - _wk.xlb(j) + xScal(j);
+                _xscal(j) = std::sqrt( -1.0 + xtmp*xtmp );
             }
             else if ( _iopt.itrans(j) == 3.0 )
             {
-                xtmp = 1.0 +_wk.xub(j) - x(j);
+                xtmp = 1.0 + _wk.xub(j) - x(j);
                 _x(j) = std::sqrt( -1.0 + xtmp*xtmp );
+
+                xtmp = 1.0 + _wk.xub(j) - xScal(j);
+                _xscal(j) = std::sqrt( -1.0 + xtmp*xtmp );
             }
             else if ( _iopt.itrans(j) == 4.0 )
             {
                 xtmp = (x(j) - _wk.xlb(j)) / (_wk.xub(j) - _wk.xlb(j));
                 _x(j) = std::asin( -1.0 + 2.0 * xtmp );
+
+                xtmp = (xScal(j) - _wk.xlb(j)) / (_wk.xub(j) - _wk.xlb(j));
+                _xscal(j) = std::asin( -1.0 + 2.0 * xtmp );
             }
         }
     }

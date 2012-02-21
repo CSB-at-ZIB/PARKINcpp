@@ -228,7 +228,8 @@ BioProcessor::computeModel()
 BioProcessor::TrajectoryMap
 BioProcessor::computeSensitivityTrajectories()
 {
-    bool                        lpos = _iopt.lpos;
+    // bool                        lpos = _iopt.lpos;
+    int                         transf = _iopt.transf;
     int                         jacgen = _iopt.jacgen;   // 1: variational eqn
                                                          // 2: num.diff.
                                                          // 3: num.diff.(with feedback)
@@ -237,6 +238,9 @@ BioProcessor::computeSensitivityTrajectories()
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
     // TrajectoryMap               trajMap;
+    Vector                      itrans = _iopt.itrans;
+    Vector                      xlb = _nlsconWk.xlb;
+    Vector                      xub = _nlsconWk.xub;
     Matrix                      mat;
     int                         ifail = 0;
 
@@ -298,20 +302,51 @@ BioProcessor::computeSensitivityTrajectories()
     }
 
 
-    if ( lpos == true )
+    // if ( lpos == true )
+    if ( transf > 0 )
     {
-        Vector y;
+        Vector dy;
         long   j = mat.nc();
 
-        y.zeros( j );
-        j = 0;
+        dy.zeros( j );
+        j = 1;
 
         for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
         {
-            y(++j) = it->second;
+            Real tmp = _optPar[it->first];
+
+            dy(j) = 1.0;
+
+            if ( itrans(j) == 1.0 )
+            {
+                dy(j) = std::max( tmp, 0.0 );
+            }
+            else if ( itrans(j) == 2.0 )
+            {
+                tmp += 1.0 - xlb(j); // + tmp;
+                tmp  = std::sqrt( -1.0 + tmp*tmp );
+
+                dy(j) = tmp / std::sqrt( 1.0 + tmp*tmp );
+            }
+            else if ( itrans(j) == 3.0 )
+            {
+                tmp = 1.0 + xub(j) - tmp;
+                tmp = std::sqrt( -1.0 + tmp*tmp );
+
+                dy(j) = - tmp / std::sqrt( 1.0 + tmp*tmp );
+            }
+            else if ( itrans(j) == 4.0 )
+            {
+                tmp = (tmp - xlb(j)) / (xub(j) - xlb(j));
+                tmp = std::asin( -1.0 + 2.0*tmp );
+
+                dy(j) = 0.5 * (xub(j) - xlb(j)) * std::cos( tmp );
+            }
+
+            ++j;
         }
 
-        mat = mat * y.diag();
+        mat = mat * dy.diag();
     }
 
 
@@ -392,7 +427,7 @@ BioProcessor::getScaledSensitivityTrajectories()
 int
 BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 {
-    bool                lpos = _iopt.lpos;
+    // bool                lpos = _iopt.lpos;
     int                 jacgen = _iopt.jacgen;
     int                 ifail;
     Expression::Param   parScale = computeParameterScales();
@@ -422,6 +457,7 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 //std::cerr << "   jacgen = " << jacgen << std::endl;
 //std::cerr << "     lpos = " << ((lpos == true) ? "true" : "false") << std::endl;
 
+    /*
     if ( lpos == true )
     {
         for (long l = 1; l <= q; ++l)
@@ -431,6 +467,7 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         }
     }
     else
+    */
     {
         for (long l = 1; l <= q; ++l)
         {
@@ -652,7 +689,7 @@ BioProcessor::identifyParameters(Real xtol)
 {
     int                         rc = 0;
     unsigned                    j, m;
-    Expression::Param           parScal;
+    // Expression::Param           parScal;
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
     BioSystem::Parameter        pname;
@@ -662,28 +699,34 @@ BioProcessor::identifyParameters(Real xtol)
     fobs = _biosys->getMeasurements();
     fscal = _biosys->getMeasurementWeights();
 
-    j = 0;
+    j = 1;
     pname.clear();
     x.zeros( _optPar.size() );
+    xscal.zeros( _optPar.size() );
 
     for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
     {
-        pname.push_back( it->first );
-        x(++j) = it->second;
+        std::string s = it->first;
+
+        pname.push_back( s );
+            x(j) = _optPar[s];      // it->second;
+        xscal(j) = _parThres[s];
+
+        ++j;
     }
 
-
+    /*
     j = 0;
-    parScal = computeParameterScales();
-    xscal.zeros( parScal.size() );
+    // parScal = computeParameterScales();
+    xscal.zeros( _optPar.size() );
 
-    for (Expression::ParamIterConst it = parScal.begin();
-                                    it != parScal.end();
-                                    ++it)
+    for (Expression::ParamIterConst it = pBeg; it != pEnd; ++it)
     {
-        xscal(++j) = it->second;
-    }
+        std::string s = it->first;
 
+        xscal(++j) = _parThres[s]; // it->second;
+    }
+    */
 
     m = fobs.nr();
 
@@ -781,21 +824,32 @@ BioProcessor::getIdentificationResults()
 Expression::Param
 BioProcessor::computeParameterScales()
 {
-    Expression::ParamIterConst  pBeg = _optPar.begin();
-    Expression::ParamIterConst  pEnd = _optPar.end();
+    int                         transf = _iopt.transf;
+    Expression::ParamIterConst  pBeg   = _optPar.begin();
+    Expression::ParamIterConst  pEnd   = _optPar.end();
     Expression::Param           parScale;
+    long                        k;
 
     parScale.clear();
+    k = 1;
 
     for (Expression::ParamIterConst itPar = pBeg;
                                     itPar != pEnd; ++itPar)
     {
         std::string s = itPar->first;
+        Real optPar   = _optPar[s];
+        Real parThres = _parThres[s];
+
+        if ( transf > 0 )
+        {
+            optPar = transform_p( optPar, k );
+            parThres = transform_p( parThres, k );
+
+            ++k;
+        }
 
         parScale[s] =
-            std::max(   std::fabs( _optPar[s] ) ,
-                        _parThres[s]
-                    );
+            std::max(   std::fabs( optPar ) , parThres );
     }
 
     return parScale;
@@ -824,6 +878,7 @@ BioProcessor::computeSpeciesScales()
 Matrix
 BioProcessor::computeJac(std::string const& mode, int& ifail)
 {
+    int                        transf = _iopt.transf;
     Expression::ParamIterConst pBeg = _optPar.begin();
     Expression::ParamIterConst pEnd = _optPar.end();
     Expression::Param          parScale = computeParameterScales();
@@ -856,17 +911,29 @@ BioProcessor::computeJac(std::string const& mode, int& ifail)
     for (Expression::ParamIterConst itPar = pBeg;
                                     itPar != pEnd; ++itPar, ++k)
     {
-        Real w  = itPar->second;
+        std::string s = itPar->first;
+        Real w        = _optPar[s];
+        Real wSave    = w;
+        if ( transf > 0 )
+        {
+            w = transform_p(w, k);
+        }
 
         int  su = ( w < 0.0 ) ? -1 : 1;
-        Real u  = std::max( std::max(std::fabs(w), ajmin), parScale[itPar->first] );
+        Real u  = std::max( std::max(std::fabs(w), ajmin), parScale[s] );
 
         u *= (ajdelta * su);
-        _optPar[itPar->first] = w + u;
+
+        _optPar[s] = w + u;
+
+        if ( transf > 0 )
+        {
+            _optPar[s] = backtrans_p(w + u, k);
+        }
 
         fh = _biosys->computeModel( _optPar );
 
-        _optPar[itPar->first] = w;
+        _optPar[s] = wSave;
         mat.set_colm(k) = (1.0/u) * Matrix(fh - f);
 
 //std::cerr << std::right << std::setw(4) << k << ": ";
@@ -887,6 +954,7 @@ BioProcessor::computeJac(std::string const& mode, int& ifail)
 Matrix
 BioProcessor::computeJcf(std::string const& mode, int& ifail)
 {
+    int                         transf = _iopt.transf;
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
     Expression::Param           parScale = computeParameterScales();
@@ -932,8 +1000,10 @@ BioProcessor::computeJcf(std::string const& mode, int& ifail)
     for (Expression::ParamIterConst it = pBeg;
                                     it != pEnd; ++it, ++k)
     {
+        std::string s = it->first;
         Real sumd, hg, fhj;
         Real w = 0.0, u = 0.0;
+        Real wSave = 0.0;
         int  su = 0;
         bool is = false;
         bool qexit = false;
@@ -941,15 +1011,23 @@ BioProcessor::computeJcf(std::string const& mode, int& ifail)
 
         while ( !qfine )
         {
-            w  = _optPar[it->first];
+            w  = wSave = _optPar[s];
+            if ( transf > 0 )
+            {
+                w = transform_p(w, k);
+            }
             su = ( w < 0.0 ) ? -1 : 1;
-            u  = eta(k) * parScale[it->first] * su;
+            u  = eta(k) * parScale[s] * su;
 
-            _optPar[it->first] = w + u;
+            _optPar[s] = w + u;
+            if ( transf > 0 )
+            {
+                _optPar[s] = backtrans_p(w + u, k);
+            }
 
             fu = _biosys->computeModel( _optPar );
 
-            _optPar[it->first] = w;
+            _optPar[s] = wSave;
 
             ifail = _biosys->getComputeErrorFlag();
 
@@ -998,5 +1076,69 @@ BioProcessor::computeJcf(std::string const& mode, int& ifail)
 //std::cerr << "###" << std::endl;
 
     return mat;
+}
+//---------------------------------------------------------------------------
+Real
+BioProcessor::transform_p(Real p, long k)
+{
+    Real ptmp;
+    Real pp     = p;
+    Real itrans = _iopt.itrans(k);
+    Real xlb    = _nlsconWk.xlb(k);
+    Real xub    = _nlsconWk.xub(k);
+
+    if ( itrans == 1.0 )
+    {
+        pp = -1.0e38;
+        if ( p > 0.0 )
+        {
+            pp = std::log( p );
+        }
+    }
+    else if ( itrans == 2.0 )
+    {
+        ptmp = 1.0 - xlb + p;
+        pp = std::sqrt( -1.0 + ptmp*ptmp );
+    }
+    else if ( itrans == 3.0 )
+    {
+        ptmp = 1.0 + xub - p;
+        pp = std::sqrt( -1.0 + ptmp*ptmp );
+    }
+    else if ( itrans == 4.0 )
+    {
+        ptmp = (p - xlb) / (xub - xlb);
+        pp = std::asin( -1.0 + 2.0 * ptmp );
+    }
+
+    return pp;
+}
+//---------------------------------------------------------------------------
+Real
+BioProcessor::backtrans_p(Real p, long k)
+{
+    Real pp     = p;
+    Real itrans = _iopt.itrans(k);
+    Real xlb    = _nlsconWk.xlb(k);
+    Real xub    = _nlsconWk.xub(k);
+
+    if ( itrans == 1.0 )
+    {
+        pp = std::exp( p );                                    //   0 < pp
+    }
+    else if ( itrans == 2.0 )
+    {
+        pp = -1.0 + xlb + std::sqrt( 1.0 + p*p );              // xlb <= pp
+    }
+    else if ( itrans == 3.0 )
+    {
+        pp = 1.0 + xub - std::sqrt( -1.0 + p*p );              //        pp <= xub
+    }
+    else if ( itrans == 4.0 )
+    {
+        pp = xlb + 0.5*(xub - xlb) * ( 1.0 + std::sin( p ) );  // xlb <= pp <= xub
+    }
+
+    return pp;
 }
 //---------------------------------------------------------------------------

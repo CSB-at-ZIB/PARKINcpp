@@ -40,6 +40,7 @@
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
@@ -63,6 +64,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="-e /usr/bin/python -i testbioparkin_aux.py" />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
