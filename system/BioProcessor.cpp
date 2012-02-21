@@ -303,7 +303,7 @@ BioProcessor::computeSensitivityTrajectories()
 
 
     // if ( lpos == true )
-    if ( transf > 0 )
+    if ( (transf > 0) && (jacgen == 1) )
     {
         Vector dy;
         long   j = mat.nc();
