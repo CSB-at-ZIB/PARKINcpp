@@ -625,11 +625,11 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 
         int ifail = 0;
         Matrix Jac;
-        if (transf > 0)  /// q'n'd hack for the time being: if transf, then feedbck off
-        {
-            Jac = computeJac( "init", ifail );
-        }
-        else
+//        if (transf > 0)  /// q'n'd hack for the time being: if transf, then feedbck off
+//        {
+//            Jac = computeJac( "init", ifail );
+//        }
+//        else
         {
             Jac = computeJcf( "init", ifail );
         }
@@ -759,12 +759,13 @@ BioProcessor::identifyParameters(Real xtol)
         _parkinWk.cond = 1.0 / (xtol * 1.0e-1); /* (_biosys->getSolverRTol() ); */
 
         _parkin.setProblem( &_biopar );
-        _parkin.initialise( m,
-                            x, xscal,
-                            fobs, fscal,
-                            xtol, _iopt,
-                            _parkinWk
-                          );
+        rc = _parkin.initialise( m,
+                                 x, xscal,
+                                 fobs, fscal,
+                                 xtol, _iopt,
+                                 _parkinWk
+                               );
+        if ( rc != 0 ) return rc;
 
         rc = _parkin.run();
 
@@ -779,12 +780,13 @@ BioProcessor::identifyParameters(Real xtol)
         _nlsconWk.cond = 1.0 / ( _biosys->getSolverRTol() );
 
         _nlscon.setProblem( &_biopar );
-        _nlscon.initialise( m,
-                            x, xscal,
-                            fobs, fscal,
-                            xtol, _iopt,
-                            _nlsconWk
-                          );
+        rc = _nlscon.initialise( m,
+                                 x, xscal,
+                                 fobs, fscal,
+                                 xtol, _iopt,
+                                 _nlsconWk
+                               );
+        if ( rc != 0 ) return rc;
 
         rc = _nlscon.run();
 
@@ -843,7 +845,8 @@ BioProcessor::getIdentificationResults()
 Expression::Param
 BioProcessor::computeParameterScales()
 {
-    int                         transf = _iopt.transf;
+    // int                         transf = _iopt.transf;
+    Vector                      itrans = _iopt.itrans;
     Expression::ParamIterConst  pBeg   = _optPar.begin();
     Expression::ParamIterConst  pEnd   = _optPar.end();
     Expression::Param           parScale;
@@ -859,6 +862,7 @@ BioProcessor::computeParameterScales()
         Real optPar   = _optPar[s];
         Real parThres = _parThres[s];
 
+        /*
         if ( transf > 0 )
         {
             optPar = transform_p( optPar, k );
@@ -866,9 +870,17 @@ BioProcessor::computeParameterScales()
 
             ++k;
         }
+        */
 
         parScale[s] =
             std::max(   std::fabs( optPar ) , parThres );
+
+        if ( itrans(k) > 0.0 )  // switch off scaling if any transformation is used
+        {
+            parScale[s] = 1.0;
+        }
+
+        ++k;
     }
 
     return parScale;

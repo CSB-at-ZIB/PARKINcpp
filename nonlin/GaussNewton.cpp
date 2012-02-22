@@ -328,10 +328,10 @@ GaussNewton::initialise(
     transform_x( x, xScal );  // set _x := transform(x,xScal) of GaussNewton object
 
     // if ( _iopt.lpos == true )
-    if ( iopt.transf == 1 )   // switch off internal scaling mechanism
-    {                         // only for exponential trafo
-        _iopt.iscal = 1;
-    }
+    // if ( iopt.transf == 1 )   // switch off internal scaling mechanism
+    // {                         // only for exponential trafo
+    //     _iopt.iscal = 1;
+    // }
 
     if ( !qsucc )
         printl( _lumon, dlib::LINFO,
@@ -1805,6 +1805,10 @@ GaussNewton::call_JAC(Vector const& x, int& ifail)
 void
 GaussNewton::transform_x(Vector const& x, Vector const& xScal)
 {
+
+    _x.zeros( _n );
+    _xscal.zeros( _n );
+
     _x = x;
     _xscal = xScal;
 
@@ -1821,34 +1825,46 @@ GaussNewton::transform_x(Vector const& x, Vector const& xScal)
                 {
                     _x(j) = std::log( x(j) );
                 }
+                /*
                 if ( xScal(j) > 0.0 )
                 {
                     _xscal(j) = std::log( xScal(j) );
                 }
+                */
+                _xscal(j) = 1.0;
             }
             else if ( _iopt.itrans(j) == 2.0 )
             {
                 xtmp = 1.0 - _wk.xlb(j) + x(j);
                 _x(j) = std::sqrt( -1.0 + xtmp*xtmp );
 
+                /*
                 xtmp = 1.0 - _wk.xlb(j) + xScal(j);
                 _xscal(j) = std::sqrt( -1.0 + xtmp*xtmp );
+                */
+                _xscal(j) = 1.0;
             }
             else if ( _iopt.itrans(j) == 3.0 )
             {
                 xtmp = 1.0 + _wk.xub(j) - x(j);
                 _x(j) = std::sqrt( -1.0 + xtmp*xtmp );
 
+                /*
                 xtmp = 1.0 + _wk.xub(j) - xScal(j);
                 _xscal(j) = std::sqrt( -1.0 + xtmp*xtmp );
+                */
+                _xscal(j) = 1.0;
             }
             else if ( _iopt.itrans(j) == 4.0 )
             {
                 xtmp = (x(j) - _wk.xlb(j)) / (_wk.xub(j) - _wk.xlb(j));
                 _x(j) = std::asin( -1.0 + 2.0 * xtmp );
 
+                /*
                 xtmp = (xScal(j) - _wk.xlb(j)) / (_wk.xub(j) - _wk.xlb(j));
                 _xscal(j) = std::asin( -1.0 + 2.0 * xtmp );
+                */
+                _xscal(j) = 1.0;
             }
         }
     }
@@ -1904,9 +1920,14 @@ GaussNewton::compute_scaling_xw(unsigned iscal, bool /*qinisc*/)
 
         for (long j = 1; j <= _xw.nr(); ++j)
         {
-            _xw(j) = std::max( _xscal(j),
-                               std::max( 0.5*(std::fabs(_x(j)) + std::fabs(_xa(j))), SMALL)
-                             );
+            _xw(j) = 1.0;                // no scaling at all if any transf is set
+
+            if ( _iopt.itrans(j) == 0 )  // only no transformation scales!
+            {
+                _xw(j) = std::max( _xscal(j),
+                                    std::max( 0.5*(std::fabs(_x(j)) + std::fabs(_xa(j))), SMALL)
+                                 );
+            }
         }
     }
 
