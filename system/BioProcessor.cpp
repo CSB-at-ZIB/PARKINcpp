@@ -1132,7 +1132,7 @@ BioProcessor::backtrans_p(Real p, long k)
     }
     else if ( itrans == 3.0 )
     {
-        pp = 1.0 + xub - std::sqrt( -1.0 + p*p );              //        pp <= xub
+        pp =  1.0 + xub - std::sqrt( 1.0 + p*p );              //        pp <= xub
     }
     else if ( itrans == 4.0 )
     {
