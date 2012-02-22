@@ -238,9 +238,9 @@ BioProcessor::computeSensitivityTrajectories()
     Expression::ParamIterConst  pBeg = _optPar.begin();
     Expression::ParamIterConst  pEnd = _optPar.end();
     // TrajectoryMap               trajMap;
-    Vector                      itrans = _iopt.itrans;
-    Vector                      xlb = _nlsconWk.xlb;
-    Vector                      xub = _nlsconWk.xub;
+    // Vector                      itrans = _iopt.itrans;
+    // Vector                      xlb = _nlsconWk.xlb;
+    // Vector                      xub = _nlsconWk.xub;
     Matrix                      mat;
     int                         ifail = 0;
 
@@ -315,10 +315,16 @@ BioProcessor::computeSensitivityTrajectories()
         {
             Real tmp = _optPar[it->first];
 
+            dy(j) = dertransf_p( tmp, j );
+
+            /*
             dy(j) = 1.0;
 
             if ( itrans(j) == 1.0 )
             {
+                // tmp = std::log( tmp );
+                // dy(j) = std::exp( tmp );
+
                 dy(j) = std::max( tmp, 0.0 );
             }
             else if ( itrans(j) == 2.0 )
@@ -342,6 +348,7 @@ BioProcessor::computeSensitivityTrajectories()
 
                 dy(j) = 0.5 * (xub(j) - xlb(j)) * std::cos( tmp );
             }
+            */
 
             ++j;
         }
@@ -428,6 +435,7 @@ int
 BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 {
     // bool                lpos = _iopt.lpos;
+    int                 transf = _iopt.transf;
     int                 jacgen = _iopt.jacgen;
     int                 ifail;
     Expression::Param   parScale = computeParameterScales();
@@ -457,21 +465,24 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 //std::cerr << "   jacgen = " << jacgen << std::endl;
 //std::cerr << "     lpos = " << ((lpos == true) ? "true" : "false") << std::endl;
 
-    /*
-    if ( lpos == true )
+    for (long l = 1; l <= q; ++l)
     {
-        for (long l = 1; l <= q; ++l)
-        {
-            pw(l) = parScale[itPar->first] * (itPar->second);
-            ++itPar;
-        }
+        pw(l) = parScale[itPar->first];
+        ++itPar;
     }
-    else
-    */
+    // if ( lpos == true )
+    if ( (transf > 0) && (jacgen == 1) )
     {
+        itPar = _optPar.begin();
+
         for (long l = 1; l <= q; ++l)
         {
-            pw(l) = parScale[itPar->first];
+            Real tmp = _optPar[itPar->first];
+            Real dy  = 1.0;
+
+            dy = dertransf_p( tmp, l);
+
+            pw(l) = parScale[itPar->first] * dy;
             ++itPar;
         }
     }
@@ -613,7 +624,15 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         _biosys->setMeasurementTimePoints( tp );
 
         int ifail = 0;
-        Matrix Jac = computeJcf( "init", ifail );
+        Matrix Jac;
+        if (transf > 0)  /// q'n'd hack for the time being: if transf, then feedbck off
+        {
+            Jac = computeJac( "init", ifail );
+        }
+        else
+        {
+            Jac = computeJcf( "init", ifail );
+        }
 
         if ( (ifail != 0) || ( Jac.nr() != m*T) )
         {
@@ -1011,7 +1030,8 @@ BioProcessor::computeJcf(std::string const& mode, int& ifail)
 
         while ( !qfine )
         {
-            w  = wSave = _optPar[s];
+            w  = _optPar[s];
+            wSave = w;
             if ( transf > 0 )
             {
                 w = transform_p(w, k);
@@ -1078,67 +1098,111 @@ BioProcessor::computeJcf(std::string const& mode, int& ifail)
     return mat;
 }
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 Real
-BioProcessor::transform_p(Real p, long k)
+BioProcessor::dertransf_p(Real p, long k)  // dy = phi'(u) if u = phi^(-1)(xparam)
+{
+    Real utmp;
+    Real dy     =  1.0;
+    Real itrans = _iopt.itrans(k);
+    Real xlb    = _nlsconWk.xlb(k);
+    Real xub    = _nlsconWk.xub(k);
+
+    // dy(j) = 1.0;
+
+    if ( itrans == 1.0 )
+    {
+        // utmp = std::log( p );
+        // dy   = std::exp( utmp );
+
+        dy = std::max( p, 0.0 );
+    }
+    else if ( itrans == 2.0 )
+    {
+        utmp = 1.0 - xlb + p;
+        utmp  = std::sqrt( -1.0 + utmp*utmp );
+
+        dy = utmp / std::sqrt( 1.0 + utmp*utmp );
+    }
+    else if ( itrans == 3.0 )
+    {
+        utmp = 1.0 + xub - p;
+        utmp = std::sqrt( -1.0 + utmp*utmp );
+
+        dy = - utmp / std::sqrt( 1.0 + utmp*utmp );
+    }
+    else if ( itrans == 4.0 )
+    {
+        utmp = (p - xlb) / (xub - xlb);
+        utmp = std::asin( -1.0 + 2.0*utmp );
+
+        dy = 0.5 * (xub - xlb) * std::cos( utmp );
+    }
+
+    return dy;
+}
+//---------------------------------------------------------------------------
+Real
+BioProcessor::transform_p(Real p, long k)   // u = phi^(-1)(xparm)
 {
     Real ptmp;
-    Real pp     = p;
+    Real u      = p;
     Real itrans = _iopt.itrans(k);
     Real xlb    = _nlsconWk.xlb(k);
     Real xub    = _nlsconWk.xub(k);
 
     if ( itrans == 1.0 )
     {
-        pp = -1.0e38;
+        u = -1.0e38;
         if ( p > 0.0 )
         {
-            pp = std::log( p );
+            u = std::log( p );
         }
     }
     else if ( itrans == 2.0 )
     {
         ptmp = 1.0 - xlb + p;
-        pp = std::sqrt( -1.0 + ptmp*ptmp );
+        u = std::sqrt( -1.0 + ptmp*ptmp );
     }
     else if ( itrans == 3.0 )
     {
         ptmp = 1.0 + xub - p;
-        pp = std::sqrt( -1.0 + ptmp*ptmp );
+        u = std::sqrt( -1.0 + ptmp*ptmp );
     }
     else if ( itrans == 4.0 )
     {
         ptmp = (p - xlb) / (xub - xlb);
-        pp = std::asin( -1.0 + 2.0 * ptmp );
+        u = std::asin( -1.0 + 2.0 * ptmp );
     }
 
-    return pp;
+    return u;
 }
 //---------------------------------------------------------------------------
 Real
-BioProcessor::backtrans_p(Real p, long k)
+BioProcessor::backtrans_p(Real u, long k)   // xparam = phi(u)
 {
-    Real pp     = p;
+    Real x      = u;
     Real itrans = _iopt.itrans(k);
     Real xlb    = _nlsconWk.xlb(k);
     Real xub    = _nlsconWk.xub(k);
 
     if ( itrans == 1.0 )
     {
-        pp = std::exp( p );                                    //   0 < pp
+        x = std::exp( u );                                     //   0 < x
     }
     else if ( itrans == 2.0 )
     {
-        pp = -1.0 + xlb + std::sqrt( 1.0 + p*p );              // xlb <= pp
+        x = -1.0 + xlb + std::sqrt( 1.0 + u*u );               // xlb <= x
     }
     else if ( itrans == 3.0 )
     {
-        pp =  1.0 + xub - std::sqrt( 1.0 + p*p );              //        pp <= xub
+        x =  1.0 + xub - std::sqrt( 1.0 + u*u );               //        x <= xub
     }
     else if ( itrans == 4.0 )
     {
-        pp = xlb + 0.5*(xub - xlb) * ( 1.0 + std::sin( p ) );  // xlb <= pp <= xub
+        x = xlb + 0.5*(xub - xlb) * ( 1.0 + std::sin( u ) );   // xlb <= x <= xub
     }
 
-    return pp;
+    return x;
 }
 //---------------------------------------------------------------------------

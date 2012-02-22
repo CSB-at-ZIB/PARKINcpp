@@ -125,8 +125,9 @@ namespace PARKIN
             Expression::Param computeSpeciesScales();
             Matrix computeJac(std::string const& mode, int& ifail);
             Matrix computeJcf(std::string const& mode, int& ifail);
+            Real dertransf_p(Real p, long k);
             Real transform_p(Real p, long k);
-            Real backtrans_p(Real p, long k);
+            Real backtrans_p(Real u, long k);
 
             BioSystem*                  _biosys;
             BioPAR                      _biopar;
