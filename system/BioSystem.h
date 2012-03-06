@@ -31,6 +31,7 @@ namespace PARKIN
 
             typedef BioRHS::Species                         Species;
             typedef BioRHS::Parameter                       Parameter;
+            typedef BioRHS::ExprTypeMap                     ExprTypeMap;
             typedef BioRHS::ExpressionMap                   ExpressionMap;
             typedef std::vector< MeasurementPoint >         MeasurementList;
 
@@ -131,10 +132,20 @@ namespace PARKIN
             getODEExpr()
             { return _ode.getRHS(); }
 
+            ExprTypeMap const&
+            getODETypes()
+            { return _ode.getRHSType(); }
+
             //
 
             void
             setODESystem(ExpressionMap const& elist);
+
+            void
+            setODESystem(ExpressionMap const& elist, ExprTypeMap const& tlist);
+
+            void
+            setODETypes(ExprTypeMap const& tlist);
 
             //
 

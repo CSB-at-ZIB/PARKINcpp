@@ -326,6 +326,25 @@ BioSystem::setODESystem(ExpressionMap const& eMap)
 }
 //---------------------------------------------------------------------------
 void
+BioSystem::setODESystem(ExpressionMap const& eMap, ExprTypeMap const& tMap)
+{
+    _ode.setRHS(eMap);
+    _ode.setRHSType(tMap);
+
+    setEmptyMeasurementList();
+
+    setIdentityEvents();
+
+    // BioSystemWrapper::setObj(*this);
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::setODETypes(ExprTypeMap const& tMap)
+{
+    _ode.setRHSType(tMap);
+}
+//---------------------------------------------------------------------------
+void
 BioSystem::setIdentityEvents()
 {
     Species const&      species = _ode.getSpecies();
@@ -1220,7 +1239,8 @@ BioSystemWrapper::fcnODE(
     StrIterConst                sEnd = spec.end();
     */
 
-    *nz = *n;
+    //*nz = *n;
+
     // sys["t"] = *t;
     // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *y++;
 
@@ -1238,6 +1258,9 @@ BioSystemWrapper::fcnODE(
 //            *ir++ = *ic++ = j;
 //        }
 //    }
+    _ode.b( y, nz, B, ir, ic);
+
+    //
 
     *info = 0;
 }

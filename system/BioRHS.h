@@ -25,6 +25,7 @@ namespace PARKIN
     {
         public:
 
+            typedef std::map< std::string, int >            ExprTypeMap;
             typedef std::map< std::string, Expression >     ExpressionMap;
             typedef std::vector< std::string >              Species;
             typedef std::vector< std::string >              Parameter;
@@ -41,6 +42,14 @@ namespace PARKIN
 
             BioRHS(BioRHS const& rhs);
             BioRHS const& operator= (BioRHS const& rhs);
+
+            //
+
+            void
+            setRHSType(ExprTypeMap const& tmap);
+            //
+            ExprTypeMap const&
+            getRHSType() const { return _rhs_type; }
 
             //
 
@@ -72,6 +81,13 @@ namespace PARKIN
 
             //
 
+            //
+
+            void
+            b(double* y, int* nz, double* B, int* ir, int* ic);
+
+            //
+
             Vector
             f(Expression::Param& par, long n = 0, double* dy = 0);
             Vector
@@ -89,12 +105,14 @@ namespace PARKIN
             //
 
             typedef ExpressionMap::const_iterator               EMapIterConst;
+            typedef ExprTypeMap::const_iterator                 TMapIterConst;
             typedef std::vector< std::string >::const_iterator  StrIterConst;
 
         private:
 
             void computeDerivativeExpression();
 
+            ExprTypeMap     _rhs_type;
             ExpressionMap   _rhs;
             ExpressionMap   _drhs;
             Species         _species;

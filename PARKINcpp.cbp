@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="4" />
+				<Option parameters="6" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />
@@ -150,6 +150,7 @@
 		</Unit>
 		<Unit filename="addpkg/Ode/sum.h" />
 		<Unit filename="addpkg/dlib/all/source.cpp" />
+		<Unit filename="addpkg/gnuplot_cpp/gnuplot_i.hpp" />
 		<Unit filename="addpkg/newmat11/bandmat.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -346,6 +347,10 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="tstprg/testcases.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="tstprg/testfoerster_react_b.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>

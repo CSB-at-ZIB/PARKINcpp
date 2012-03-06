@@ -317,39 +317,6 @@ BioProcessor::computeSensitivityTrajectories()
 
             dy(j) = dertransf_p( tmp, j );
 
-            /*
-            dy(j) = 1.0;
-
-            if ( itrans(j) == 1.0 )
-            {
-                // tmp = std::log( tmp );
-                // dy(j) = std::exp( tmp );
-
-                dy(j) = std::max( tmp, 0.0 );
-            }
-            else if ( itrans(j) == 2.0 )
-            {
-                tmp += 1.0 - xlb(j); // + tmp;
-                tmp  = std::sqrt( -1.0 + tmp*tmp );
-
-                dy(j) = tmp / std::sqrt( 1.0 + tmp*tmp );
-            }
-            else if ( itrans(j) == 3.0 )
-            {
-                tmp = 1.0 + xub(j) - tmp;
-                tmp = std::sqrt( -1.0 + tmp*tmp );
-
-                dy(j) = - tmp / std::sqrt( 1.0 + tmp*tmp );
-            }
-            else if ( itrans(j) == 4.0 )
-            {
-                tmp = (tmp - xlb(j)) / (xub(j) - xlb(j));
-                tmp = std::asin( -1.0 + 2.0*tmp );
-
-                dy(j) = 0.5 * (xub(j) - xlb(j)) * std::cos( tmp );
-            }
-            */
-
             ++j;
         }
 

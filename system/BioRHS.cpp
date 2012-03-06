@@ -12,6 +12,7 @@ using namespace PARKIN;
 
 //----------------------------------------------------------------------------
 BioRHS::BioRHS() :
+    _rhs_type(),
     _rhs(), _drhs(), _species(), _parameter(),
     _num_table_entries(2), _data_table(new double*[2])
 {
@@ -34,6 +35,7 @@ BioRHS::BioRHS() :
 //}
 //----------------------------------------------------------------------------
 BioRHS::BioRHS(ExpressionMap const& emap) :
+    _rhs_type(),
     _rhs(emap), _drhs(), _species(), _parameter(),
     _num_table_entries(2), _data_table(new double*[2])
 {
@@ -41,10 +43,12 @@ BioRHS::BioRHS(ExpressionMap const& emap) :
     EMapIterConst eEnd = emap.end();
 
     _species.clear();
+    _rhs_type.clear();
 
     for (EMapIterConst it = eBeg; it != eEnd; ++it)
     {
         _species.push_back( it->first );
+        _rhs_type[it->first] = 1;
     }
 
     StrIterConst sBeg = _species.begin();
@@ -66,16 +70,19 @@ BioRHS::BioRHS(ExpressionMap const& emap) :
 }
 //----------------------------------------------------------------------------
 BioRHS::BioRHS(Species const& species) :
+    _rhs_type(),
     _rhs(), _drhs(), _species(), _parameter(),
     _num_table_entries(2), _data_table(new double*[2])
 {
     StrIterConst sBeg = species.begin();
     StrIterConst sEnd = species.end();
 
+    _rhs_type.clear();
     _rhs.clear();
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
+        _rhs_type[*it] = 1;
         _rhs[*it] = Expression(*it);
     }
 
@@ -110,6 +117,7 @@ BioRHS::BioRHS(Species const& species) :
 //----------------------------------------------------------------------------
 BioRHS::BioRHS(ExpressionMap const& emap,
                Parameter const& param) :
+    _rhs_type(),
     _rhs(emap), _drhs(), _species(), _parameter(param),
     _num_table_entries(2), _data_table(new double*[2])
 {
@@ -117,10 +125,12 @@ BioRHS::BioRHS(ExpressionMap const& emap,
     EMapIterConst eEnd = emap.end();
 
     _species.clear();
+    _rhs_type.clear();
 
     for (EMapIterConst it = eBeg; it != eEnd; ++it)
     {
         _species.push_back( it->first );
+        _rhs_type[it->first] = 1;
     }
 
     StrIterConst sBeg = _species.begin();
@@ -154,6 +164,7 @@ BioRHS::BioRHS(BioRHS const& r)
 {
     if ( this != &r )
     {
+        _rhs_type  = r._rhs_type;
         _rhs       = r._rhs;
         _drhs      = r._drhs;
         _species   = r._species;
@@ -173,6 +184,7 @@ BioRHS::operator= (BioRHS const& r)
 {
     if ( this != &r )
     {
+        _rhs_type  = r._rhs_type;
         _rhs       = r._rhs;
         _drhs      = r._drhs;
         _species   = r._species;
@@ -241,11 +253,34 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 void
+BioRHS::setRHSType(ExprTypeMap const& tmap)
+{
+    TMapIterConst tBeg = tmap.begin();
+    TMapIterConst tEnd = tmap.end();
+
+    for (TMapIterConst it = tBeg; it != tEnd; ++it)
+    {
+        _rhs_type[it->first] = it->second;
+    }
+
+    return;
+}
+//----------------------------------------------------------------------------
+/*
+BioRHS::ExprTypeMap const&
+BioRHS::getRHSType() const
+{
+    return _rhs_type;
+}
+*/
+//----------------------------------------------------------------------------
+void
 BioRHS::setRHS(ExpressionMap const& emap)
 {
     _rhs = emap;
 
     _species.clear();
+    _rhs_type.clear();
 
     EMapIterConst rBeg = _rhs.begin();
     EMapIterConst rEnd = _rhs.end();
@@ -253,6 +288,7 @@ BioRHS::setRHS(ExpressionMap const& emap)
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
         _species.push_back( it->first );
+        _rhs_type[ it->first ] = 1;
     }
 
     StrIterConst sBeg = _species.begin();
@@ -284,9 +320,11 @@ BioRHS::resetSpecies(BioRHS::Species const& species)
     StrIterConst sEnd = species.end();
 
     _rhs.clear();
+    _rhs_type.clear();
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
+        _rhs_type[*it] = 1;
         _rhs[*it] = Expression(*it);
     }
 
@@ -376,6 +414,41 @@ BioRHS::Parameter const&
 BioRHS::getParameters() const
 {
     return _parameter;
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void
+BioRHS::b(double* y, int* nz, double* B, int* ir, int* ic)
+{
+    int            k   = 0;
+    int            idx = 0;
+    StrIterConst   sBeg = _species.begin();
+    StrIterConst   sEnd = _species.end();
+
+    for (StrIterConst it = sBeg; it != sEnd; ++it)
+    {
+        ++idx;
+
+        switch ( _rhs_type[*it] )
+        {
+            case 2 :
+                break;
+
+            case 1 :
+            default:
+                 B[k] = 1.0;
+                ir[k] = ic[k] = idx;
+
+                ++k;
+
+                break;
+        };
+    }
+
+    *nz = k;
+
+    return;
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

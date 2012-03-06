@@ -81,7 +81,7 @@ LIMEX_A::initOpt()
 
     _iOpt[29] = -1;     // Not used in LIMEX_A (relevant in LIMEX_B, sparse Jacobians)
 
-    _iOpt[30] =  0;     // !!! Only available in LIMD !!!
+    _iOpt[30] = -1;     // !!! Only available in LIMD !!!
                         // Type of left-hand side B: 0 B=id, 1 B=const., 2 variable B
     _iOpt[31] =  1;     // !!! Only available in LIMDHERM !!!
                         // Interpolation mode: 0 no addition output, 1 give additional output (switched on)
@@ -766,6 +766,9 @@ LIMEX_A::setODESystem(
 
     _trajectory.clear();
     _trajectory.setDim(_n);
+
+    _iOpt[30] = 1;      // choose B = const. for LIMEX integration
+                        // 0: B = id, 1: B = const., 2: B = var.
 
     _iOpt[6] = 0;       // NO analytic Jacobian (supplied by routine 'jac')
 

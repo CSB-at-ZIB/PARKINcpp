@@ -72,6 +72,7 @@
 %template(MeasurementList)      std::vector< PARKIN::MeasurementPoint >;
 // %template(ExpressionList)       std::vector< PARKIN::Expression >;
 %template(ExpressionMap)        std::map< std::string, PARKIN::Expression >;
+%template(ExprTypeMap)          std::map< std::string, int >;
 
 
 // %ignore std::vector< PARKIN::Vector >::vector(size_type);
