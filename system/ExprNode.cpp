@@ -625,7 +625,7 @@ TernaryExpr::df(std::string const& n) const
                              return Expression(TIMES, tmpm, summ);
                          }
 
-        default        : return Expression(0);
+        default        : return Expression(0.0);
     }
 }
 //---------------------------------------------------------------------------

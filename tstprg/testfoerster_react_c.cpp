@@ -41,13 +41,25 @@ double randn()
 }
 */
 
-int testfoerster_react_b()
+///
+
+struct Experiment
+{
+    Real                tsync;
+    Vector              breaktp;
+    Expression::Param   y0;
+    std::string         meas_fname;
+};
+
+///
+
+int testfoerster_react_c()
 {
     srand(0);
     std::cout << std::endl;
     std::cout << "**********************************************************************" << std::endl;
     std::cout << "*                                                                    *" << std::endl;
-    std::cout << "* Immunoassay system: Reaction Scheme B (Scheme A + fibre precursor) *" << std::endl;
+    std::cout << "* Immunoassay system: Reaction Scheme C (modified Scheme B w/red. P) *" << std::endl;
     std::cout << "*                                                                    *" << std::endl;
     std::cout << "**********************************************************************" << std::endl;
     std::cout << std::endl;
@@ -57,9 +69,59 @@ int testfoerster_react_b()
 
     /// define and solve forward problem first
 
-    Real                        t_ini  =  19.0;
-    Real                        tstart = -90.0 - t_ini;
-    Real                        tend   =  60.0 * 9;
+    Real                        taccu   = 0.0;
+    Real                        ti      = 90.0;
+    Real                        t_ini[] = { 10.0, 10.0, 19.0 };
+    Real                        tf      = 9 * 60.0;
+
+    Real                        P0[]    = { 5.0, 10.0, 20.0 };
+    Real                        A0      = 75.0 / (1.5 * (0.375 + 0.75) * u * N_A);
+    Real                        B0      = 10.0;
+    Real                        Ps0     = 10.0;
+
+    std::string                 measf[] = {
+                                            "Foerster2_faser501_5ng.dat",
+                                            "Foerster2_faser501_10ng.dat",
+                                            "Foerster2_faser501_20ng.dat"
+                                          };
+
+    const unsigned              nexp = 3; /// 2;
+    Experiment                  foerster[nexp];
+
+    taccu = 0.0;
+
+    for (unsigned j = 0; j < nexp; ++j)
+    {
+        Real ttmp = ti + t_ini[j];
+
+        foerster[j].tsync = taccu + ttmp;
+
+        foerster[j].y0.clear();
+        foerster[j].y0["A"]   =  A0;
+        foerster[j].y0["P"]   =  (1000.0/314.0) * P0[j];
+        foerster[j].y0["AP"]  =  0.0;
+        foerster[j].y0["APs"] =  0.0;
+        foerster[j].y0["B"]   =  3.0 * B0;
+        foerster[j].y0["AB"]  =  0.0;
+        foerster[j].y0["As"]  =  0.0;
+        foerster[j].y0["Ps"]  =  3.0 * Ps0;
+        foerster[j].y0["S"]   =  0.0;
+        foerster[j].y0["Sw"]  =  0.0;
+
+        foerster[j].breaktp.zeros(3);
+        foerster[j].breaktp(1) = 0.0;
+        foerster[j].breaktp(2) = ti;
+        foerster[j].breaktp(3) = ttmp + tf;
+
+        foerster[j].meas_fname = measf[j];
+
+        taccu += foerster[j].breaktp(3);
+    }
+
+    //
+
+    Real                        tstart = foerster[0].breaktp(1);
+    Real                        tend   = taccu;
     Expression::Param           var, par, parThres;
 
     BioSystem::Species          species;
@@ -67,9 +129,9 @@ int testfoerster_react_b()
     BioSystem::Parameter        par1;
     BioSystem                   biosys(tstart, tend);
 
-    BioRHS::ExpressionMap    aux;
-    BioRHS::ExpressionMap    emap;
-    BioRHS::ExprTypeMap      tmap;
+    BioRHS::ExpressionMap       aux;
+    BioRHS::ExpressionMap       emap;
+    BioRHS::ExprTypeMap         tmap;
 
     //
 
@@ -86,26 +148,28 @@ int testfoerster_react_b()
 
     //
 
-    param.push_back("k_1");     var[ "k_1" ] = 0.1;
-    param.push_back("k_2");     var[ "k_2" ] = 0.1;
-    param.push_back("k_3");     var[ "k_3" ] = 0.1;
-    param.push_back("k_4");     var[ "k_4" ] = 0.1;
-    param.push_back("k_5");     var[ "k_5" ] = 0.1;
-    param.push_back("k_6");     var[ "k_6" ] = 0.1;
-    param.push_back("k_7");     var[ "k_7" ] = 0.1;
-    param.push_back("k_8");     var[ "k_8" ] = 0.1;
+    param.push_back("k_1");     var[ "k_1" ] = 1.0e-2;
+    param.push_back("k_2");     var[ "k_2" ] = 1.0e-2;
+    param.push_back("k_3");     var[ "k_3" ] = 1.0e-2;
+    param.push_back("k_4");     var[ "k_4" ] = 1.0e-2;
+    param.push_back("k_5");     var[ "k_5" ] = 1.0e-2;
+    param.push_back("k_6");     var[ "k_6" ] = 1.0e-2;
+    param.push_back("k_7");     var[ "k_7" ] = 1.0e-2;
+    param.push_back("k_8");     var[ "k_8" ] = 1.0e-2;
     param.push_back("b");       var[  "b"  ] = 5.0; // 10.0;
     param.push_back("slp");     var[ "slp" ] = 1.0e+3;
-    param.push_back("A0");      var[  "A0" ] = 75.0 / (1.5 * (0.375 + 0.75)* u * N_A);
+    /*
+    param.push_back("A0");      var[  "A0" ] = 75.0 / (1.5 * (0.375 + 0.75) * u * N_A);
     param.push_back("P0");      var[  "P0" ] = (1000.0 / 314.0) *
                                                 // 5 ;
                                                 // 10;
                                                  20;
                                                 // 40;
+    */
 
     // std::string fname = "Foerster2_faser501_5ng.dat";
     // std::string fname = "Foerster2_faser501_10ng.dat";
-    std::string fname = "Foerster2_faser501_20ng.dat";
+    // std::string fname = "Foerster2_faser501_20ng.dat";
 
     //
 
@@ -215,6 +279,8 @@ int testfoerster_react_b()
 
     tmap["S"] = 2;
 
+
+
     biosys.setODESystem(emap);
     biosys.setODETypes(tmap);
     // biosys.setSpecies(species);  // has now a complete different effect:
@@ -222,18 +288,13 @@ int testfoerster_react_b()
     biosys.setParameters(param);
 
 
+    Expression::ParamIterConst y0Beg = foerster[0].y0.begin();
+    Expression::ParamIterConst y0End = foerster[0].y0.end();
 
-    biosys.setInitialValue("A",     var["A0"] );
-    biosys.setInitialValue("P",     var["P0"] );
-    biosys.setInitialValue("AP",    0.0 );
-    biosys.setInitialValue("APs",   0.0 );
-    biosys.setInitialValue("B",     9.0 * 3.0 );
-    biosys.setInitialValue("AB",    0.0 );
-    biosys.setInitialValue("As",    0.0 );
-    biosys.setInitialValue("Ps",    9.0 * 3.0 );
-    biosys.setInitialValue("S",     0.0 );
-    biosys.setInitialValue("Sw",    0.0 );
-
+    for (Expression::ParamIterConst it = y0Beg; it != y0End; ++it)
+    {
+        biosys.setInitialValue(it->first, it->second);
+    }
 
 /*
     Vector meastp(200);
@@ -241,19 +302,34 @@ int testfoerster_react_b()
     biosys.setMeasurementTimePoints( meastp );
 */
 
+    std::vector<Real> allbp;
+
+    allbp.clear();
+    taccu = 0.0;
+
+    for (unsigned j = 0; j < nexp; ++j)
+    {
+        long nbp = foerster[j].breaktp.nr();
+
+        for (long k = 1; k < nbp; ++k)
+        {
+            allbp.push_back( taccu + foerster[j].breaktp(k) );
+        }
+
+        taccu += foerster[j].breaktp(nbp);
+    }
+
+    allbp.push_back( taccu );
+
+
     // Breakpoints / Event Management:
     //
     //  Subdivision of integration interval [t0 T] :  [ t0 = b1, b2, b3, ..., bn-1, bn = T ]
     //
-    Vector breaktp;
-
-    breaktp.zeros(3);
-    // for (long j = 1; j <= breaktp.nr(); ++j) breaktp(j) = tstart + (j-1)*(tend-tstart)/2.0;
-    breaktp(1) =  tstart;
-    breaktp(2) = -t_ini; // 0.0;
-    breaktp(3) =  tend;
 
 //TIME_THIS_TO( std::cerr << " *** Call: biosys.setBreakpoints() *** " << std::endl;
+
+    Vector breaktp(allbp);
 
     biosys.setBreakpoints( breaktp );
 
@@ -262,13 +338,40 @@ int testfoerster_react_b()
     // and succinctly some event handling
     //
 
+    long jj = 0;
+
+    for (unsigned j = 0; j < nexp; ++j)
     {
-        emap = biosys.getEvent(1);
+        emap = biosys.getEvent(jj+1);
 
         emap["Sw"] = Expression( 1.0 );
 
-        biosys.setEvent(1, emap);
+        if ( j == 0 )
+        {
+            biosys.setEvent(jj+1, emap);
+        }
+        else
+        {
+            y0Beg = foerster[j].y0.begin();
+            y0End = foerster[j].y0.end();
+
+            aux.clear();
+
+            for (Expression::ParamIterConst it = y0Beg; it != y0End; ++it)
+            {
+                aux[it->first] = Expression( it->second );
+            }
+
+            biosys.setEvent(jj,   aux);
+            biosys.setEvent(jj+1, emap);
+        }
+
+        jj += (foerster[j].breaktp.nr() - 1);
     }
+
+    //
+    //
+    //
 
     std::cout << std::endl;
     for (long j = 0; j < breaktp.nr(); ++j)
@@ -278,7 +381,7 @@ int testfoerster_react_b()
         BioRHS::EMapIterConst cEnd = icmap.end();
 
         std::cout << "Event " << std::setw(2) << j+1 <<
-                     "   (at time point t = " << breaktp(j+1) << ")" << std::endl;
+                     "   (at time t = " << breaktp(j+1) << ")" << std::endl;
         std::cout << "--------" << std::endl;
         for (BioRHS::EMapIterConst it = cBeg; it != cEnd; ++it)
         {
@@ -409,6 +512,15 @@ std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
 
     //
 
+/*
+    std::cout << std::endl;
+    std::cout << "Press ENTER to close Gnuplot window." << std::endl;
+
+    while ( std::cin.get() != '\n' )
+        ;
+
+exit(-999);
+*/
 
 /*
     Vector tp( biosys.getOdeTrajectoryTimePoints() );
@@ -587,105 +699,110 @@ std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
 //    }
 //    std::cout << "################################################" << std::endl;
 
-
-    std::ifstream in;
-
-    in.open(fname.c_str());
-    // in.open("Foerster2_faser501_5ng.dat");
-    // in.open("testfoerster_simple.csv");
-
-    if ( !in.is_open() )
-    {
-        std::cerr << "### ERROR: Could not open measurement data file '" << fname << "'.\n";
-        return -4;
-    }
-
     ODESolver::Grid    mRawMeas;
     ODESolver::Grid    mTimepoint;
     BioSystem::Species mSpecies;
-    std::string        line;
-    long               tp = 0;
+    long               currtp = 0;
 
-    mSpecies.clear();
     newMeas.clear();
 
-    mSpecies.push_back("S");
-
-    while ( std::getline(in, line) )
+    for (unsigned jexp = 0; jexp < nexp; ++jexp)
     {
-        std::stringstream ss(line);
-        std::string       id, unit, field;
+        Real          toff  = foerster[jexp].tsync;
+        std::string   fname = foerster[jexp].meas_fname;
+        std::ifstream in;
 
-        /*
-        if ( mSpecies.empty() )
+        in.open(fname.c_str());
+        // in.open("Foerster2_faser501_5ng.dat");
+        // in.open("testfoerster_simple.csv");
+
+        if ( !in.is_open() )
         {
-            ss >> id >> unit;  // we do not check for id=='Timepoint' here...
-            std::cout << id << " " << unit << "\t";
-
-            while ( ss.good() )
-            {
-                ss >> id >> unit;
-                std::cout << id << " " << unit << "\t";
-                mSpecies.push_back(id);
-            }
-            std::cout << std::endl;
-
-            continue;
+            std::cerr << "### ERROR: Could not open measurement data file '" << fname << "'.\n";
+            return -4;
         }
-        else
-        */
+
+        std::string line;
+
+        mSpecies.clear();
+        mSpecies.push_back("S");
+
+        while ( std::getline(in, line) )
         {
-            long j = -1;
+            std::stringstream ss(line);
+            std::string       id, unit, field;
 
-            while (std::getline(ss, field, '\t'))
+            /*
+            if ( mSpecies.empty() )
             {
-                std::stringstream fs(field);
-                Real              measVal;
+                ss >> id >> unit;  // we do not check for id=='Timepoint' here...
+                std::cout << id << " " << unit << "\t";
 
-                if ( !(fs >> measVal) )
+                while ( ss.good() )
                 {
-                    std::cout << ">   . / .    <" << "\t";
+                    ss >> id >> unit;
+                    std::cout << id << " " << unit << "\t";
+                    mSpecies.push_back(id);
+                }
+                std::cout << std::endl;
+
+                continue;
+            }
+            else
+            */
+            {
+                long j = -1;
+
+                while (std::getline(ss, field, '\t'))
+                {
+                    std::stringstream fs(field);
+                    Real              measVal;
+
+                    if ( !(fs >> measVal) )
+                    {
+                        std::cout << ">   . / .    <" << "\t";
+
+                        if (j < 0)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            ++j;
+                            continue;
+                        }
+                    }
+
+                    std::cout << ">" << measVal << "<" << "\t";
 
                     if (j < 0)
                     {
-                        break;
+                        mTimepoint.push_back(toff + measVal);
+                        newMeas.push_back( MeasurementPoint() );
+                        currtp = newMeas.size()-1;
                     }
                     else
                     {
-                        ++j;
-                        continue;
+                        mRawMeas.push_back(measVal);
+                        newMeas[currtp][mSpecies[j]] = std::make_pair<Real,Real>(measVal, 0.0);
                     }
+
+                    ++j;
                 }
 
-                std::cout << ">" << measVal << "<" << "\t";
-
-                if (j < 0)
+                if ( newMeas[currtp].empty() )
                 {
-                    mTimepoint.push_back(measVal);
-                    newMeas.push_back( MeasurementPoint() );
-                    tp = newMeas.size()-1;
-                }
-                else
-                {
-                    mRawMeas.push_back(measVal);
-                    newMeas[tp][mSpecies[j]] = std::make_pair<Real,Real>(measVal, 0.0);
+                    newMeas.pop_back();
+                    mTimepoint.pop_back();
+                    mRawMeas.pop_back();
                 }
 
-                ++j;
+                std::cout << std::endl;
             }
-
-            if ( newMeas[tp].empty() )
-            {
-                newMeas.pop_back();
-                mTimepoint.pop_back();
-                mRawMeas.pop_back();
-            }
-
-            std::cout << std::endl;
         }
-    }
 
-    in.close();
+        in.close();
+    }
 
     std::cout << "Read " << newMeas.size() << " timepoint(s) with measurement data." << std::endl;
 
@@ -707,7 +824,7 @@ std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
     }
 
     g2.set_style("points").set_pointsize(2.0);
-    g2.plot_xy( mTimepoint, mRawMeas, fname );
+    g2.plot_xy( mTimepoint, mRawMeas, "Measurements" );
 
     //
 
@@ -722,7 +839,7 @@ std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
     // Initial guess for GaussNewton
     //
 
-    long q = 8; // param.size();
+    long q = 9; // 8; // param.size();
 
     par.clear();
     par1.clear();
@@ -733,7 +850,8 @@ std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
     {
         par1.push_back( param[j-1] );
         p(j) = pscal(j) = var[ par1.back() ];
-        par[ par1.back() ] = p(j);     parThres[ par1.back() ] = std::fabs( p(j) ) * 1.0e-2; // EPMACH;
+             par[ par1.back() ] = p(j);
+        parThres[ par1.back() ] = std::fabs( p(j) ) * 1.0e-3; // 1.0e-2; // EPMACH;
     }
 
     // p(5) = pscal(5) = 1.0;      var[ par1[4] ] = p(5);
@@ -759,7 +877,7 @@ std::cerr << " *** Retn: biosys.computeModel() *** " << std::endl;
     iopt.mprmon    = 2;
     iopt.mprerr    = 1;
 
-    iopt.itmax = 25;
+    iopt.itmax = 75;
 
 
     // if ( iopt.jacgen > 1 )

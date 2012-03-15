@@ -57,49 +57,15 @@ namespace PARKIN
 
             Expression(Real const& val);
             Expression(std::string const& name);
+            Expression(char const* name);
 
             //
-            Expression(ExprNodeType const&, Real const&);
-            Expression(ExprNodeType const&, std::string const&);
             Expression(ExprNodeType const&, Expression const&);
 
             //
-            Expression(ExprNodeType const&, Real const&, Real const&);
-            Expression(ExprNodeType const&, Real const&, std::string const&);
-            Expression(ExprNodeType const&, std::string const&, Real const&);
-            Expression(ExprNodeType const&, Real const&, Expression const&);
-            Expression(ExprNodeType const&, Expression const&, Real const&);
-
-            Expression(ExprNodeType const&, std::string const&, std::string const&);
-            Expression(ExprNodeType const&, std::string const&, Expression const&);
-            Expression(ExprNodeType const&, Expression const&, std::string const&);
-
             Expression(ExprNodeType const&, Expression const&, Expression const&);
 
             //
-            Expression(ExprNodeType const&, Real const&, Real const&, Real const&);
-            Expression(ExprNodeType const&, std::string const&, Real const&, Real const&);
-            Expression(ExprNodeType const&, Real const&, std::string const&, Real const&);
-            Expression(ExprNodeType const&, Real const&, Real const&, std::string const&);
-            Expression(ExprNodeType const&, std::string const&, std::string const&, Real const&);
-            Expression(ExprNodeType const&, std::string const&, Real const&, std::string const&);
-            Expression(ExprNodeType const&, Real const&, std::string const&, std::string const&);
-
-            Expression(ExprNodeType const&, Expression const&, Real const&, Real const&);
-            Expression(ExprNodeType const&, Real const&, Expression const&, Real const&);
-            Expression(ExprNodeType const&, Real const&, Real const&, Expression const&);
-            Expression(ExprNodeType const&, Expression const&, Expression const&, Real const&);
-            Expression(ExprNodeType const&, Expression const&, Real const&, Expression const&);
-            Expression(ExprNodeType const&, Real const&, Expression const&, Expression const&);
-
-            Expression(ExprNodeType const&, std::string const&, std::string const&, std::string const&);
-            Expression(ExprNodeType const&, Expression const&, std::string const&, std::string const&);
-            Expression(ExprNodeType const&, std::string const&, Expression const&, std::string const&);
-            Expression(ExprNodeType const&, std::string const&, std::string const&, Expression const&);
-            Expression(ExprNodeType const&, Expression const&, Expression const&, std::string const&);
-            Expression(ExprNodeType const&, Expression const&, std::string const&, Expression const&);
-            Expression(ExprNodeType const&, std::string const&, Expression const&, Expression const&);
-
             Expression(ExprNodeType const&, Expression const&, Expression const&, Expression const&);
 
             ///

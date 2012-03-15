@@ -723,7 +723,8 @@ BioProcessor::identifyParameters(Real xtol)
     if ( _method == "parkin" )
     {
         _parkinWk.itmax = _iopt.itmax;
-        _parkinWk.cond = 1.0 / (xtol * 1.0e-1); /* (_biosys->getSolverRTol() ); */
+        // _parkinWk.cond = 1.0 / (xtol * 1.0e-1); // ( _biosys->getSolverRTol() );
+        _parkinWk.cond = 1.0 / (xtol * 1.0e+1); // ( _biosys->getSolverRTol() );
 
         _parkin.setProblem( &_biopar );
         rc = _parkin.initialise( m,
@@ -744,7 +745,8 @@ BioProcessor::identifyParameters(Real xtol)
         // _nlsconWk.xlb = _xlb;
         // _nlsconWk.xub = _xub;
         _nlsconWk.nitmax = _iopt.itmax;
-        _nlsconWk.cond = 1.0 / ( _biosys->getSolverRTol() );
+        _nlsconWk.cond   = 1.0 / (xtol * 1.0e+2); // ( _biosys->getSolverRTol() );
+        _nlsconWk.fcmin  = 1.0e-4;
 
         _nlscon.setProblem( &_biopar );
         rc = _nlscon.initialise( m,
