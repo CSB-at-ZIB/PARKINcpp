@@ -20,8 +20,10 @@ namespace dlib
     );
     /*!
         requires
-            - src_image_type == is an implementation of array2d/array2d_kernel_abstract.h
-            - dest_image_type == is an implementation of array2d/array2d_kernel_abstract.h
+            - src_image_type == is an implementation of array2d/array2d_kernel_abstract.h or
+              a dlib::matrix or something convertible to a matrix via array_to_matrix()
+            - dest_image_type == is an implementation of array2d/array2d_kernel_abstract.h or
+              is a dlib::matrix.
             - pixel_traits<typename src_image_type::type> is defined  
             - pixel_traits<typename dest_image_type::type> is defined  
         ensures
@@ -45,8 +47,10 @@ namespace dlib
     );
     /*!
         requires
-            - src_image_type == is an implementation of array2d/array2d_kernel_abstract.h
-            - dest_image_type == is an implementation of array2d/array2d_kernel_abstract.h
+            - src_image_type == is an implementation of array2d/array2d_kernel_abstract.h or
+              a dlib::matrix or something convertible to a matrix via array_to_matrix()
+            - dest_image_type == is an implementation of array2d/array2d_kernel_abstract.h or
+              is a dlib::matrix.
             - pixel_traits<typename src_image_type::type> is defined  
             - pixel_traits<typename dest_image_type::type> is defined  
             - thresh > 0

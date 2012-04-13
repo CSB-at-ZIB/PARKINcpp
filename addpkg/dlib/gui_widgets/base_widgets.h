@@ -427,7 +427,7 @@ namespace dlib
             draw_image(c, point(rect.left(),rect.top()), img);
         }
 
-        array2d<rgb_alpha_pixel>::kernel_1a img;
+        array2d<rgb_alpha_pixel> img;
 
         // restricted functions
         image_widget(image_widget&);        // copy constructor
@@ -2135,16 +2135,16 @@ namespace dlib
         rectangle win_rect; 
         unsigned long left_width;    
         unsigned long middle_width;    
-        array<scoped_ptr<menu_item> >::expand_1d_c items;
-        array<bool>::expand_1d_c item_enabled;
-        array<rectangle>::expand_1d_c left_rects;
-        array<rectangle>::expand_1d_c middle_rects;
-        array<rectangle>::expand_1d_c right_rects;
-        array<rectangle>::expand_1d_c line_rects;
-        array<popup_menu*>::expand_1d_c submenus;
+        array<scoped_ptr<menu_item> > items;
+        array<bool> item_enabled;
+        array<rectangle> left_rects;
+        array<rectangle> middle_rects;
+        array<rectangle> right_rects;
+        array<rectangle> line_rects;
+        array<popup_menu*> submenus;
         unsigned long selected_item;
         bool submenu_open;
-        array<member_function_pointer<>::kernel_1a>::expand_1d_c hide_handlers;
+        array<member_function_pointer<>::kernel_1a> hide_handlers;
 
         // restricted functions
         popup_menu(popup_menu&);        // copy constructor

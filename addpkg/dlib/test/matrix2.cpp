@@ -25,7 +25,7 @@ namespace
 
     logger dlog("test.matrix2");
 
-    dlib::rand::float_1a rnd;
+    dlib::rand rnd;
 
     void matrix_test (
     )
@@ -166,7 +166,7 @@ namespace
 
         std::vector<double> stdv(4);
         std_vector_c<double> stdv_c(4);
-        dlib::array<double>::expand_1a_c arr;
+        dlib::array<double> arr;
         arr.resize(4);
         for (long i = 0; i < 4; ++i)
             stdv[i] = stdv_c[i] = arr[i] = i+1;
@@ -759,6 +759,7 @@ namespace
             matrix<double,N,N> v;
 
             matrix<double,M,N> a2;  
+            a2 = 0;
             a2 = tmp(a/2);
 
 

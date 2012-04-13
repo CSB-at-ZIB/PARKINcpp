@@ -12,7 +12,7 @@ namespace dlib
 {
     template <
         typename T,
-        typename Rand_type = dlib::rand::kernel_1a
+        typename Rand_type = dlib::rand
         >
     class random_subset_selector
     {
@@ -71,6 +71,7 @@ namespace dlib
         !*/
     public:
         typedef T type;
+        typedef T value_type;
         typedef default_memory_manager mem_manager_type;
         typedef Rand_type rand_type;
 

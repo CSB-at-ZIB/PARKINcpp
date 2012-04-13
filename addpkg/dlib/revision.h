@@ -1,6 +1,7 @@
 #ifndef DLIB_REVISION_H
-// Version:  17.37
-// Date:     Thu Mar 24 19:44:23 EDT 2011
-// Subversion Revision Number
-#define DLIB_REVISION  4204
+// Version:  17.46
+// Date:     Wed Apr 11 18:51:29 EDT 2012
+// Mercurial Revision ID:  cfbd4102b1ee
+#define DLIB_MAJOR_VERSION  17
+#define DLIB_MINOR_VERSION  46
 #endif

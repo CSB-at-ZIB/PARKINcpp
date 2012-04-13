@@ -16,6 +16,7 @@ namespace dlib
     {
     public:
         typedef pixel_type type;
+        typedef default_memory_manager mem_manager_type;
 
         cv_image (const IplImage* img) 
         {
@@ -60,6 +61,7 @@ namespace dlib
 
         long nr() const { return _nr; }
         long nc() const { return _nc; }
+        long width_step() const { return _widthStep; }
 
         cv_image& operator=( const cv_image& item)
         {
@@ -82,7 +84,11 @@ namespace dlib
 
     private:
 
-        inline void check_image_type (const IplImage* img) const
+        inline void check_image_type (const IplImage* 
+#ifdef ENABLE_ASSERTS
+                                      img // the #ifdef is here to avoid an unused warning argument from the compiler
+#endif
+                                      ) const
         {
             DLIB_ASSERT( img->dataOrder == 0, "Only interleaved color channels are supported with cv_image"); 
             DLIB_ASSERT((img->depth&0xFF)/8*img->nChannels == sizeof(pixel_type), 

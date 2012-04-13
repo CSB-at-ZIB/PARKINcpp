@@ -16,6 +16,7 @@
 #include "matrix_expressions.h"
 #include "matrix_math_functions.h"
 #include "matrix_op.h"
+#include "../general_hash/murmur_hash3.h"
 
 
 namespace dlib
@@ -63,6 +64,14 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    namespace impl
+    {
+        template <typename T>
+        const T& magnitude (const T& item) { return item; }
+        template <typename T>
+        T magnitude (const std::complex<T>& item) { return std::norm(item); }
+    }
+
     template <
         typename EXP
         >
@@ -86,9 +95,9 @@ namespace dlib
             for (long c = 0; c < m.nc(); ++c)
             {
                 type temp = m(r,c);
-                if (temp > max_val)
+                if (dlib::impl::magnitude(temp) > dlib::impl::magnitude(max_val))
                     max_val = temp;
-                if (temp < min_val)
+                if (dlib::impl::magnitude(temp) < dlib::impl::magnitude(min_val))
                     min_val = temp;
             }
         }
@@ -117,7 +126,7 @@ namespace dlib
         for (long i = 1; i < m.size(); ++i)
         {
             type temp = m(i);
-            if (temp > val)
+            if (dlib::impl::magnitude(temp) > dlib::impl::magnitude(val))
             {
                 val = temp;
                 best_idx = i;
@@ -149,7 +158,7 @@ namespace dlib
         for (long i = 1; i < m.size(); ++i)
         {
             type temp = m(i);
-            if (temp < val)
+            if (dlib::impl::magnitude(temp) < dlib::impl::magnitude(val))
             {
                 val = temp;
                 best_idx = i;
@@ -180,7 +189,7 @@ namespace dlib
             for (long c = 0; c < m.nc(); ++c)
             {
                 type temp = m(r,c);
-                if (temp > val)
+                if (dlib::impl::magnitude(temp) > dlib::impl::magnitude(val))
                     val = temp;
             }
         }
@@ -209,7 +218,7 @@ namespace dlib
             for (long c = 0; c < m.nc(); ++c)
             {
                 type temp = m(r,c);
-                if (temp < val)
+                if (dlib::impl::magnitude(temp) < dlib::impl::magnitude(val))
                     val = temp;
             }
         }
@@ -1668,11 +1677,24 @@ namespace dlib
     template <
         typename EXP
         >
-    inline const typename matrix_exp<EXP>::type mean (
+    inline const typename disable_if<is_complex<typename EXP::type>, typename matrix_exp<EXP>::type>::type mean (
         const matrix_exp<EXP>& m
     )
     {
         return sum(m)/(m.nr()*m.nc());
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename EXP
+        >
+    inline const typename enable_if<is_complex<typename EXP::type>, typename matrix_exp<EXP>::type>::type mean (
+        const matrix_exp<EXP>& m
+    )
+    {
+        typedef typename EXP::type::value_type type;
+        return sum(m)/(type)(m.nr()*m.nc());
     }
 
 // ----------------------------------------------------------------------------------------
@@ -1863,6 +1885,26 @@ namespace dlib
 // ----------------------------------------------------------------------------------------
 
     template <
+        typename EXP
+        >
+    const matrix_op<op_uniform_matrix_3<typename EXP::type> > zeros_matrix (
+        const matrix_exp<EXP>& mat
+    )
+    {
+        DLIB_ASSERT(mat.nr() > 0 && mat.nc() > 0, 
+            "\tconst matrix_exp zeros_matrix(mat)"
+            << "\n\t nr and nc have to be bigger than 0"
+            << "\n\t mat.nr(): " << mat.nr()
+            << "\n\t mat.nc(): " << mat.nc()
+            );
+        typedef typename EXP::type T;
+        typedef op_uniform_matrix_3<T> op;
+        return matrix_op<op>(op(mat.nr(), mat.nc(), 0));
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
         typename T
         >
     const matrix_op<op_uniform_matrix_3<T> > ones_matrix (
@@ -1878,6 +1920,26 @@ namespace dlib
             );
         typedef op_uniform_matrix_3<T> op;
         return matrix_op<op>(op(nr, nc, 1));
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename EXP
+        >
+    const matrix_op<op_uniform_matrix_3<typename EXP::type> > ones_matrix (
+        const matrix_exp<EXP>& mat
+    )
+    {
+        DLIB_ASSERT(mat.nr() > 0 && mat.nc() > 0, 
+            "\tconst matrix_exp ones_matrix(mat)"
+            << "\n\t nr and nc have to be bigger than 0"
+            << "\n\t mat.nr(): " << mat.nr()
+            << "\n\t mat.nc(): " << mat.nc()
+            );
+        typedef typename EXP::type T;
+        typedef op_uniform_matrix_3<T> op;
+        return matrix_op<op>(op(mat.nr(), mat.nc(), 1));
     }
 
 // ----------------------------------------------------------------------------------------
@@ -2027,6 +2089,24 @@ namespace dlib
             );
         typedef op_identity_matrix_2<T> op;
         return matrix_diag_op<op>(op(size));
+    }
+
+    template <
+        typename EXP 
+        >
+    const matrix_diag_op<op_identity_matrix_2<typename EXP::type> > identity_matrix (
+        const matrix_exp<EXP>& mat
+    )
+    {
+        DLIB_ASSERT(mat.nr() == mat.nc(), 
+            "\tconst matrix_exp identity_matrix(mat)"
+            << "\n\t mat must be a square matrix."
+            << "\n\t mat.nr(): " << mat.nr() 
+            << "\n\t mat.nc(): " << mat.nc() 
+            );
+        typedef typename EXP::type T;
+        typedef op_identity_matrix_2<T> op;
+        return matrix_diag_op<op>(op(mat.nr()));
     }
 
 // ----------------------------------------------------------------------------------------
@@ -3964,6 +4044,60 @@ namespace dlib
     {
         typedef op_flipud<M> op;
         return matrix_op<op>(op(m.ref()));
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <typename M>
+    struct op_flip 
+    {
+        op_flip( const M& m_) : m(m_){}
+
+        const M& m;
+
+        const static long cost = M::cost;
+        const static long NR = M::NR;
+        const static long NC = M::NC;
+        typedef typename M::type type;
+        typedef typename M::const_ret_type const_ret_type;
+        typedef typename M::mem_manager_type mem_manager_type;
+        typedef typename M::layout_type layout_type;
+
+        const_ret_type apply (long r, long c) const { return m(m.nr()-r-1, m.nc()-c-1); }
+
+        long nr () const { return m.nr(); }
+        long nc () const { return m.nc(); }
+
+        template <typename U> bool aliases               ( const matrix_exp<U>& item) const { return m.aliases(item); }
+        template <typename U> bool destructively_aliases ( const matrix_exp<U>& item) const { return m.aliases(item); }
+
+    }; 
+
+    template <
+        typename M
+        >
+    const matrix_op<op_flip<M> > flip (
+        const matrix_exp<M>& m
+    )
+    {
+        typedef op_flip<M> op;
+        return matrix_op<op>(op(m.ref()));
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <typename T, long NR, long NC, typename MM, typename L>
+    uint32 hash (
+        const matrix<T,NR,NC,MM,L>& item,
+        uint32 seed = 0
+    )
+    {
+        DLIB_ASSERT_HAS_STANDARD_LAYOUT(T);
+
+        if (item.size() == 0)
+            return 0;
+        else
+            return murmur_hash3(&item(0,0), sizeof(T)*item.size(), seed);
     }
 
 // ----------------------------------------------------------------------------------------

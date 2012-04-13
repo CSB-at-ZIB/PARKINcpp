@@ -59,6 +59,15 @@ namespace PARKIN
             Expression(std::string const& name);
             Expression(char const* name);
 
+            ///
+
+            // Here, we make use of implicit type conversion: calls such as
+            //
+            //      Expression(PLUS, "a", 3.8)
+            //      Expression(TIMES, Expression(LOG, "x"), "pi")
+            //
+            // are still possible and valid because of the tacitly perfomed type conversion.
+
             //
             Expression(ExprNodeType const&, Expression const&);
 

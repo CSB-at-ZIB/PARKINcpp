@@ -293,8 +293,8 @@ namespace dlib
             DLIB_ASSERT(0.0 <= p && p <= 1.0,
                         "\tvoid& joint_probability_table::set_probability(a,p)"
                         << "\n\tyou have given an invalid probability value"
-                        << "\n\ttp:   " << p 
-                        << "\n\tta:   " << a 
+                        << "\n\tp:    " << p 
+                        << "\n\ta:    " << a 
                         << "\n\tthis: " << this
             );
 
@@ -325,14 +325,16 @@ namespace dlib
             DLIB_ASSERT(0.0 <= p && p <= 1.0,
                         "\tvoid& joint_probability_table::add_probability(a,p)"
                         << "\n\tyou have given an invalid probability value"
-                        << "\n\ttp:   " << p 
-                        << "\n\tta:   " << a 
+                        << "\n\tp:    " << p 
+                        << "\n\ta:    " << a 
                         << "\n\tthis: " << this
             );
 
             if (table.is_in_domain(a))
             {
                 table[a] += p;
+                if (table[a] > 1.0)
+                    table[a] = 1.0;
             }
             else
             {
@@ -568,7 +570,7 @@ namespace dlib
             // make sure requires clause is not broken
             DLIB_ASSERT( value < num_values() && has_entry_for(value,ps) ,
                          "\tvoid conditional_probability_table::probability()"
-                         << "\n\tinvalid arguments to set_probability"
+                         << "\n\tinvalid arguments to probability"
                          << "\n\tvalue:        " << value 
                          << "\n\tnum_values(): " << num_values() 
                          << "\n\tps:           " << ps 
@@ -1188,7 +1190,7 @@ namespace dlib
 
         assignment v;
 
-        dlib::rand::float_1a rnd;
+        dlib::rand rnd;
         matrix<double,1> samples; 
     };
 
@@ -1270,7 +1272,7 @@ namespace dlib
         private:
 
             graph< joint_probability_table, joint_probability_table >::kernel_1a_c join_tree_values;
-            array<unsigned long>::expand_1a_c cliques;
+            array<unsigned long> cliques;
             mutable joint_probability_table table;
             mutable assignment var;
             mutable matrix<double,1> dist;
@@ -1494,8 +1496,8 @@ namespace dlib
 
                 // the tree is now initialized.  Now all we need to do is perform the propagation and
                 // we are done
-                dlib::array<dlib::set<unsigned long>::compare_1b_c>::expand_1a_c remaining_msg_to_send;
-                dlib::array<dlib::set<unsigned long>::compare_1b_c>::expand_1a_c remaining_msg_to_receive;
+                dlib::array<dlib::set<unsigned long>::compare_1b_c> remaining_msg_to_send;
+                dlib::array<dlib::set<unsigned long>::compare_1b_c> remaining_msg_to_receive;
                 remaining_msg_to_receive.resize(join_tree.number_of_nodes());
                 remaining_msg_to_send.resize(join_tree.number_of_nodes());
                 for (unsigned long i = 0; i < remaining_msg_to_receive.size(); ++i)

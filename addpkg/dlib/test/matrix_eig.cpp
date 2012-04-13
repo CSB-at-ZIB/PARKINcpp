@@ -24,7 +24,7 @@ namespace
 
     logger dlog("test.matrix_eig");
 
-    dlib::rand::float_1a rnd;
+    dlib::rand rnd;
 
 // ----------------------------------------------------------------------------------------
 
@@ -203,7 +203,7 @@ namespace
             tester ("test_matrix_eig",
                     "Runs tests on the matrix eigen decomp component.")
         {
-            rnd.set_seed(cast_to_string(time(0)));
+            //rnd.set_seed(cast_to_string(time(0)));
         }
 
         void perform_test (

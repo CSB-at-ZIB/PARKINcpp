@@ -351,6 +351,9 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="tstprg/testfoerster_react_b.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="tstprg/testfoerster_react_c.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>

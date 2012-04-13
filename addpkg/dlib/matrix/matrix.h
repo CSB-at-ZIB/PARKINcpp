@@ -436,7 +436,7 @@ namespace dlib
             DLIB_ASSERT(lhs.nc() == rhs.nc() &&
                    lhs.nr() == rhs.nr(), 
                 "\tconst matrix_exp operator-(const matrix_exp& lhs, const matrix_exp& rhs)"
-                << "\n\tYou are trying to add two incompatible matrices together"
+                << "\n\tYou are trying to subtract two incompatible matrices"
                 << "\n\tlhs.nr(): " << lhs.nr()
                 << "\n\tlhs.nc(): " << lhs.nc()
                 << "\n\trhs.nr(): " << rhs.nr()
@@ -1475,7 +1475,7 @@ namespace dlib
         }
 
         matrix& operator += (
-            const T& val
+            const T val
         )
         {
             const long size = nr()*nc();
@@ -1486,7 +1486,7 @@ namespace dlib
         }
 
         matrix& operator -= (
-            const T& val
+            const T val
         )
         {
             const long size = nr()*nc();
@@ -1497,7 +1497,7 @@ namespace dlib
         }
 
         matrix& operator *= (
-            const T& a
+            const T a
         )
         {
             const long size = data.nr()*data.nc();
@@ -1507,7 +1507,7 @@ namespace dlib
         }
 
         matrix& operator /= (
-            const T& a
+            const T a
         )
         {
             const long size = data.nr()*data.nc();

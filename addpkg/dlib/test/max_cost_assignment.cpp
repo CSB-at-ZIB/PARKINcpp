@@ -98,7 +98,7 @@ namespace
                     "Runs tests on the max_cost_assignment function.")
         {}
 
-        dlib::rand::float_1a rnd;
+        dlib::rand rnd;
 
         template <typename T>
         void test_hungarian()
@@ -146,6 +146,7 @@ namespace
                 test_hungarian<short>();
                 test_hungarian<int>();
                 test_hungarian<long>();
+                test_hungarian<int64>();
             }
         }
     } a;

@@ -247,6 +247,19 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    const matrix_exp ones_matrix (
+        const matrix_exp& mat
+    );
+    /*!
+        requires
+            - mat.nr() > 0 && mat.nc() > 0
+        ensures
+            - Let T denote the type of element in mat. Then this function
+              returns uniform_matrix<T>(mat.nr(), mat.nc(), 1)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
     template <
         typename T
         >
@@ -263,6 +276,19 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    const matrix_exp zeros_matrix (
+        const matrix_exp& mat
+    );
+    /*!
+        requires
+            - mat.nr() > 0 && mat.nc() > 0
+        ensures
+            - Let T denote the type of element in mat. Then this function
+              returns uniform_matrix<T>(mat.nr(), mat.nc(), 0)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
     template <
         typename T
         >
@@ -275,6 +301,19 @@ namespace dlib
             - nr > 0 && nc > 0
         ensures
             - returns uniform_matrix<T>(nr, nc, 0)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
+    const matrix_exp identity_matrix (
+        const matrix_exp& mat
+    );
+    /*!
+        requires
+            - mat.nr() == mat.nc()
+        ensures
+            - returns an identity matrix with the same dimensions as mat and
+              containing the same type of elements as mat.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -398,6 +437,22 @@ namespace dlib
                 - M has the same dimensions as m
                 - for all valid r and c:
                   M(r,c) == m(m.nr()-r-1, c)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
+    const matrix_exp flip (
+        const matrix_exp& m
+    );
+    /*!
+        ensures
+            - flips the matrix m from up to down and left to right and returns the 
+              result.  I.e. returns flipud(fliplr(m)).
+            - returns a matrix M such that:
+                - M::type == the same type that was in m
+                - M has the same dimensions as m
+                - for all valid r and c:
+                  M(r,c) == m(m.nr()-r-1, m.nc()-c-1)
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -667,10 +722,11 @@ namespace dlib
         long NR,
         long NC,
         typename MM,
-        typename U
+        typename U,
+        typename L
         >
     void set_all_elements (
-        matrix<T,NR,NC,MM>& m,
+        matrix<T,NR,NC,MM,L>& m,
         U value
     );
     /*!
@@ -688,6 +744,36 @@ namespace dlib
         ensures
             - returns a temporary matrix object that is a copy of m. 
               (This allows you to easily force a matrix_exp to fully evaluate)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename T, 
+        long NR, 
+        long NC, 
+        typename MM, 
+        typename L
+        >
+    uint32 hash (
+        const matrix<T,NR,NC,MM,L>& item,
+        uint32 seed = 0
+    );
+    /*!
+        requires
+            - T is a standard layout type (e.g. a POD type like int, float, 
+              or a simple struct).
+        ensures
+            - returns a 32bit hash of the data stored in item.  
+            - Each value of seed results in a different hash function being used.  
+              (e.g. hash(item,0) should generally not be equal to hash(item,1))
+            - uses the murmur_hash3() routine to compute the actual hash.
+            - Note that if the memory layout of the elements in item change between
+              hardware platforms then hash() will give different outputs.  If you want
+              hash() to always give the same output for the same input then you must 
+              ensure that elements of item always have the same layout in memory.
+              Typically this means using fixed width types and performing byte swapping
+              to account for endianness before passing item to hash().
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -1308,7 +1394,9 @@ namespace dlib
         requires
             - m.size() > 0
         ensures
-            - returns the value of the smallest element of m
+            - returns the value of the smallest element of m.  If m contains complex
+              elements then the element returned is the one with the smallest norm
+              according to std::norm().
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -1320,7 +1408,9 @@ namespace dlib
         requires
             - m.size() > 0
         ensures
-            - returns the value of the biggest element of m
+            - returns the value of the biggest element of m.  If m contains complex
+              elements then the element returned is the one with the largest norm
+              according to std::norm().
     !*/
 
 // ----------------------------------------------------------------------------------------

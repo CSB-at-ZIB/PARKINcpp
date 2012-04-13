@@ -62,28 +62,93 @@ namespace dlib
                     - x_labels(i) == -1 or +1
     !*/
 
+    template <
+        typename sequence_type 
+        >
+    bool is_sequence_labeling_problem (
+        const std::vector<sequence_type>& samples,
+        const std::vector<std::vector<unsigned long> >& labels
+    );
+    /*!
+        ensures
+            - returns true if all of the following are true and false otherwise:
+                - is_learning_problem(samples, labels) == true
+                - for all valid i:
+                    - samples[i].size() == labels[i].size()
+                      (i.e. The size of a label sequence need to match the size of 
+                      its corresponding sample sequence)
+    !*/
+
+    template <
+        typename lhs_type, 
+        typename rhs_type
+        >
+    bool is_assignment_problem (
+        const std::vector<std::pair<std::vector<lhs_type>, std::vector<rhs_type> > >& samples,
+        const std::vector<std::vector<long> >& labels
+    );
+    /*!
+        ensures
+            - Note that an assignment problem is a task to associate each element of samples[i].first
+              to an element of samples[i].second, or to indicate that the element doesn't associate 
+              with anything.  Therefore, labels[i] should contain the association information for
+              samples[i].
+            - This function returns true if all of the following are true and false otherwise:
+                - is_learning_problem(samples, labels) == true
+                - for all valid i:
+                    - samples[i].first.size() == labels[i].size()
+                    - for all valid j:
+                        -1 <= labels[i][j] < samples[i].second.size()
+                        (A value of -1 indicates that samples[i].first[j] isn't associated with anything.
+                        All other values indicate the associating element of samples[i].second)
+                    - All elements of labels[i] which are not equal to -1 are unique.  That is,
+                      multiple elements of samples[i].first can't associate to the same element
+                      in samples[i].second.
+    !*/
+
+    template <
+        typename lhs_type, 
+        typename rhs_type
+        >
+    bool is_forced_assignment_problem (
+        const std::vector<std::pair<std::vector<lhs_type>, std::vector<rhs_type> > >& samples,
+        const std::vector<std::vector<long> >& labels
+    );
+    /*!
+        ensures
+            - A regular assignment problem is allowed to indicate that all elements of 
+              samples[i].first don't associate to anything.  However, a forced assignment
+              problem is required to always associate an element of samples[i].first to 
+              something in samples[i].second if there is an element of samples[i].second
+              that hasn't already been associated to something.  
+            - This function returns true if all of the following are true and false otherwise:
+                - is_assignment_problem(samples, labels) == true
+                - for all valid i:
+                    - let N denote the number of elements in labels[i] that are not equal to -1.
+                    - min(samples[i].first.size(), samples[i].second.size()) == N
+    !*/
+
 // ----------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------
 
     template <
         typename trainer_type,
-        typename sample_type,
-        typename scalar_type,
-        typename alloc_type1,
-        typename alloc_type2
+        typename sample_vector_type,
+        typename label_vector_type
         >
     const probabilistic_function<typename trainer_type::trained_function_type> 
     train_probabilistic_decision_function (
         const trainer_type& trainer,
-        const std::vector<sample_type,alloc_type1>& x,
-        const std::vector<scalar_type,alloc_type2>& y,
+        const sample_vector_type& x,
+        const label_vector_type& y,
         const long folds
     );
     /*!
         requires
             - 1 < folds <= x.size()
             - is_binary_classification_problem(x,y) == true
+            - x and y must be std::vector objects or types with a compatible interface.
             - trainer_type == some kind of batch trainer object (e.g. svm_nu_trainer)
         ensures
             - trains a classifier given the training samples in x and labels in y.  

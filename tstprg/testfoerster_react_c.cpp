@@ -167,6 +167,30 @@ int testfoerster_react_c()
                                                 // 40;
     */
 
+    /*
+       Current parameter values:
+    1    1     2.43078E-03  (k1)
+    2    2     2.41271E-02  (k2)
+    3    3     4.76789E-03  (k3)
+    4    4     5.97062E-04  (k4)
+    5   13     2.70480E-02  (k5)
+    6   14     4.40840E-03  (k6)
+    7   15     1.87729E-02  (k7)
+    8   16     7.44991E-03  (k8)
+    9    6     5.92983E+00  (b)
+    */
+
+    var[ "k_1" ] = 2.431e-3;
+    var[ "k_2" ] = 2.413e-2;
+    var[ "k_3" ] = 4.768e-3;
+    var[ "k_4" ] = 5.971e-4;
+    var[ "k_5" ] = 2.705e-2;
+    var[ "k_6" ] = 4.408e-3;
+    var[ "k_7" ] = 1.877e-2;
+    var[ "k_8" ] = 7.450e-3;
+    var[  "b"  ] = 5.9298;
+
+
     // std::string fname = "Foerster2_faser501_5ng.dat";
     // std::string fname = "Foerster2_faser501_10ng.dat";
     // std::string fname = "Foerster2_faser501_20ng.dat";

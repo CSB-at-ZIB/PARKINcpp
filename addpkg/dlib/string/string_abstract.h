@@ -115,6 +115,19 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    std::string pad_int_with_zeros (
+        int i,
+        unsigned long width = 6
+    );
+    /*!
+        ensures
+            - converts i into a string of at least width characters in length.  If
+              necessary, the string will be padded with leading zeros to get
+              to width characters.
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
     template <
         typename charT,
         typename traits,
@@ -528,7 +541,8 @@ namespace dlib
             - returns a vector V such that:
                 - V.size() == the number of substrings found in str.
                 - for all i: V[i] == The ith substring.  Note that it will not contain
-                  any delimiter characters (i.e. characters in delim). 
+                  any delimiter characters (i.e. characters in delim).  It will also
+                  never be an empty string.
                 - V contains the substrings in the order in which they appear in str.
                   That is, V[0] contains the first substring, V[1] the second, and
                   so on.

@@ -58,7 +58,7 @@ namespace
 
         sample_type m;
 
-        dlib::rand::float_1a rnd;
+        dlib::rand rnd;
 
         print_spinner();
         // we will make 50 points from each class
@@ -190,7 +190,9 @@ namespace
 
         print_spinner();
         std::vector<sample_type> samples;
+        std::vector<sample_type> samples2;
         std::vector<double> labels;
+        std::vector<double> labels2;
         // now we train our object on a few samples of the sinc function.
         sample_type m;
         for (double x = -10; x <= 5; x += 0.6)
@@ -199,7 +201,9 @@ namespace
             test.train(m, sinc(x));
 
             samples.push_back(m);
+            samples2.push_back(m);
             labels.push_back(sinc(x));
+            labels2.push_back(2);
         }
 
         print_spinner();
@@ -241,10 +245,25 @@ namespace
 
 
         randomize_samples(samples, labels);
-        dlog << LINFO << "KRR MSE: "<< cross_validate_regression_trainer(krr_test, samples, labels, 6);
-        dlog << LINFO << "SVR MSE: "<< cross_validate_regression_trainer(svr_test, samples, labels, 6);
-        DLIB_TEST(cross_validate_regression_trainer(krr_test, samples, labels, 6) < 1e-4);
-        DLIB_TEST(cross_validate_regression_trainer(svr_test, samples, labels, 6) < 1e-4);
+        dlog << LINFO << "KRR MSE and R-squared: "<< cross_validate_regression_trainer(krr_test, samples, labels, 6);
+        dlog << LINFO << "SVR MSE and R-squared: "<< cross_validate_regression_trainer(svr_test, samples, labels, 6);
+        matrix<double,1,2> cv = cross_validate_regression_trainer(krr_test, samples, labels, 6);
+        DLIB_TEST(cv(0) < 1e-4);
+        DLIB_TEST(cv(1) > 0.99);
+        cv = cross_validate_regression_trainer(svr_test, samples, labels, 6);
+        DLIB_TEST(cv(0) < 1e-4);
+        DLIB_TEST(cv(1) > 0.99);
+
+
+
+
+        randomize_samples(samples2, labels2);
+        dlog << LINFO << "KRR MSE and R-squared: "<< cross_validate_regression_trainer(krr_test, samples2, labels2, 6);
+        dlog << LINFO << "SVR MSE and R-squared: "<< cross_validate_regression_trainer(svr_test, samples2, labels2, 6);
+        cv = cross_validate_regression_trainer(krr_test, samples2, labels2, 6);
+        DLIB_TEST(cv(0) < 1e-4);
+        cv = cross_validate_regression_trainer(svr_test, samples2, labels2, 6);
+        DLIB_TEST(cv(0) < 1e-4);
 
         dlog << LINFO << "   end test_regression()";
     }
@@ -549,7 +568,7 @@ namespace
         offset_kernel<sigmoid_kernel<sample_type> > k5;
         offset_kernel<radial_basis_kernel<sample_type> > k6;
 
-        dlib::rand::float_1a rnd;
+        dlib::rand rnd;
 
         sample_type x, y;
         for (int i = 0; i < 10; ++i)
@@ -563,6 +582,55 @@ namespace
             test_kernel_derivative(k5, x, y);
             test_kernel_derivative(k6, x, y);
         }
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    void test_svm_trainer2()
+    {
+        typedef matrix<double, 2, 1> sample_type;
+        typedef linear_kernel<sample_type> kernel_type;
+
+
+        std::vector<sample_type> samples;
+        std::vector<double> labels;
+
+        sample_type samp;
+        samp(0) = 1;
+        samp(1) = 1;
+        samples.push_back(samp);
+        labels.push_back(+1);
+
+        samp(0) = 1;
+        samp(1) = 2;
+        samples.push_back(samp);
+        labels.push_back(-1);
+
+        svm_c_trainer<kernel_type> trainer;
+
+        decision_function<kernel_type> df = trainer.train(samples, labels);
+
+        samp(0) = 1;
+        samp(1) = 1;
+        dlog << LINFO << "test +1 : "<< df(samp);
+        DLIB_TEST(df(samp) > 0);
+        samp(0) = 1;
+        samp(1) = 2;
+        dlog << LINFO << "test -1 : "<< df(samp);
+        DLIB_TEST(df(samp) < 0);
+
+        svm_nu_trainer<kernel_type> trainer2;
+        df = trainer2.train(samples, labels);
+
+        samp(0) = 1;
+        samp(1) = 1;
+        dlog << LINFO << "test +1 : "<< df(samp);
+        DLIB_TEST(df(samp) > 0);
+        samp(0) = 1;
+        samp(1) = 2;
+        dlog << LINFO << "test -1 : "<< df(samp);
+        DLIB_TEST(df(samp) < 0);
+
     }
 
 // ----------------------------------------------------------------------------------------
@@ -584,6 +652,7 @@ namespace
             test_clutering();
             test_regression();
             test_anomaly_detection();
+            test_svm_trainer2();
         }
     } a;
 

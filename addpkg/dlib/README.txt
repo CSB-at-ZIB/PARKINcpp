@@ -36,6 +36,6 @@ The license for this library can be found in LICENSE.txt.  But the
 long and short of the license is that you can use this code however
 you like, even in closed source commercial software.
 
-Version: 17.37
-Date:    Thu Mar 24 19:44:37 EDT 2011
-Subversion Revision Number: 4204
+Version: 17.46
+Date:    Wed Apr 11 18:51:44 EDT 2012
+Mercurial Revision ID: cfbd4102b1ee

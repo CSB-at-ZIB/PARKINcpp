@@ -36,6 +36,7 @@ namespace dlib
 
     public:
         typedef pixel_type type;
+        typedef default_memory_manager mem_manager_type;
 
         cv_image (
             const IplImage* img
@@ -141,6 +142,14 @@ namespace dlib
                 - returns #*this
         !*/
 
+        long width_step (
+        ) const;
+        /*!
+            ensures
+                - returns the size of one row of the image, in bytes.  
+                  More precisely, return a number N such that:
+                  (char*)&item[0][0] + N == (char*)&item[1][0].
+        !*/
     };
 
 

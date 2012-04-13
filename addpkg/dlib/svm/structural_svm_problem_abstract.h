@@ -13,19 +13,19 @@ namespace dlib
 // ----------------------------------------------------------------------------------------
 
     template <
-        typename matrix_type,
-        typename feature_vector_type_ 
+        typename matrix_type_,
+        typename feature_vector_type_ = matrix_type_
         >
-    class structural_svm_problem : public oca_problem<matrix_type> 
+    class structural_svm_problem : public oca_problem<matrix_type_> 
     {
     public:
         /*!
-            REQUIREMENTS ON matrix_type
-                - matrix_type == a dlib::matrix capable of storing column vectors
+            REQUIREMENTS ON matrix_type_
+                - matrix_type_ == a dlib::matrix capable of storing column vectors
 
             REQUIREMENTS ON feature_vector_type_ 
                 - feature_vector_type_ == a dlib::matrix capable of storing column vectors
-                  or a sparse vector type as defined in dlib/svm/sparse_vector_abstract.h.
+                  or an unsorted sparse vector type as defined in dlib/svm/sparse_vector_abstract.h.
 
             INITIAL VALUE
                 - get_epsilon() == 0.001
@@ -51,7 +51,8 @@ namespace dlib
                     - let PSI(x,y)    == the joint feature vector for input x and a label y.
                     - let F(x,y|w)    == dot(w,PSI(x,y)).  
                     - let LOSS(idx,y) == the loss incurred for predicting that the ith-th training 
-                      sample has a label of y.  
+                      sample has a label of y.  Note that LOSS() should always be >= 0 and should
+                      become exactly 0 when y is the correct label for the idx-th sample.
                     - let x_i == the i-th training sample.
                     - let y_i == the correct label for the i-th training sample.
                     - The number of data samples is N.
@@ -63,17 +64,24 @@ namespace dlib
                     and sample_risk(i,w) == max over all Y: LOSS(i,Y) + F(x_i,Y|w) - F(x_i,y_i|w)
                     and C > 0
 
+                
 
-                For further information you should consult the following paper: 
+                For an introduction to structured support vector machines you should consult 
+                the following paper: 
+                    Predicting Structured Objects with Support Vector Machines by 
+                    By Thorsten Joachims, Thomas Hofmann, Yisong Yue, and Chun-nam Yu
+
+                For a more detailed discussion of the particular algorithm implemented by this
+                object see the following paper:  
                     T. Joachims, T. Finley, Chun-Nam Yu, Cutting-Plane Training of Structural SVMs, 
                     Machine Learning, 77(1):27-59, 2009.
 
                     Note that this object is essentially a tool for solving the 1-Slack structural
                     SVM with margin-rescaling.  Specifically, see Algorithm 3 in the above referenced 
                     paper.
-
         !*/
 
+        typedef matrix_type_ matrix_type;
         typedef typename matrix_type::type scalar_type;
         typedef feature_vector_type_ feature_vector_type;
 
@@ -100,7 +108,13 @@ namespace dlib
             ensures
                 - returns the error epsilon that determines when training should stop.
                   Smaller values may result in a more accurate solution but take longer 
-                  to execute.
+                  to execute.  Specifically, the algorithm stops when the average sample
+                  risk (i.e. R(w) as defined above) is within epsilon of its optimal value.
+
+                  Also note that sample risk is an upper bound on a sample's loss.  So
+                  you can think of this epsilon value as saying "solve the optimization
+                  problem until the average loss per sample is within epsilon of it's 
+                  optimal value".
         !*/
 
         void set_max_cache_size (
@@ -205,7 +219,8 @@ namespace dlib
                     - let PSI(X,y)    == the joint feature vector for input X and an arbitrary label y.
                     - let F(X,y)      == dot(current_solution,PSI(X,y)).  
                     - let LOSS(idx,y) == the loss incurred for predicting that the ith-th sample
-                      has a label of y.  
+                      has a label of y.  Note that LOSS() should always be >= 0 and should
+                      become exactly 0 when y is the correct label for the idx-th sample.
 
                         Then the separation oracle finds a Y such that: 
                             Y = argmax over all y: LOSS(idx,y) + F(X,y) 

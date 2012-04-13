@@ -50,6 +50,12 @@ namespace dlib
 
                 Also note that unless specified otherwise, no member functions
                 of this object throw exceptions.
+
+
+                Finally, note that this object stores each row of data contiguously 
+                in memory, and the overall layout is in row major order.  However,
+                there might be padding at the end of each row.  To determine the
+                offset from one row to another you can use width_step(). 
         !*/
 
 
@@ -114,6 +120,23 @@ namespace dlib
         /*!
             ensures 
                 - #*this is properly initialized
+            throws
+                - std::bad_alloc 
+        !*/
+
+        array2d (
+            long rows,
+            long cols 
+        );
+        /*!
+            requires
+                - cols > 0 && rows > 0 or
+                  cols == 0 && rows == 0
+            ensures
+                - #nc() == cols
+                - #nr() == rows
+                - #at_start() == true
+                - all elements in this array have initial values for their type
             throws
                 - std::bad_alloc 
         !*/
@@ -199,6 +222,15 @@ namespace dlib
                 - swaps *this and item
         !*/ 
 
+        long width_step (
+        ) const;
+        /*!
+            ensures
+                - returns the size of one row of the image, in bytes.  
+                  More precisely, return a number N such that:
+                  (char*)&item[0][0] + N == (char*)&item[1][0].
+        !*/
+
     private:
 
         // restricted functions
@@ -208,21 +240,23 @@ namespace dlib
     };
 
     template <
-        typename T
+        typename T,
+        typename mem_manager
         >
     inline void swap (
-        array2d<T>& a, 
-        array2d<T>& b 
+        array2d<T,mem_manager>& a, 
+        array2d<T,mem_manager>& b 
     ) { a.swap(b); }   
     /*!
         provides a global swap function
     !*/
 
     template <
-        typename T
+        typename T,
+        typename mem_manager
         >
     void serialize (
-        const array2d<T>& item, 
+        const array2d<T,mem_manager>& item, 
         std::ostream& out 
     );   
     /*!
@@ -230,10 +264,11 @@ namespace dlib
     !*/
 
     template <
-        typename T 
+        typename T,
+        typename mem_manager
         >
     void deserialize (
-        array2d<T>& item, 
+        array2d<T,mem_manager>& item, 
         std::istream& in
     );   
     /*!
