@@ -370,6 +370,12 @@ BioSystem::getMeasurementList()
     return _measData;
 }
 //---------------------------------------------------------------------------
+BioSystem::MeasurementList const&
+BioSystem::getSimTrajectoryList()
+{
+    return _synData;
+}
+//---------------------------------------------------------------------------
 void
 BioSystem::setMeasurementList(
                                 Vector const& tp,

@@ -152,6 +152,9 @@ namespace PARKIN
             MeasurementList const&
             getMeasurementList();
 
+            MeasurementList const&
+            getSimTrajectoryList();
+
             // void
             // setMeasurementList(ODESolver::Grid const& tp, MeasurementList const& meas);
 
