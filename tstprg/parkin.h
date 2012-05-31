@@ -17,6 +17,8 @@
 #include <system/Expression.h>
 #include <system/BioSystem.h>
 
+#include <system/BioProcessor.h>
+
 #include <nonlin/GaussNewton.h>
 
 #endif // __PARKIN_H

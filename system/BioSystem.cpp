@@ -208,7 +208,7 @@ BioSystem::getLinftyModel()
 }
 //---------------------------------------------------------------------------
 BioSystem::Species
-BioSystem::getSpecies()
+BioSystem::getSpecies() const
 {
     BioSystem::Species ret;
     BioSystem::Species species = _ode.getSpecies();
@@ -238,7 +238,7 @@ BioSystem::resetSpecies(Species const& species)
 }
 //---------------------------------------------------------------------------
 BioSystem::Parameter
-BioSystem::getParameters()
+BioSystem::getParameters() const
 {
     BioSystem::Parameter ret;
     BioSystem::Parameter param = _ode.getParameters();
@@ -270,7 +270,7 @@ BioSystem::setParameters(Parameter const& parameter)
 }
 //---------------------------------------------------------------------------
 Vector
-BioSystem::getBreakpoints()
+BioSystem::getBreakpoints() const
 {
     return Vector( _tInterval );
 }
@@ -438,7 +438,7 @@ BioSystem::setEmptyMeasurementList()
 }
 //---------------------------------------------------------------------------
 Vector
-BioSystem::getMeasurements()
+BioSystem::getMeasurements() const
 {
     long                T = _tpMeas.size();
     std::vector<Real>   meas;
@@ -447,14 +447,16 @@ BioSystem::getMeasurements()
 
     for (long tp = 0; tp < T; ++tp)
     {
-        MeasIterConst mBeg = _measData[tp].begin();
-        MeasIterConst mEnd = _measData[tp].end();
+        MeasurementPoint    mp = _measData[tp];
+
+        MeasIterConst       mBeg = mp.begin();
+        MeasIterConst       mEnd = mp.end();
 
         for (MeasIterConst it = mBeg; it != mEnd; ++it)
         {
             std::string spec = it->first;
 
-            meas.push_back( ( _measData[tp][spec] ).first );
+            meas.push_back( ( mp[spec] ).first );
         }
     }
 
@@ -462,7 +464,7 @@ BioSystem::getMeasurements()
 }
 //---------------------------------------------------------------------------
 Vector
-BioSystem::getMeasurementWeights()
+BioSystem::getMeasurementWeights() const
 {
     long                T = _tpMeas.size();
     std::vector<Real>   weights;
@@ -471,14 +473,16 @@ BioSystem::getMeasurementWeights()
 
     for (long tp = 0; tp < T; ++tp)
     {
-        MeasIterConst mBeg = _measData[tp].begin();
-        MeasIterConst mEnd = _measData[tp].end();
+        MeasurementPoint    mp = _measData[tp];
+
+        MeasIterConst       mBeg = mp.begin();
+        MeasIterConst       mEnd = mp.end();
 
         for (MeasIterConst it = mBeg; it != mEnd; ++it)
         {
             std::string spec = it->first;
 
-            weights.push_back( ( _measData[tp][spec] ).second );
+            weights.push_back( ( mp[spec] ).second );
         }
     }
 
@@ -501,13 +505,13 @@ BioSystem::setMeasurementTimePoints(Vector const& tp)
 }
 //---------------------------------------------------------------------------
 Vector
-BioSystem::getMeasurementTimePoints()
+BioSystem::getMeasurementTimePoints() const
 {
     return Vector( _tpMeas );
 }
 //---------------------------------------------------------------------------
 Vector //ODESolver::Grid&
-BioSystem::getOdeTrajectoryTimePoints()
+BioSystem::getOdeTrajectoryTimePoints() const
 {
     //$$$ return Vector( dynamic_cast<DOP853*>(_odeSystem)->getSolutionGridPoints() );
     return Vector( dynamic_cast<LIMEX_A*>(_odeSystem)->getSolutionGridPoints() );
@@ -584,14 +588,14 @@ BioSystem::getEvaluationTrajectories()
 }
 //---------------------------------------------------------------------------
 ODESolver::Trajectory const&
-BioSystem::getOdeTrajectory()
+BioSystem::getOdeTrajectory() const
 {
     //$$$ return dynamic_cast<DOP853*>(_odeSystem)->getSolutionTrajectory();
     return dynamic_cast<LIMEX_A*>(_odeSystem)->getSolutionTrajectory();
 }
 //---------------------------------------------------------------------------
 Vector
-BioSystem::getOdeTrajectory(long j)
+BioSystem::getOdeTrajectory(long j) const
 {
     //$$$ ODESolver::Trajectory& tra = dynamic_cast<DOP853*>(_odeSystem) ->
     //$$$                                                getSolutionTrajectory();

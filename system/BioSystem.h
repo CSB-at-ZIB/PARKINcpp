@@ -86,7 +86,7 @@ namespace PARKIN
             //
 
             Species
-            getSpecies();
+            getSpecies() const;
 
             void
             resetSpecies(Species const& species);   // Species serve also as index
@@ -95,7 +95,7 @@ namespace PARKIN
             //
 
             Parameter
-            getParameters();
+            getParameters() const;
 
             void
             setParameters(Parameter const& parameter);
@@ -103,7 +103,7 @@ namespace PARKIN
             //
 
             Vector
-            getBreakpoints();
+            getBreakpoints() const;
 
             void
             setBreakpoints(Vector const& tInterval);
@@ -125,15 +125,15 @@ namespace PARKIN
             //
 
             ExpressionMap const&
-            getVarExpr()
+            getVarExpr() const
             { return _ode.getdRHS(); }
             //
             ExpressionMap const&
-            getODEExpr()
+            getODEExpr() const
             { return _ode.getRHS(); }
 
             ExprTypeMap const&
-            getODETypes()
+            getODETypes() const
             { return _ode.getRHSType(); }
 
             //
@@ -168,10 +168,10 @@ namespace PARKIN
             setEmptyMeasurementList();
 
             Vector
-            getMeasurements();
+            getMeasurements() const;
 
             Vector
-            getMeasurementWeights();
+            getMeasurementWeights() const;
 
             //
 
@@ -182,10 +182,10 @@ namespace PARKIN
             setMeasurementTimePoints(Vector const& tp);
 
             Vector
-            getMeasurementTimePoints();
+            getMeasurementTimePoints() const;
 
             Vector  // ODESolver::Grid&
-            getOdeTrajectoryTimePoints();
+            getOdeTrajectoryTimePoints() const;
 
             //
 
@@ -218,10 +218,10 @@ namespace PARKIN
             getEvaluationTrajectories();
 
             ODESolver::Trajectory const&
-            getOdeTrajectory();
+            getOdeTrajectory() const;
 
             Vector
-            getOdeTrajectory(long j);
+            getOdeTrajectory(long j) const;
 
             //
 
