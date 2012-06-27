@@ -823,6 +823,10 @@ BioProcessor::computeParameterScales()
 
     parScale.clear();
     k = 1;
+    if ( itrans.nr() < 1 )
+    {
+        itrans.zeros( _optPar.size() );
+    }
 
     for (Expression::ParamIterConst itPar = pBeg;
                                     itPar != pEnd; ++itPar)

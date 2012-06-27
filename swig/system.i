@@ -6,6 +6,8 @@
 //
 %module system
 
+%implicitconv PARKIN::Expression;
+
 %{
 #include <common/Types.h>
 #include <system/Expression.h>
