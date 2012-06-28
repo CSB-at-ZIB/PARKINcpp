@@ -12,8 +12,8 @@ namespace PARKIN
     {
         public:
             virtual ~FCN() { }
-            virtual Vector fcn(Vector const& x, unsigned& ifail);
-            virtual Matrix jac(Vector const& x, unsigned& ifail);
+            virtual Vector fcn(Vector const& x, int& ifail);
+            virtual Matrix jac(Vector const& x, int& ifail);
             Vector  init(Vector& x);
         private:
             Vector _observation;
@@ -21,7 +21,7 @@ namespace PARKIN
 
     // ----------------------------------------------------------------------
 
-    Vector FCN::fcn(Vector const& x, unsigned& ifail)
+    Vector FCN::fcn(Vector const& x, int& ifail)
     {
         Vector  r;
         Real    h;
@@ -42,7 +42,7 @@ namespace PARKIN
 
     // ----------------------------------------------------------------------
 
-    Matrix FCN::jac(Vector const& x, unsigned& ifail)
+    Matrix FCN::jac(Vector const& x, int& ifail)
     {
         Matrix  J;
         Real    h, exph, hexph;
@@ -81,11 +81,13 @@ namespace PARKIN
         x0(1)   = 1.0;   x0(2)   = 2.0;  x0(3)   = 5.0;
         xsol(1) = 100.0; xsol(2) = 10.0; xsol(3) = 10.0;
 
-        fit.zeros(11);
+        fit.zeros(12);
 
-        for (long k = 1; k <= 11; ++k)
+        fit(1) = xsol(1) - xsol(2)*xsol(2) - xsol(3)*xsol(3) + 100.0;
+
+        for (long k = 2; k <= 12; ++k)
         {
-            h      = ( 2.0*(k - 1.0) - xsol(3) ) / xsol(2);
+            h      = ( 2.0*(k - 2.0) - xsol(3) ) / xsol(2);
             fit(k) = xsol(1)*exp( -0.5*h*h ) + sin(10.0*k)*1.0e-2;
         }
 
@@ -105,13 +107,13 @@ int testnonlin()
     Real            rtol = 1.0e-4;
     GaussNewton     gn;
     FCN             problem;
-    IOpt            iopt;
-    GaussNewtonWk   wk;
+    IOpt            iopt = gn.getIOpt();
+    GaussNewtonWk   wk = gn.getWk();
     Vector          x, xscal, fobs, fscal;
-    unsigned        ifail, m;
+    int             ifail, m;
 
     iopt.mode      = 1;         // single step
-    iopt.jacgen    = 1;         // use Jacobian in FCN
+    iopt.jacgen    = 3; // 1;         // use Jacobian in FCN
     iopt.qrank1    = false;     // no Broyden-rank1 updates
     iopt.nonlin    = 3;         // highly nonlinear problem
     iopt.norowscal = false;     // automatic row scaling ON
@@ -119,18 +121,23 @@ int testnonlin()
 
     fobs = problem.init(x);
     std::cout << "\n\nSimulated experimental data:\n" << fobs << std::endl;
+    std::cout << "\nInitial guess: x_0 = " << x.t() << std::endl;
     xscal.zeros(x.nr());
     fscal.zeros(fobs.nr());
     m = problem.fcn(x,ifail).nr();
 
     gn.setProblem(&problem);
-    gn.initialise(m,x,xscal,fobs,fscal,rtol,iopt,wk);
+    gn.initialise((unsigned)m,x,xscal,fobs,fscal,rtol,iopt,wk);
 
     int ierr = -1;
     while ( ierr == -1 )
     {
         ierr = gn.run();
-        std::cout << "One Gauß-Newton step." << std::endl;
+        if ( ierr == -1 )
+        {
+            x = gn.getSolution();
+            std::cout << "\nOne Gauß-Newton step: x_iter = " << x.t() << std::endl;
+        }
     }
 
     gn.analyse();
