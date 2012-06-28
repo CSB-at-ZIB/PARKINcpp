@@ -6,6 +6,8 @@
 //
 %module system
 
+%implicitconv PARKIN::Expression;
+
 %{
 #include <common/Types.h>
 #include <system/Expression.h>
@@ -40,7 +42,7 @@
 %include nonlin.i
 %include odelib.i
 
-
+//%ignore PARKIN::Expression::Param;
 %ignore PARKIN::Expression::operator=;
 %ignore PARKIN::BioRHS::operator=;
 %ignore PARKIN::operator<<;

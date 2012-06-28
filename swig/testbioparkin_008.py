@@ -318,30 +318,31 @@ print meastp.t()
 biosys.setSolverRTol(1.0e-7)
 biosys.setSolverATol(1.0e-9)
 
-## compute trajectories of model (i.e. model values) for a specific set of variables / parameters
-#
-#biosys.computeModel(parValues,"init")
-#
-## extract and print out the computed solution vectors
-#tp = biosys.getOdeTrajectoryTimePoints()
-#print "t =\n%s" % tp.t()
-#
-#for i in xrange(len(speciesIDs)):
-##for i in xrange(2):
-#    speciesTrajectory = biosys.getOdeTrajectory(i)
-#    print("%s =\n%s" % (speciesIDs[i],speciesTrajectory.t()))
+# compute trajectories of model (i.e. model values) for a specific set of variables / parameters
+
+biosys.computeModel(parValues) # ,"adaptive")
+
+# extract and print out the computed solution vectors
+tp = biosys.getOdeTrajectoryTimePoints()
+print "t =\n%s" % tp.t()
+
+for i in xrange(len(speciesIDs)):
+#for i in xrange(2):
+    speciesTrajectory = biosys.getOdeTrajectory(i)
+    print("%s =\n%s" % (speciesIDs[i],speciesTrajectory.t()))
 
 
 ## from here start sensitivity computation
 #
-iopt = IOpt()
+proc = BioProcessor( biosys, "nlscon" )
+iopt = proc.getIOpt()
 
 iopt.mode      = 0       # 0: normal run, 1: single step
 iopt.jacgen    = jacgen  # 1: user supplied Jacobian, 2: num.diff., 3: num.diff.(with feedback)
 iopt.qrank1    = False   # allow Broyden rank-1 updates if True
 iopt.nonlin    = 3       # 1: linear, 2: mildly nonlin., 3: highly nonlin., 4: extremely nonlin.
 iopt.norowscal = False   # allow for automatic row scaling of Jacobian if False
-iopt.lpos      = False
+iopt.transf    = 0
 iopt.itmax     = 45
 iopt.mprmon    = 2
 iopt.mprerr    = 1
@@ -352,7 +353,7 @@ iopt.mprerr    = 1
 for paramID in paramIDs:
     parThres[paramID] = EPMACH
 
-proc = BioProcessor( biosys, "nlscon" )
+#proc = BioProcessor( biosys, "nlscon" )
 proc.setIOpt( iopt )
 proc.setCurrentParamValues( parValues )
 

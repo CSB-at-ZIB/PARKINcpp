@@ -41,6 +41,9 @@ namespace PARKIN
             //
 
             void
+            setEvalMode(bool zerodat);
+
+            void
             setCurrentParameter(BioSystem::Parameter const& param);
 
             BioSystem::Parameter const&
@@ -71,7 +74,6 @@ namespace PARKIN
 
         private:
 
-
             BioSystem*              _bioSystem;
             BioSystem::Parameter    _parameter;
             Expression::Param       _optPar;
@@ -79,6 +81,9 @@ namespace PARKIN
             // PTrafo                  _pTrafo;
             // PTrafo                  _dpTrafo;
             // InvPTrafo               _invPTrafo;
+            bool                    _zerodat;
+            Vector                  _absRes;
+            Vector                  _relRes;
     };
 
     ///

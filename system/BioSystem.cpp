@@ -172,7 +172,7 @@ BioSystem::~BioSystem()
 ////---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 Real
-BioSystem::getSolverRTol()
+BioSystem::getSolverRTol() const
 {
     return _odeSystem -> getRTol();
 }
@@ -181,6 +181,12 @@ void
 BioSystem::setSolverRTol(Real tol)
 {
     _odeSystem -> setRTol(tol);
+}
+//---------------------------------------------------------------------------
+Real
+BioSystem::getSolverATol() const
+{
+    return _odeSystem -> getATol();
 }
 //---------------------------------------------------------------------------
 void

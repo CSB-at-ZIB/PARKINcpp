@@ -743,7 +743,7 @@ LIMEX_A::setODESystem(
     _jac = jac;
     _t0  = t0;
     _T   = tEnd;
-    _h   = _rtol; // 0.0;
+    _h   = _rtol; // 1.0e-06; // 0.0;
 
     _datPoints = refGrid;
     std::sort( _datPoints.begin(), _datPoints.end() );

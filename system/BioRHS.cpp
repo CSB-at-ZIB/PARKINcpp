@@ -456,13 +456,14 @@ Vector
 BioRHS::f(Expression::Param& par,
           long n, double* dy)
 {
+    Vector         dz; // ( _species.size() );
     StrIterConst   sBeg = _species.begin();
     StrIterConst   sEnd = _species.end();
 
     if ( n == 0 )
     {
-        long   j = 0;
-        Vector dz( _species.size() );
+        long j = 0;
+        dz.zeros( _species.size() );
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
@@ -479,13 +480,14 @@ BioRHS::f(Expression::Param& par,
         *(dy++) = _rhs[*it].eval(par);
     }
 
-    return Vector();
+    return dz;
 }
 //----------------------------------------------------------------------------
 Vector
 BioRHS::f(double* y,
           long n, double* dy)
 {
+    Vector         dz; // ( _species.size() );
     StrIterConst   sBeg = _species.begin();
     StrIterConst   sEnd = _species.end();
 
@@ -494,7 +496,7 @@ BioRHS::f(double* y,
     if ( n == 0 )
     {
         long   j = 0;
-        Vector dz( _species.size() );
+        dz.zeros( _species.size() );
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
@@ -511,18 +513,20 @@ BioRHS::f(double* y,
         *dy++ = _rhs[*it].eval( _data_table );
     }
 
-    return Vector();
+    return dz;
 }
 //----------------------------------------------------------------------------
 Matrix
 BioRHS::Jf(Expression::Param& par,
            long n, double* J, long ldJ)
 {
+    Matrix Fz; // (n,n);
+
     if ( n == 0 )
     {
         // long
         n = _species.size();
-        Matrix  Fz( n, n );
+        Fz.zeros( n, n );
 
         for (long j = 1; j <= n; ++j)
         {
@@ -549,7 +553,7 @@ BioRHS::Jf(Expression::Param& par,
         }
     }
 
-    return Matrix();
+    return Fz;
 }
 //----------------------------------------------------------------------------
 Matrix
@@ -599,6 +603,7 @@ Matrix
 BioRHS::df(Expression::Param const& var, double* Zp, double* y,
            long n, long q, double* dZ)
 {
+    Matrix DummyMat;
     // Matrix              Fz( n, n );
     // Matrix              Fp( n, q );
 
@@ -606,7 +611,7 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
          (q > (long) var.size())
        )
     {
-       return Matrix();
+       return DummyMat;
     }
 
 
@@ -677,6 +682,6 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
     delete[] FzSave;
 
 
-    return  Matrix();
+    return  DummyMat;
 }
 //----------------------------------------------------------------------------

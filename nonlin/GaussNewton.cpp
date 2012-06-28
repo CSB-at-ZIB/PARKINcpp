@@ -514,9 +514,10 @@ GaussNewton::initialise(
     _wk.fcstart = _fc;
 
     // Initial rank
-    _irank = _wk.irank;
+    _irank = wk.irank;
     minmn = std::min(_m,_n);
-    if ( (_irank <= 0) || _irank > minmn ) _wk.irank = minmn;
+    if ( (_irank <= 0) || _irank > minmn ) _irank = minmn;
+    _wk.irank = _irank;
 
     // Maximum permitted subcondition number of Jacobian A
     _cond = wk.cond;
@@ -1419,7 +1420,7 @@ GaussNewton::run()
                 _dxq = _dxqa;
 
                 printl( _lumon, dlib::LVERB,
-                        "    %2d %38s %7.5f     %2d   %4d\n",
+                        "  %4d %38s %7.5f     %2d   %4d\n",
                         _niter, "not accepted damping factor:", _fc, _new, _irank
                      );
 

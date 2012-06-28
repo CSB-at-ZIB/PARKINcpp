@@ -121,20 +121,21 @@ par1Thres = Param()
 # par1Thres["compartment"] = EPMACH
 par1Thres["k1"] = EPMACH
 
-iopt = IOpt()
+proc = BioProcessor( invbiosys, "nlscon" )
+iopt = proc.getIOpt()
 
 iopt.mode      = 0      # 0: normal run, 1: single step
 iopt.jacgen    = 3      # 1: user supplied Jacobian, 2: num.diff., 3: num.diff.(with feedback)
 iopt.qrank1    = False  # allow Broyden rank-1 updates if True
 iopt.nonlin    = 3      # 1: linear, 2: mildly nonlin., 3: highly nonlin., 4: extremely nonlin.
 iopt.norowscal = False  # allow for automatic row scaling of Jacobian if False
-iopt.lpos      = False
+iopt.transf    = 0
 iopt.itmax     = 45
 iopt.mprmon    = 2
 iopt.mprerr    = 1
 
 
-proc = BioProcessor( invbiosys, "nlscon" )
+# proc = BioProcessor( invbiosys, "nlscon" )
 proc.setIOpt( iopt )
 proc.setCurrentParamValues( par1 )
 proc.setCurrentParamThres( par1Thres )
@@ -148,26 +149,26 @@ for species in speThres.keys():
 proc.setCurrentSpeciesThres( speThres );
 
 
-## ... and identify!
-#proc.identifyParameters(xtol)
-#
-##sys.exit()
-#
-#final = proc.getIdentificationResults()
-#print
-#print "Inv.Prob. solution:"
-#print "-------------------"
-#for parm in final.keys():
-#    var[parm] = final[parm]
-#    print "%10s = %e" % ( parm, final[parm] )
-#print
-#
-#
-#print
-#print "Final Solution (for all system parameters)"
-#print "------------------------------------------"
-#print "%25s:  %f" % ( parameter[0], var[parameter[0]] )
-#print "%25s:  %f" % ( parameter[1], var[parameter[1]] )
+# ... and identify!
+proc.identifyParameters(xtol)
+
+#sys.exit()
+
+final = proc.getIdentificationResults()
+print
+print "Inv.Prob. solution:"
+print "-------------------"
+for parm in final.keys():
+    var[parm] = final[parm]
+    print "%10s = %e" % ( parm, final[parm] )
+print
+
+
+print
+print "Final Solution (for all system parameters)"
+print "------------------------------------------"
+print "%25s:  %f" % ( parameter[0], var[parameter[0]] )
+print "%25s:  %f" % ( parameter[1], var[parameter[1]] )
 
 
 ## from here start sensitivity computation
@@ -187,6 +188,7 @@ timepoints = [ 5.56, 10.5 ]
 tsttp = Vector( ValueList(timepoints) )
 #tsttp.zeros(1)
 #tsttp[0] = 10.5
+#print "tsttp.nr() = %d" % (tsttp.nr())
 
 print
 print

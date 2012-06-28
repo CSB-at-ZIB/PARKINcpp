@@ -407,8 +407,8 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
     int                 ifail;
     Expression::Param   parScale = computeParameterScales();
     Expression::Param   speScale;  //  = computeSpeciesScales();
-    unsigned            mcon = 0;
-    unsigned            irankMax = 0;
+    unsigned           mcon = 0;
+    unsigned           irankMax = 0;
     Real                condMax = 1.0/( _biosys->getSolverRTol() );
     long                T = tp.nr();
     long                m = _curSpecies.size();
@@ -430,7 +430,8 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
 //std::cerr << "        q = " << q << std::endl;
 //std::cerr << "        T = " << T << std::endl;
 //std::cerr << "   jacgen = " << jacgen << std::endl;
-//std::cerr << "     lpos = " << ((lpos == true) ? "true" : "false") << std::endl;
+////std::cerr << "     lpos = " << ((lpos == true) ? "true" : "false") << std::endl;
+//std::cerr << "   transf = " << transf << std::endl;
 
     for (long l = 1; l <= q; ++l)
     {
@@ -685,6 +686,25 @@ BioProcessor::identifyParameters(Real xtol)
     fobs = _biosys->getMeasurements();
     fscal = _biosys->getMeasurementWeights();
 
+    m = fobs.nr();
+
+    if ( _iopt.zerodat == true )
+    {
+        fobs.zeros(m);
+        fscal.ones(m);
+    }
+
+/*
+std::cerr << std::endl;
+std::cerr << "***" << std::endl;
+std::cerr << "*** BioProcessor::identifyParameters():" << std::endl;
+std::cerr << "***" << std::endl;
+std::cerr << "  fobs.t() = " << std::endl;
+std::cerr << fobs.t() << std::endl;
+std::cerr << "  fscal.t() = " << std::endl;
+std::cerr << fscal.t() << std::endl;
+*/
+
     j = 1;
     pname.clear();
     x.zeros( _optPar.size() );
@@ -714,10 +734,9 @@ BioProcessor::identifyParameters(Real xtol)
     }
     */
 
-    m = fobs.nr();
-
     // _biopar = BioPAR( _biosys, pname );
     _biopar.setCurrentParameter( pname );
+    _biopar.setEvalMode( _iopt.zerodat );
 
 
     if ( _method == "parkin" )
@@ -823,6 +842,10 @@ BioProcessor::computeParameterScales()
 
     parScale.clear();
     k = 1;
+    if ( itrans.nr() < 1 )
+    {
+        itrans.zeros( _optPar.size() );
+    }
 
     for (Expression::ParamIterConst itPar = pBeg;
                                     itPar != pEnd; ++itPar)

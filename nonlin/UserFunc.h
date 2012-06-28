@@ -35,6 +35,7 @@ namespace PARKIN
         int       transf;
         Vector    itrans;
         bool      lpos, norowscal, qrank1, qstat;
+        bool      zerodat;
 
         //          _mprmon =   0      1      2      3      4       5       6
         //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE
@@ -45,7 +46,8 @@ namespace PARKIN
             nonlin(0), rscal(0), itmax(50),
             mprerr(1), mprmon(0), mprsol(0), mprtim(0),
             transf(0), itrans(),
-            lpos(false), norowscal(false), qrank1(false), qstat(false)
+            lpos(false), norowscal(false), qrank1(false), qstat(false),
+            zerodat(false)
         { }
     };
 

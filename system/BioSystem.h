@@ -62,10 +62,13 @@ namespace PARKIN
             ///
 
             Real
-            getSolverRTol();
+            getSolverRTol() const;
 
             void
             setSolverRTol(Real tol);
+
+            Real
+            getSolverATol() const;
 
             void
             setSolverATol(Real tol);
