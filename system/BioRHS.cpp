@@ -55,7 +55,8 @@ BioRHS::BioRHS(ExpressionMap const& emap) :
     StrIterConst sEnd = _species.end();
     for (EMapIterConst it = eBeg; it != eEnd; ++it)
     {
-        long       a = 0;
+        // species offsets start at 1 (0 is for time!)
+        long       a = 1;
         Expression expr = it->second;
 
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
@@ -101,7 +102,8 @@ BioRHS::BioRHS(Species const& species) :
     StrIterConst spEnd = _species.end();
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
-        long       a = 0;
+        // species offsets start at 1 (0 is for time!)
+        long       a = 1;
         Expression expr = it->second;
 
         for (StrIterConst itSpe = spBeg; itSpe != spEnd; ++itSpe)
@@ -139,7 +141,8 @@ BioRHS::BioRHS(ExpressionMap const& emap,
     StrIterConst vEnd = _parameter.end();
     for (EMapIterConst it = eBeg; it != eEnd; ++it)
     {
-        long       a = 0;
+        // species offsets start at 1 (0 is for time!)
+        long       a = 1;
         long       b = 0;
         Expression expr = it->second;
 
@@ -222,7 +225,8 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
 
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
         {
-            long        a = 0;
+            // species offsets start at 1 (and not at 0 !)
+            long        a = 1;
             long        b = 0;
             std::string s = (itRHS->first) + " / " + *itSpe;
 
@@ -237,7 +241,8 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
         for (StrIterConst itPar = pBeg; itPar != pEnd; ++itPar)
         // for (Expression::ParamIterConst itPar = vBeg; itPar != vEnd; ++itPar)
         {
-            long        a = 0;
+            // species offsets start at 1 (and not at 0 !)
+            long        a = 1;
             long        b = 0;
             std::string s = (itRHS->first) + " / " + *itPar; // itPar->first;
 
@@ -298,7 +303,8 @@ BioRHS::setRHS(ExpressionMap const& emap)
 
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
-        long       a = 0;
+        // species offsets start at 1 (0 is for time!)
+        long       a = 1;
         long       b = 0;
         Expression expr = it->second;
 
@@ -343,7 +349,8 @@ BioRHS::resetSpecies(BioRHS::Species const& species)
     StrIterConst spEnd = _species.end();
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
-        long       a = 0;
+        // species offsets start at 1 (0 is for time!)
+        long       a = 1;
         Expression expr = it->second;
 
         for (StrIterConst itSpe = spBeg; itSpe != spEnd; ++itSpe)
@@ -426,6 +433,11 @@ BioRHS::b(double* y, int* nz, double* B, int* ir, int* ic)
     StrIterConst   sBeg = _species.begin();
     StrIterConst   sEnd = _species.end();
 
+    // first component is for time variable!
+     B[k] = 1.0;
+    ir[k] = ic[k] = ++idx;
+    ++k;
+
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
         ++idx;
@@ -462,8 +474,11 @@ BioRHS::f(Expression::Param& par,
 
     if ( n == 0 )
     {
+        // species index start at 2 (1 is for time!)
         long j = 0;
-        dz.zeros( _species.size() );
+        dz.zeros( _species.size() + 1 );
+
+        dz(++j) = 1.0;
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
@@ -474,6 +489,8 @@ BioRHS::f(Expression::Param& par,
     }
 
     ///
+
+    *(dy++) = 1.0;
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
@@ -495,8 +512,11 @@ BioRHS::f(double* y,
 
     if ( n == 0 )
     {
+        // species index start at 2 (1 is for time!)
         long   j = 0;
-        dz.zeros( _species.size() );
+        dz.zeros( _species.size() + 1 );
+
+        dz(++j) = 1.0;  // dummy equation y' = 0 (time!)
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
@@ -507,6 +527,8 @@ BioRHS::f(double* y,
     }
 
     ///
+
+    *dy++ = 1.0;  // empty dummy equation y' = 0 (time!)
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
@@ -528,11 +550,13 @@ BioRHS::Jf(Expression::Param& par,
         n = _species.size();
         Fz.zeros( n, n );
 
-        for (long j = 1; j <= n; ++j)
+        Fz(1,1) = 1.0;
+
+        for (long j = 2; j <= n; ++j)
         {
-            for (long k = 1; k <= n; ++k)
+            for (long k = 2; k <= n; ++k)
             {
-                std::string s = _species[j-1] + " / " + _species[k-1];
+                std::string s = _species[j-2] + " / " + _species[k-2];
 
                 Fz(j,k) = _drhs[s].eval(par);
             }
@@ -541,15 +565,29 @@ BioRHS::Jf(Expression::Param& par,
         return Fz;
     }
 
+
     ///
 
-    for (long j = 0; j < n; ++j)
-    {
-        for (long k = 0; k < n; ++k)
-        {
-            std::string s = _species[j] + " / " + _species[k];
 
-            J[ ldJ*k + j ] = _drhs[s].eval(par);
+    J[ 0 ] = 1.0;
+
+    for (long j = 1; j < n; ++j)
+    {
+        J[ j ] = 0.0;
+    }
+
+
+    for (long k = 1; k < n; ++k)    // swapping inner and outer loop for speed
+    {
+        long kk = ldJ*k;
+
+        J[ kk ] = 0.0;
+
+        for (long j = 1; j < n; ++j)  // j still runs over the rows in mind (!)
+        {
+            std::string s = _species[j-1] + " / " + _species[k-1];
+
+            J[ kk + j ] = _drhs[s].eval(par);
         }
     }
 
@@ -562,23 +600,28 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
 {
     long                n = Zp.nr();
     long                q = Zp.nc();
-    Matrix              Fz( n, n );
-    Matrix              Fp( n, q );
+    Matrix              Fz; // ( n, n );
+    Matrix              Fp; // ( n, q );
 
-    if ( (n > (long)_species.size()) ||
-         (q > (long)_parameter.size())
+    if ( ( (n-1) > (long)_species.size()   ) ||
+         (     q > (long)_parameter.size() )
        )
     {
        return Matrix();
     }
 
-    for (long j = 1; j <= n; ++j)
-    {
-        std::string s = _species[j-1] + " / ";
+    Fz.zeros(n,n);
+    Fp.zeros(n,q);
 
-        for (long k = 1; k <= n; ++k)
+    Fz(1,1) = 1.0;
+
+    for (long j = 2; j <= n; ++j)
+    {
+        std::string s = _species[j-2] + " / ";
+
+        for (long k = 2; k <= n; ++k)
         {
-            std::string t = s + _species[k-1];
+            std::string t = s + _species[k-2];
 
             Fz(j,k) = _drhs[t].eval(par);
         }
@@ -607,8 +650,8 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
     // Matrix              Fz( n, n );
     // Matrix              Fp( n, q );
 
-    if ( (n > (long) _species.size()) ||
-         (q > (long) var.size())
+    if ( ( (n-1) > (long) _species.size()) ||
+         (     q > (long) var.size())
        )
     {
        return DummyMat;
@@ -627,13 +670,30 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
     _data_table[0] = y;
 
 
-    for (long j = 0; j < n; ++j)
-    {
-        std::string s = _species[j] + " / ";
+    *Fz++  = 1.0;
 
-        for (long k = 0; k < n; ++k)
+    for (long k = 1; k < n; ++k)
+    {
+        *Fz++ = 0.0;
+    }
+
+    for (long k = 0; k < q; ++k)
+    {
+        *Fp++ = 0.0;
+
+        *Zptmp++ = *Zp++;
+    }
+
+
+    for (long j = 1; j < n; ++j)
+    {
+        std::string s = _species[j-1] + " / ";
+
+        *Fz++ = 0.0;
+
+        for (long k = 1; k < n; ++k)
         {
-            std::string t = s + _species[k];
+            std::string t = s + _species[k-1];
 
             *Fz++ = _drhs[t].eval( _data_table );
         }

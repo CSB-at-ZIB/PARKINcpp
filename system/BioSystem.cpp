@@ -674,6 +674,8 @@ BioSystem::iniODE(long n, double* y)
     StrIterConst    sBeg = spec.begin();
     StrIterConst    sEnd = spec.end();
 
+    y[j++] = 0.0;
+
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
         if (j < n) y[j++] = _iniPar[*it];
@@ -687,7 +689,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     Species const&      species   = _ode.getSpecies();
     Parameter const&    parameter = _ode.getParameters();
     long                k = 0;
-    long                n = species.size();
+    long                n = species.size() + 1;
     long                q = parameter.size();
     long                T; //  = _tpMeas.size();
     long                Tb = _tInterval.size();
@@ -730,13 +732,15 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
         T = -1;
     }
 
+    iniValues[0] = _tInterval[0];
+
     //$$$ dynamic_cast<DOP853*>(_odeSystem) ->
     dynamic_cast<LIMEX_A*>(_odeSystem) ->
                             setODESystem(
                                             BioSystemWrapper::fcnODE,
                                             BioSystemWrapper::jacODE,
-                                            _tInterval[0], iniValues,
-                                            _tpMeas,
+                                            _tInterval[0],
+                                            iniValues, _tpMeas,
                                             _tInterval[Tb-1]
                                             // BioSystemWrapper::outODE
                                         );
@@ -830,8 +834,8 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
         }
     }
 
-    if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = n*T; }
-    if ( mode == "init" ) { _measData = _synData; _totmeasData = n*T; }
+    if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = (n-1)*T; }
+    if ( mode == "init" ) { _measData = _synData; _totmeasData = (n-1)*T; }
 
     k = 0;
     model.zeros(_totmeasData);
@@ -880,7 +884,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
     Parameter const&    parameter = _ode.getParameters();
     long                j = 0;
     long                k = 0;
-    long                n = species.size();
+    long                n = species.size() + 1;
     long                q = parameter.size();
     long                qq = var.size();
     long                T; //  = _tpMeas.size();
@@ -943,13 +947,14 @@ BioSystem::computeJacobian(Expression::Param const& var,
         T = -1;
     }
 
+    iniValues[0] = _tInterval[0];
 
     dynamic_cast<LIMEX_A*>(_odeSystem) ->
                             setODESystem(
                                             BioSystemWrapper::fcnVar,
                                             BioSystemWrapper::jacVar,
-                                            _tInterval[0], iniValues,
-                                            _tpMeas,
+                                            _tInterval[0],
+                                            iniValues, _tpMeas,
                                             _tInterval[Tb-1]
                                             // ,(int) n
                                             // BioSystemWrapper::outVar
@@ -1024,6 +1029,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
     _synData.clear();
     _jacobian.clear();
 
+    n--; // from here on, the time variable is gone since "sim" contains only species
     k = 0;
     for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
     {
@@ -1061,7 +1067,8 @@ BioSystem::computeJacobian(Expression::Param const& var,
             }
         }
 
-        k = n;
+        // now skip to the results of the variational equations (k = n+qq is correct here!)
+        k = n + qq;
         _jacobian.push_back( MeasurementPoint() );
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
         {
@@ -1256,7 +1263,7 @@ BioSystemWrapper::fcnODE(
     */
 
     //*nz = *n;
-
+    y[0] = *t;
     // sys["t"] = *t;
     // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *y++;
 
@@ -1302,7 +1309,8 @@ BioSystemWrapper::jacODE(
     StrIterConst            sBeg = spec.begin();
     StrIterConst            sEnd = spec.end();
 
-    sys["t"] = *t;
+    sys["odeTime"] = *t;
+    y++; // skip first component as it is reserved as time variable
     for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *y++;
 
     _ode.Jf( sys, *n, J, *ldJ );
@@ -1381,7 +1389,7 @@ BioSystemWrapper::fcnVar(
                          int*       info
                         )
 {
-//    const double                one = 1.0;
+    const double                one = 1.0;
     Expression::Param&          opt  = _obj->getOptPar();
     // Expression::Param&          sys  = _obj->getSysPar();
     // BioRHS                      ode  = _obj->getODE();
@@ -1389,14 +1397,17 @@ BioSystemWrapper::fcnVar(
     // BioRHS::Parameter const&    par  = _ode.getParameters();
     // StrIterConst                sBeg = spe.begin();
     // StrIterConst                sEnd = spe.end();
-    long                        n    = _ode.getSpecies().size();
+    long                        n    = _ode.getSpecies().size() + 1;
     long                        qq   = opt.size();          // ((long)(*nq) - n) / n;
     double*                     yy   = yyu + n;
     // Matrix                      Z(n,qq);
     // Vector                      y(n);
 
     *nqz = *nq;
+    /// yy[0] =
+    yyu[0] = *t;
     // sys["t"] = *t;
+    // yyu++;
     // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *yyu++;
 
     /*
@@ -1431,11 +1442,11 @@ BioSystemWrapper::fcnVar(
     }
     */
 
-//    for (int j = 1; j <= *nqz; ++j)
-//    {
-//        *B++ = one;
-//        *ir++ = *ic++ = j;
-//    }
+    for (int j = 1; j <= *nqz; ++j)
+    {
+        *B++ = one;
+        *ir++ = *ic++ = j;
+    }
 
     *info = 0;
 }
@@ -1461,7 +1472,8 @@ BioSystemWrapper::jacVar(
     StrIterConst            sBeg = spec.begin();
     StrIterConst            sEnd = spec.end();
 
-    sys["t"] = *t;
+    sys["odeTime"] = *t;
+    yu++; // skip first component since it is reserved as time variable
     for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *yu++;
 
     Matrix Fz = _ode.Jf( sys );

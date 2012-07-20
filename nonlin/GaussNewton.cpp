@@ -834,11 +834,11 @@ int
 GaussNewton::run()
 {
     Real        ajdel, ajmin, cond1, condco = 0.0;
-    Real        conva, dmue, dxnrm;
+    Real        conva = 0.0, dmue, dxnrm;
     Real        epdiff, etadif, etaini, etamax, etamin;
-    Real        fcdnm, fck2, fcmin2, fcminh, fcbnd;
+    Real        fcdnm, fck2, fcmin2, fcminh = 0.0, fcbnd;
     Real        fcnump, fcnmp2, fcnumk, fch, fcbh, fcredu;
-    Real        rsmall, sens1 = 0.0;
+    Real        rsmall = 0.0, sens1 = 0.0;
     Real        skap, sumxa, sumxk, th, dlevxa;
     Real        prec, dxanrm;
     unsigned    iscal, mode, nred, minmn, iterm, jacgen;
@@ -2600,7 +2600,7 @@ GaussNewton::compute_statistics(
     Matrix rinv;
     Vector res, v;
     Real   sum1;
-    long   m = _A.nr();
+    ///long   m = _A.nr();
     long   n = _A.nc();
 
     _ierr = 0;
@@ -2638,7 +2638,7 @@ GaussNewton::compute_statistics(
         // Apply pseudo-inverse to Cholesky decomposition of
         // variance covariance matrix of data error.
         // We assume that this matrix is sigma*I
-        m = _mfit + _mcon;
+        ///m = _mfit + _mcon;
 
         for (long j = 1; j <= n; ++j)
         {

@@ -4,7 +4,6 @@
 	<Project>
 		<Option title="PARKINcpp" />
 		<Option pch_mode="2" />
-		<Option default_target="Release" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -26,7 +25,6 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="2" />
 				<Compiler>
 					<Add option="-O3" />
 				</Compiler>
@@ -42,6 +40,7 @@
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
@@ -59,12 +58,13 @@
 			</Target>
 			<Target title="SharedLibDebug">
 				<Option output="bin/SharedLibDebug/swig/_parkin" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="bin/SharedLibDebug/swig/" />
+				<Option working_dir="swig/" />
 				<Option object_output="obj/SharedLibDebug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option parameters="-e /usr/bin/python -i testbioparkin_aux.py" />
+				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLibDebug/swig ; /usr/bin/python -i testbioparkin_aux.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
@@ -78,12 +78,13 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="SharedCppLib">
-				<Option output="obj/SharedCppLib/libPARKINcpp" prefix_auto="1" extension_auto="1" />
+				<Option output="obj/SharedCppLib/PARKINcpp" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/SharedCppLib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
