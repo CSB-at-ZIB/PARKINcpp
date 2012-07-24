@@ -56,8 +56,10 @@ BioRHS::BioRHS(ExpressionMap const& emap) :
     for (EMapIterConst it = eBeg; it != eEnd; ++it)
     {
         // species offsets start at 1 (0 is for time!)
-        long       a = 1;
+        long       a = 0;
         Expression expr = it->second;
+
+        expr.off("odeTime", a++);
 
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
             expr.off(*itSpe, a++);
@@ -103,8 +105,10 @@ BioRHS::BioRHS(Species const& species) :
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
         // species offsets start at 1 (0 is for time!)
-        long       a = 1;
+        long       a = 0;
         Expression expr = it->second;
+
+        expr.off("odeTime", a++);
 
         for (StrIterConst itSpe = spBeg; itSpe != spEnd; ++itSpe)
             expr.off(*itSpe, a++);
@@ -142,9 +146,11 @@ BioRHS::BioRHS(ExpressionMap const& emap,
     for (EMapIterConst it = eBeg; it != eEnd; ++it)
     {
         // species offsets start at 1 (0 is for time!)
-        long       a = 1;
+        long       a = 0;
         long       b = 0;
         Expression expr = it->second;
+
+        expr.off("odeTime", a++);
 
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
             expr.off(*itSpe, a++);
@@ -226,11 +232,13 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
         {
             // species offsets start at 1 (and not at 0 !)
-            long        a = 1;
+            long        a = 0;
             long        b = 0;
             std::string s = (itRHS->first) + " / " + *itSpe;
 
             _drhs[s] = expr.df( *itSpe );
+
+            _drhs[s].off("odeTime", a++);
 
             for (StrIterConst it = sBeg; it != sEnd; ++it)
                 _drhs[s].off(*it,a++);
@@ -242,11 +250,13 @@ BioRHS::computeDerivativeExpression() // Expression::Param const& var)
         // for (Expression::ParamIterConst itPar = vBeg; itPar != vEnd; ++itPar)
         {
             // species offsets start at 1 (and not at 0 !)
-            long        a = 1;
+            long        a = 0;
             long        b = 0;
             std::string s = (itRHS->first) + " / " + *itPar; // itPar->first;
 
             _drhs[s] = expr.df( *itPar );
+
+            _drhs[s].off("odeTime", a++);
 
             for (StrIterConst it = sBeg; it != sEnd; ++it)
                 _drhs[s].off(*it,a++);
@@ -304,9 +314,11 @@ BioRHS::setRHS(ExpressionMap const& emap)
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
         // species offsets start at 1 (0 is for time!)
-        long       a = 1;
+        long       a = 0;
         long       b = 0;
         Expression expr = it->second;
+
+        expr.off("odeTime", a++);
 
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
             expr.off(*itSpe, a++);
@@ -350,8 +362,10 @@ BioRHS::resetSpecies(BioRHS::Species const& species)
     for (EMapIterConst it = rBeg; it != rEnd; ++it)
     {
         // species offsets start at 1 (0 is for time!)
-        long       a = 1;
+        long       a = 0;
         Expression expr = it->second;
+
+        expr.off("odeTime", a++);
 
         for (StrIterConst itSpe = spBeg; itSpe != spEnd; ++itSpe)
             expr.off(*itSpe, a++);
@@ -516,7 +530,7 @@ BioRHS::f(double* y,
         long   j = 0;
         dz.zeros( _species.size() + 1 );
 
-        dz(++j) = 1.0;  // dummy equation y' = 0 (time!)
+        dz(++j) = 1.0;  // dummy equation y' = 1 (time!)
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
@@ -528,7 +542,7 @@ BioRHS::f(double* y,
 
     ///
 
-    *dy++ = 1.0;  // empty dummy equation y' = 0 (time!)
+    *dy++ = 1.0;  // empty dummy equation y' = 1 (time!)
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {

@@ -664,6 +664,8 @@ BioSystem::iniODE()
     {
         _sysPar[*it] = _iniPar[*it];
     }
+
+    _sysPar["odeTime"] = _tInterval[0];
 }
 //---------------------------------------------------------------------------
 void
@@ -674,7 +676,7 @@ BioSystem::iniODE(long n, double* y)
     StrIterConst    sBeg = spec.begin();
     StrIterConst    sEnd = spec.end();
 
-    y[j++] = 0.0;
+    y[j++] = _tInterval[0];
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
@@ -1264,7 +1266,7 @@ BioSystemWrapper::fcnODE(
 
     //*nz = *n;
     y[0] = *t;
-    // sys["t"] = *t;
+    // sys["odeTime"] = *t;
     // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *y++;
 
     // Vector dz =
@@ -1404,9 +1406,9 @@ BioSystemWrapper::fcnVar(
     // Vector                      y(n);
 
     *nqz = *nq;
-    /// yy[0] =
+    yy[0] =
     yyu[0] = *t;
-    // sys["t"] = *t;
+    // sys["odeTime"] = *t;
     // yyu++;
     // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *yyu++;
 

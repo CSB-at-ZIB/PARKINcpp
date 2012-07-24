@@ -63,7 +63,8 @@ namespace PARKIN
     class Variable : public ExprNode
     {
         public:
-            Variable(std::string n) : _name(n), _off(-1) { }
+            Variable(std::string n) : _name(n), _off(0) { }
+            // 24.07.12 td: used to be:  Variable(std::string n) : _name(n), _off(-1) { }
             // virtual ~Variable() { }
 
             virtual Real        eval(Param& x)             const;
