@@ -764,7 +764,7 @@ std::cerr << fscal.t() << std::endl;
         // _nlsconWk.xlb = _xlb;
         // _nlsconWk.xub = _xub;
         _nlsconWk.nitmax = _iopt.itmax;
-        _nlsconWk.cond   = 1.0 / (xtol * 1.0e+2); // ( _biosys->getSolverRTol() );
+        _nlsconWk.cond   = 1.0 / (xtol * 1.0); // ( _biosys->getSolverRTol() );
         _nlsconWk.fcmin  = 1.0e-4;
 
         _nlscon.setProblem( &_biopar );
