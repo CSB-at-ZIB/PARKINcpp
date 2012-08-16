@@ -37,7 +37,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option parameters="D:\workspace\PARKINcpp\swig\testbioparkin_aux.py" />
-				<Option host_application="c:\python26\python.exe" />
+				<Option host_application="C:\python27\python.exe" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
@@ -49,7 +49,7 @@
 					<Add option="-static-libstdc++" />
 					<Add library="m" />
 					<Add library="python27" />
-					<Add directory="C:\Python26\libs" />
+					<Add directory="C:\Python27\libs" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="xcopy .\bin\SharedLib\_parkin.pyd .\link2BioPARKIN\parkincpp /Y" />
@@ -61,7 +61,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add directory="C:\MinGW\bin" />
-			<Add directory="D:\workspace\PARKINcpp" />
 		</Compiler>
 		<Linker>
 			<Add library="pthread" />
@@ -144,15 +143,6 @@
 		</Unit>
 		<Unit filename="swig\system.i">
 			<Option compile="1" />
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\testbioparkin.py">
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\testbioparkin_aux.py">
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\testbioparkin_helper.py">
 			<Option target="SharedLib" />
 		</Unit>
 		<Unit filename="system\BioPAR.cpp" />
