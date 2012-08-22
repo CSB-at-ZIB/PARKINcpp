@@ -7,9 +7,10 @@
 #ifndef __BIO_SYSTEM_H
 #define __BIO_SYSTEM_H
 
-#include <map>
-#include <vector>
+#include <utility>  // for `std::pair'
 #include <string>
+#include <vector>
+#include <map>
 
 #include "linalg/Matrix.h"
 #include "linalg/Vector.h"

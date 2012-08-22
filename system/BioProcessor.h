@@ -50,6 +50,9 @@ namespace PARKIN
             setProcessingMethod(std::string const& method);
 
             void
+            setLogStream(std::ostream& logstream = std::clog);
+
+            void
             setIOpt(IOpt const& iopt);
 
             IOpt
@@ -132,6 +135,7 @@ namespace PARKIN
             BioSystem*                  _biosys;
             BioPAR                      _biopar;
             std::string                 _method;
+            std::ostream*                _logstream;
             IOpt                        _iopt;
 
             BioSystem::Species          _curSpecies;

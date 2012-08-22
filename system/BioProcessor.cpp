@@ -12,7 +12,7 @@ using namespace PARKIN;
 //---------------------------------------------------------------------------
 BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
     _biosys(biosys), _biopar(biosys),
-    _method(method), _iopt(),
+    _method(method), _logstream(0), _iopt(),
     _curSpecies( _biosys->getSpecies() ),
     _optPar(), // _optIdx(),
     _speThres(), _parThres(),
@@ -22,6 +22,8 @@ BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
     _parkin(), _parkinWk(),
     _idResult()
 {
+    setLogStream( /* std::clog */ );
+
     BioSystem::StrIterConst sBeg = _curSpecies.begin();
     BioSystem::StrIterConst sEnd = _curSpecies.end();
 
@@ -40,7 +42,7 @@ BioProcessor::~BioProcessor()
 //---------------------------------------------------------------------------
 BioProcessor::BioProcessor(BioProcessor const& other) :
     _biosys(other._biosys), _biopar(other._biosys),
-    _method(other._method), _iopt(other._iopt),
+    _method(other._method), _logstream(0), _iopt(other._iopt),
     _curSpecies(other._curSpecies),
     _optPar(other._optPar), // _optIdx(other._optIdx),
     _speThres(other._speThres), _parThres(other._parThres),
@@ -50,6 +52,7 @@ BioProcessor::BioProcessor(BioProcessor const& other) :
     _parkin(), _parkinWk(),
     _idResult(other._idResult)
 {
+    setLogStream( /* std::clog */ );
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -57,6 +60,23 @@ void
 BioProcessor::setProcessingMethod(std::string const& method)
 {
     _method = method;
+}
+//---------------------------------------------------------------------------
+void
+BioProcessor::setLogStream(std::ostream& logstream)
+{
+    _logstream = &logstream;
+
+    /*
+    if ( _method == "parkin" )
+    {
+        _parkin.setLogStream(logstream);
+    }
+    else if ( _method == "nlscon" )
+    {
+        _nlscon.setLogStream(logstream);
+    }
+    */
 }
 //---------------------------------------------------------------------------
 void
@@ -254,10 +274,10 @@ BioProcessor::computeSensitivityTrajectories()
 //        case 3 : tstr = "Num. diff. w/ feedback";   break;
 //        default: tstr = " N/A ";                    break;
 //    }
-//    std::cout << std::endl;
-//    std::cout << "*** BioProcessor::computeSensitivityTrajectories() ***" << std::endl;
-//    std::cout << " jacgen = " << jacgen << "(" << tstr << ")" << std::endl;
-//    std::cout << "***" << std::endl;
+//    std::cerr << std::endl;
+//    std::cerr << "*** BioProcessor::computeSensitivityTrajectories() ***" << std::endl;
+//    std::cerr << " jacgen = " << jacgen << "(" << tstr << ")" << std::endl;
+//    std::cerr << "***" << std::endl;
 
 
     _trajMap.clear();
@@ -745,6 +765,9 @@ std::cerr << fscal.t() << std::endl;
         // _parkinWk.cond = 1.0 / (xtol * 1.0e-1); // ( _biosys->getSolverRTol() );
         _parkinWk.cond = 1.0 / (xtol * 1.0e+1); // ( _biosys->getSolverRTol() );
 
+
+        _parkin.setLogStream( *_logstream );
+
         _parkin.setProblem( &_biopar );
         rc = _parkin.initialise( m,
                                  x, xscal,
@@ -761,11 +784,42 @@ std::cerr << fscal.t() << std::endl;
     }
     else if ( _method == "nlscon" )
     {
+
+        *_logstream << std::endl;
+        *_logstream << "          --------------------------------" << std::endl;
+        *_logstream << "          Internal scaling of measurements" << std::endl;
+        *_logstream << "          --------------------------------" << std::endl;
+        *_logstream << std::endl;
+
+        char line[256]; *line = '\0';
+
+        for (unsigned j = 1; j <= m; ++j)
+        {
+            std::sprintf(line, "%s %7d %13.6e", line, j, fscal(j) );
+
+            if ( j%2 == 0 )
+            {
+                *_logstream << line << std::endl;
+                *line = '\0';
+            }
+        }
+
+        if ( *line != '\0' )
+        {
+            *_logstream << line << std::endl;
+        }
+
+        *_logstream << std::endl;
+
+
         // _nlsconWk.xlb = _xlb;
         // _nlsconWk.xub = _xub;
         _nlsconWk.nitmax = _iopt.itmax;
         _nlsconWk.cond   = 1.0 / (xtol * 1.0); // ( _biosys->getSolverRTol() );
         _nlsconWk.fcmin  = 1.0e-4;
+
+
+        _nlscon.setLogStream( *_logstream );
 
         _nlscon.setProblem( &_biopar );
         rc = _nlscon.initialise( m,
@@ -776,25 +830,45 @@ std::cerr << fscal.t() << std::endl;
                                );
         if ( rc != 0 ) return rc;
 
-        rc = _nlscon.run();
 
+        rc = _nlscon.run();
         // _nlsconWk = _nlscon.getWk();
         _idResult = _nlscon.getSolution();
 
+
+        if ( (rc == 0) || (rc == 1) || (rc == 2) || (rc == 3) )
+        {
+            _nlscon.analyse();
+        }
+
         ///
+
+        *_logstream << std::endl;
+        *_logstream << std::endl;
+        *_logstream << "         ------------------------------------------" << std::endl;
+        *_logstream << "         NLSCON: Parameter Map ( no. ---> ID-name )" << std::endl;
+        *_logstream << "         ------------------------------------------" << std::endl;
+        for (unsigned j = 0; j < pname.size(); ++j)
+        {
+            *_logstream << std::setw(8) << std::right << j+1 << " : "
+                                        << std::left << pname[j]
+                                        << std::endl;
+        }
+        *_logstream << std::endl;
+
 
         std::vector<Vector> piter = _nlscon.getSolutionIter();
         GaussNewtonWk       wk = _nlscon.getWk();
 
-        std::cout << std::endl;
-        std::cout << "         ------------------------------------------" << std::endl;
-        std::cout << "         NLSCON: Inverse Problem Solution Iteration" << std::endl;
-        std::cout << "         ------------------------------------------" << std::endl;
+        *_logstream << std::endl;
+        *_logstream << "         ------------------------------------------" << std::endl;
+        *_logstream << "         NLSCON: Inverse Problem Solution Iteration" << std::endl;
+        *_logstream << "         ------------------------------------------" << std::endl;
         for (long j = 0; j <= wk.niter; ++j)
         {
-            std::cout << "it = " << j << "\n" << piter[j].t();
+            *_logstream << "it = " << j << "\n" << piter[j].t();
         }
-        std::cout << std::endl;
+        *_logstream << std::endl;
 
     }
     else

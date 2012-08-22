@@ -43,6 +43,8 @@ namespace PARKIN
             // d'tor
             ~YeOldeParkinCore();
 
+
+            void setLogStream(std::ostream& out);
             // initial settings and problem definition
             void setIOpt(IOpt const& iopt);
             void setWk(YeOldeParkinWk const& wk);

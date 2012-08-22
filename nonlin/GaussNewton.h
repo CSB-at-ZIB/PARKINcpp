@@ -70,6 +70,8 @@ namespace PARKIN
             // d'tor
             ~GaussNewton();
 
+
+            void setLogStream(std::ostream& out);
             // initial settings and problem definitions
             void setIOpt(IOpt const& iopt);
             void setWk(GaussNewtonWk const& wk);
