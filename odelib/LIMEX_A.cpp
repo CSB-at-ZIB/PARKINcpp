@@ -42,61 +42,61 @@ LIMEX_A::initOpt()
     // iOpt[0] - iOpt[17] must be set by caller on entry.
     // !!! iOpt[15] may be modified; all others are not modified !!!
 
-    _iOpt[0]  =  0;     // Integration monitoring: 0 no output, 1 standard, 2 additional
-    _iOpt[1]  =  0;     // Unit number for monitor ( == 6 if iOpt[0] > 0 )
-    _iOpt[2]  =  0;     // Solution output: 0 no output, 1 initial&final vaules, 2 additional
-    _iOpt[3]  =  0;     // Unit number for solution ( == 6 if iOpt[2] > 0 )
-    _iOpt[4]  =  1;     // Singular or non-singualar matrix B: 0 sing, 1 non-sing
-    _iOpt[5]  =  0;     // Determination of consistent initial values (CIV): 0 no, 1 determ
-    _iOpt[6]  =  0;     // Numerical or analytical Jacobian: 0 num diff approx, 1 analytical
+    _iOpt[0]  =  0;             // Integration monitoring: 0 no output, 1 standard, 2 additional
+    _iOpt[1]  =  0;             // Unit number for monitor ( == 6 if iOpt[0] > 0 )
+    _iOpt[2]  =  0;             // Solution output: 0 no output, 1 initial&final vaules, 2 additional
+    _iOpt[3]  =  0;             // Unit number for solution ( == 6 if iOpt[2] > 0 )
+    _iOpt[4]  =  1;             // Singular or non-singualar matrix B: 0 sing, 1 non-sing
+    _iOpt[5]  =  0;             // Determination of consistent initial values (CIV): 0 no, 1 determ
+    _iOpt[6]  =  0;             // Numerical or analytical Jacobian: 0 num diff approx, 1 analytical
 
-    _iOpt[7]  = -1;     // Lower bandwidth of Jacobian: 0 <= iOpt[7] <= n <= Max_Lower_Diags
-    _iOpt[8]  = -1;     // Upper bandwidth of Jacobian: 0 <= iOpt[8] <= n <= Max_Upper_Diags
+    _iOpt[7]  = -1;             // Lower bandwidth of Jacobian: 0 <= iOpt[7] <= n <= Max_Lower_Diags
+    _iOpt[8]  = -1;             // Upper bandwidth of Jacobian: 0 <= iOpt[8] <= n <= Max_Upper_Diags
 
-    _iOpt[9]  =  1;     // Re-use of Jacobian: 0 no re-use, 1 re-use of Jacobian in the following steps
-    _iOpt[10] =  0;     // Switch for error tolerances: 0 rTol&aTol scalar, 1 rTol&aTol are vectors
-    _iOpt[11] =  1;     // Switch for one step mode: 0 off, 1 return from each step, 2 return only from prescribed steps
+    _iOpt[9]  =  1;             // Re-use of Jacobian: 0 no re-use, 1 re-use of Jacobian in the following steps
+    _iOpt[10] =  0;             // Switch for error tolerances: 0 rTol&aTol scalar, 1 rTol&aTol are vectors
+    _iOpt[11] =  1;             // Switch for one step mode: 0 off, 1 return from each step, 2 return only from prescribed steps
 
-    _iOpt[12] = -1;     // Dense output option: 0 off, 1 on equidist pts within interval, 2 on equidist pts within step (# in iOpt[13]), 3 on additional pts
-    _iOpt[13] =  0;     // Number of equidistant points if iOpt[12] == 1 or 2
-    _iOpt[14] =  0;     // Unit number for dense output (iOpt[14] == 0 suppresses dense output)
+    _iOpt[12] = -1;             // Dense output option: 0 off, 1 on equidist pts within interval, 2 on equidist pts within step (# in iOpt[13]), 3 on additional pts
+    _iOpt[13] =  0;             // Number of equidistant points if iOpt[12] == 1 or 2
+    _iOpt[14] =  0;             // Unit number for dense output (iOpt[14] == 0 suppresses dense output)
 
-    _iOpt[15] = -1;     // Type of call, may be modified! 0 initial call, 1 successive call
+    _iOpt[15] = -1;             // Type of call, may be modified! 0 initial call, 1 successive call
 
-    _iOpt[16] =  1;     // Behaviour at t_End: 0 stop exactly at t_End, 1 may compute/use values also for t > t_End
-    _iOpt[17] =  0;     // PostScript plot of Jacobian: 0 no plot, j plot at j-th step, -1 plot for initial step (step 0)
+    _iOpt[16] =  1;             // Behaviour at t_End: 0 stop exactly at t_End, 1 may compute/use values also for t > t_End
+    _iOpt[17] =  0;             // PostScript plot of Jacobian: 0 no plot, j plot at j-th step, -1 plot for initial step (step 0)
 
     _iOpt[18] =
     _iOpt[19] =
     _iOpt[20] =
     _iOpt[21] =
-    _iOpt[22] = -1;     // Not used in LIMEX_A (relevant in LIMEX_B, sparse Jacobians)
+    _iOpt[22] = -1;             // Not used in LIMEX_A (relevant in LIMEX_B, sparse Jacobians)
 
-    _iOpt[23] =         // on return: Number of function evaluations
-    _iOpt[24] =         // on return: Number of fcn evaltions for Jacobian computation
-    _iOpt[25] =         // on return: Number of LU decompositions
-    _iOpt[26] =         // on return: Number of back-substitions
-    _iOpt[27] =         // on return: Number of integration steps
-    _iOpt[28] =  0;     // on return: Number of Jacobian evaluations
+    _iOpt[23] =                 // on return: Number of function evaluations
+    _iOpt[24] =                 // on return: Number of fcn evaltions for Jacobian computation
+    _iOpt[25] =                 // on return: Number of LU decompositions
+    _iOpt[26] =                 // on return: Number of back-substitions
+    _iOpt[27] =                 // on return: Number of integration steps
+    _iOpt[28] =  0;             // on return: Number of Jacobian evaluations
 
-    _iOpt[29] = -1;     // Not used in LIMEX_A (relevant in LIMEX_B, sparse Jacobians)
+    _iOpt[29] = -1;             // Not used in LIMEX_A (relevant in LIMEX_B, sparse Jacobians)
 
-    _iOpt[30] = -1;     // !!! Only available in LIMD !!!
-                        // Type of left-hand side B: 0 B=id, 1 B=const., 2 variable B
-    _iOpt[31] =  1;     // !!! Only available in LIMDHERM !!!
-                        // Interpolation mode: 0 no addition output, 1 give additional output (switched on)
+    _iOpt[30] = -1;         // !!! Only available in LIMD !!!
+                            // Type of left-hand side B: 0 B=id, 1 B=const., 2 variable B
+    _iOpt[31] =  1;         // !!! Only available in LIMDHERM !!!
+                            // Interpolation mode: 0 no addition output, 1 give additional output (switched on)
 
     ///
 
     // rOpt[0] - rOpt[2] must be set by caller
     // all values are NOT modified
 
-    _rOpt[0] =  0.0;    // Maximum allowed stepsize (default t_End - t_Begin if set to 0.0)
-    _rOpt[1] = -1.0;    // Maximal distance between two dense output points (0 < rOpt[1] if iOpt[12] == 3)
-    _rOpt[2] =  0.0;    // Upper limit for t (used only if iOpt[16] == 1; no upper limit will be considered if rOpt[2] < t_End)
+    _rOpt[0] =  0.0;        // Maximum allowed stepsize (default t_End - t_Begin if set to 0.0)
+    _rOpt[1] = -1.0;        // Maximal distance between two dense output points (0 < rOpt[1] if iOpt[12] == 3)
+    _rOpt[2] =  0.0;        // Upper limit for t (used only if iOpt[16] == 1; no upper limit will be considered if rOpt[2] < t_End)
 
     _rOpt[3] =
-    _rOpt[4] = -1.0;    // Not used in LIMEX_A (relevant only in LIMEX_B, sparse Jacobian)
+    _rOpt[4] = -1.0;        // Not used in LIMEX_A (relevant only in LIMEX_B, sparse Jacobian)
 
     ///
 
@@ -788,6 +788,14 @@ LIMEX_A::setODESystem(
 //    _iOpt[9]  = 0;      // ... but only if Jacobian re-use is switched off!
 
     _iOpt[15] = -1;      // type of limex call: 0 initial, 1 successive
+
+// std::cerr << std::endl;
+// std::cerr << " *** LIMEX_A::setODESystem() ***" << std::endl;
+// std::cerr << "   _debugflag = " << _debugflag << std::endl;
+// std::cerr << std::endl;
+
+    _iOpt[0] = _debugflag;
+
 
     return;
 }

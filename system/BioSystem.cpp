@@ -23,8 +23,8 @@ BioSystem::BioSystem( Real tStart, Real tEnd ) :
     _linftyModel(),
     _tpMeas(), _measData(),
     _synData(),
-    //$$$ _odeSystem( new DOP853() ),
-    _odeSystem( new LIMEX_A() ),
+    //$$$ _odeSolver( new DOP853() ),
+    _odeSolver( new LIMEX_A() ),
     _odeErrorFlag(0),
     _totmeasData(0),
     _tInterval()
@@ -49,8 +49,8 @@ BioSystem::BioSystem( Vector const&  tInterval ) :
     _linftyModel(),
     _tpMeas(), _measData(),
     _synData(),
-    //$$$ _odeSystem( new DOP853() ),
-    _odeSystem( new LIMEX_A() ),
+    //$$$ _odeSolver( new DOP853() ),
+    _odeSolver( new LIMEX_A() ),
     _odeErrorFlag(0),
     _totmeasData(0),
     _tInterval()
@@ -80,8 +80,8 @@ BioSystem::BioSystem( ExpressionMap const&      eMap,
     _linftyModel(),
     _tpMeas(tPoints), _measData(meas),
     _synData(),
-    //$$$ _odeSystem( new DOP853() ),
-    _odeSystem( new LIMEX_A() ),
+    //$$$ _odeSolver( new DOP853() ),
+    _odeSolver( new LIMEX_A() ),
     _odeErrorFlag(0),
     _tInterval(tInterval)
 {
@@ -103,7 +103,7 @@ BioSystem::BioSystem( ExpressionMap const&      eMap,
 BioSystem::~BioSystem()
 {
     delete[] _parValue;
-    delete   _odeSystem;
+    delete   _odeSolver;
 }
 //---------------------------------------------------------------------------
 /// copy c'tor
@@ -129,10 +129,11 @@ BioSystem::~BioSystem()
          _jacobian.clear();     // = s._jacobian;
          _jac = Matrix();
 
-         //$$$ _odeSystem = new DOP853();
-         _odeSystem = new LIMEX_A();
-         _odeSystem->setRTol( s._odeSystem->getRTol() );
-         _odeSystem->setATol( s._odeSystem->getATol() );
+         //$$$ _odeSolver = new DOP853();
+         _odeSolver = new LIMEX_A();
+         _odeSolver->setDebugFlag( s._odeSolver->getDebugFlag() );
+         _odeSolver->setRTol( s._odeSolver->getRTol() );
+         _odeSolver->setATol( s._odeSolver->getATol() );
          _odeErrorFlag = 0;
 
          _totmeasData = s._totmeasData;
@@ -170,29 +171,34 @@ BioSystem::~BioSystem()
 //    return computeJacobian(x);
 //}
 ////---------------------------------------------------------------------------
+void
+BioSystem::setSolverDebugFlag(int flag)
+{
+    _odeSolver -> setDebugFlag(flag);
+}
 //---------------------------------------------------------------------------
 Real
 BioSystem::getSolverRTol() const
 {
-    return _odeSystem -> getRTol();
+    return _odeSolver -> getRTol();
 }
 //---------------------------------------------------------------------------
 void
 BioSystem::setSolverRTol(Real tol)
 {
-    _odeSystem -> setRTol(tol);
+    _odeSolver -> setRTol(tol);
 }
 //---------------------------------------------------------------------------
 Real
 BioSystem::getSolverATol() const
 {
-    return _odeSystem -> getATol();
+    return _odeSolver -> getATol();
 }
 //---------------------------------------------------------------------------
 void
 BioSystem::setSolverATol(Real tol)
 {
-    _odeSystem -> setATol(tol);
+    _odeSolver -> setATol(tol);
 }
 //---------------------------------------------------------------------------
 Expression::Param&
@@ -519,8 +525,8 @@ BioSystem::getMeasurementTimePoints() const
 Vector //ODESolver::Grid&
 BioSystem::getOdeTrajectoryTimePoints() const
 {
-    //$$$ return Vector( dynamic_cast<DOP853*>(_odeSystem)->getSolutionGridPoints() );
-    return Vector( dynamic_cast<LIMEX_A*>(_odeSystem)->getSolutionGridPoints() );
+    //$$$ return Vector( dynamic_cast<DOP853*>(_odeSolver)->getSolutionGridPoints() );
+    return Vector( dynamic_cast<LIMEX_A*>(_odeSolver)->getSolutionGridPoints() );
 }
 //---------------------------------------------------------------------------
 Real
@@ -589,23 +595,23 @@ BioSystem::setInitialValues(Vector const& val)
 ODETrajectory*
 BioSystem::getEvaluationTrajectories()
 {
-    //$$$ return dynamic_cast<DOP853*>(_odeSystem)->getRawTrajectory();
-    return dynamic_cast<LIMEX_A*>(_odeSystem)->getRawTrajectory();
+    //$$$ return dynamic_cast<DOP853*>(_odeSolver)->getRawTrajectory();
+    return dynamic_cast<LIMEX_A*>(_odeSolver)->getRawTrajectory();
 }
 //---------------------------------------------------------------------------
 ODESolver::Trajectory const&
 BioSystem::getOdeTrajectory() const
 {
-    //$$$ return dynamic_cast<DOP853*>(_odeSystem)->getSolutionTrajectory();
-    return dynamic_cast<LIMEX_A*>(_odeSystem)->getSolutionTrajectory();
+    //$$$ return dynamic_cast<DOP853*>(_odeSolver)->getSolutionTrajectory();
+    return dynamic_cast<LIMEX_A*>(_odeSolver)->getSolutionTrajectory();
 }
 //---------------------------------------------------------------------------
 Vector
 BioSystem::getOdeTrajectory(long j) const
 {
-    //$$$ ODESolver::Trajectory& tra = dynamic_cast<DOP853*>(_odeSystem) ->
+    //$$$ ODESolver::Trajectory& tra = dynamic_cast<DOP853*>(_odeSolver) ->
     //$$$                                                getSolutionTrajectory();
-    ODESolver::Trajectory& tra = dynamic_cast<LIMEX_A*>(_odeSystem) ->
+    ODESolver::Trajectory& tra = dynamic_cast<LIMEX_A*>(_odeSolver) ->
                                                     getSolutionTrajectory();
 
     if ( (0 <= j) && (j < (long)tra.size()) ) return Vector( tra[j] );
@@ -736,8 +742,8 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 
     iniValues[0] = _tInterval[0];
 
-    //$$$ dynamic_cast<DOP853*>(_odeSystem) ->
-    dynamic_cast<LIMEX_A*>(_odeSystem) ->
+    //$$$ dynamic_cast<DOP853*>(_odeSolver) ->
+    dynamic_cast<LIMEX_A*>(_odeSolver) ->
                             setODESystem(
                                             BioSystemWrapper::fcnODE,
                                             BioSystemWrapper::jacODE,
@@ -757,12 +763,12 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
         // _iniCond[j-1].f( _sysPar, n, y );
         _iniCond[j-1].f( y, n, y );
 
-        dynamic_cast<LIMEX_A*>(_odeSystem) -> resetSuccessiveCallFlag();
+        dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
 
         //$$$ std::cerr << "\n*** dop853: rc = ";
         // std::cerr << "\n*** BioSystem::computeModel: limex_a: rc = ";
-        _odeErrorFlag = _odeSystem -> integrate(n, y, _tInterval[j-1], _tInterval[j]);
-        //$$$ _odeErrorFlag = dynamic_cast<LIMEX_A*>(_odeSystem) -> integrateWithoutInterpolation(n, y, _tInterval[j-1], _tInterval[j]);
+        _odeErrorFlag = _odeSolver -> integrate(n, y, _tInterval[j-1], _tInterval[j]);
+        //$$$ _odeErrorFlag = dynamic_cast<LIMEX_A*>(_odeSolver) -> integrateWithoutInterpolation(n, y, _tInterval[j-1], _tInterval[j]);
         // std::cerr << _odeErrorFlag << std::endl;
 
         /*
@@ -780,18 +786,18 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
 
     if ( _tpMeas.size() <= 0 )
     {
-        ODESolver::Grid grid = _odeSystem -> getAdaptiveGridPoints();
+        ODESolver::Grid grid = _odeSolver -> getAdaptiveGridPoints();
         T = grid.size();
         for (long tp = 0; tp < T; ++tp)
         {
             _tpMeas.push_back( grid[tp] );
         }
-        sim = _odeSystem -> getAdaptiveSolution();
+        sim = _odeSolver -> getAdaptiveSolution();
     }
     else
     {
         T = _tpMeas.size();
-        sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
+        sim = dynamic_cast<LIMEX_A*>(_odeSolver) -> getDataTrajectory();
     }
 
 
@@ -951,7 +957,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
     iniValues[0] = _tInterval[0];
 
-    dynamic_cast<LIMEX_A*>(_odeSystem) ->
+    dynamic_cast<LIMEX_A*>(_odeSolver) ->
                             setODESystem(
                                             BioSystemWrapper::fcnVar,
                                             BioSystemWrapper::jacVar,
@@ -961,7 +967,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
                                             // ,(int) n
                                             // BioSystemWrapper::outVar
                                         );
-    // dynamic_cast<LIMEX_A*>(_odeSystem) -> resetSuccessiveCallFlag();
+    // dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
     BioSystemWrapper::setObj(*this);
 
 
@@ -984,11 +990,11 @@ BioSystem::computeJacobian(Expression::Param const& var,
             }
         */
 
-        dynamic_cast<LIMEX_A*>(_odeSystem) -> resetSuccessiveCallFlag();
+        dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
 
         //$$$ std::cerr << "*** dop853: rc = " <<
         // std::cerr << "\n*** BioSystem::computeJacobian() : limex_a: rc = " <<
-        _odeErrorFlag = _odeSystem -> integrate(N, yy, _tInterval[jj-1], _tInterval[jj]);
+        _odeErrorFlag = _odeSolver -> integrate(N, yy, _tInterval[jj-1], _tInterval[jj]);
         // std::cerr << std::endl;
 
         /*
@@ -1012,18 +1018,18 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
     if ( _tpMeas.size() <= 0 )
     {
-        ODESolver::Grid grid = _odeSystem -> getAdaptiveGridPoints();
+        ODESolver::Grid grid = _odeSolver -> getAdaptiveGridPoints();
         T = grid.size();
         for (long tp = 0; tp < T; ++tp)
         {
             _tpMeas.push_back( grid[tp] );
         }
-        sim = _odeSystem -> getAdaptiveSolution();
+        sim = _odeSolver -> getAdaptiveSolution();
     }
     else
     {
         T = _tpMeas.size();
-        sim = dynamic_cast<LIMEX_A*>(_odeSystem) -> getDataTrajectory();
+        sim = dynamic_cast<LIMEX_A*>(_odeSolver) -> getDataTrajectory();
     }
 
 
@@ -1154,7 +1160,7 @@ BioSystem::computeSensitivity(Expression::Param&    var,
 {
     Expression::ParamIterConst  vBeg = var.begin();
     Expression::ParamIterConst  vEnd = var.end();
-    Real                        rtol = _odeSystem->getRTol();
+    Real                        rtol = _odeSolver->getRTol();
     long                        qq = var.size();
     long                        k = 0;
     Vector                      pw;

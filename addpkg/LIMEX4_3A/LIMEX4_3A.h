@@ -1063,7 +1063,7 @@ c
 c     dgetrs     Solves a general real linear system
 c
 */
-#define MAX_NO_EQNS 4000
+#define MAX_NO_EQNS 6144
 #define MAX_ROW_TAB 7
 
 
@@ -1078,6 +1078,7 @@ typedef void (*Jac)(int* n,
                     int* full_or_band, int* info);
 
 // original LIMEX API
+/*
 extern void limex_(
             int*      n,
             Fcn       fcn,
@@ -1093,7 +1094,7 @@ extern void limex_(
             double*   rOpt,
             int*      iPos,
             int*      ifail);
-
+*/
 
 // extended LIMD API: iOpt(31):
 //                      0 = B (n x n) identity,
@@ -1114,7 +1115,6 @@ extern void limd_(
             double*   rOpt,
             int*      iPos,
             int*      ifail);
-
 
 
 // extenteded API (as above) with extrapolation entry if iOpt(32)==1

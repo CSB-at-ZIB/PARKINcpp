@@ -60,6 +60,9 @@ namespace PARKIN
 //            virtual Matrix
 //            jac(Vector const& x, int& ifail);
 
+            void
+            setSolverDebugFlag(int flag);
+
             ///
 
             Real
@@ -321,7 +324,7 @@ namespace PARKIN
             Matrix                          _jac;           // Jacobian (sensitivity matrix) as stagged blocks of
                                                             // solutions to the variational equation
 
-            ODESolver*                      _odeSystem;
+            ODESolver*                      _odeSolver;
             int                             _odeErrorFlag;
 
             long                            _totmeasData;

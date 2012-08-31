@@ -33,6 +33,12 @@ namespace PARKIN
             virtual Grid&       getAdaptiveGridPoints()                = 0;
             virtual Trajectory& getAdaptiveSolution()                  = 0;
 
+            ///
+
+            void    setDebugFlag(int flag) { _debugflag = flag; }
+            int     getDebugFlag() { return _debugflag; }
+
+            ///
 
             void setRTol(Real rtol) { _rtol = rtol; }
             void setATol(Real atol) { _atol = atol; }
@@ -40,14 +46,14 @@ namespace PARKIN
             Real getRTol() { return _rtol; }
             Real getATol() { return _atol; }
 
-
         protected:
-            ODESolver() : _atol(10*EPMACH), _rtol(1.0e-12) { }
+            ODESolver() : _debugflag(0), _atol(10*EPMACH), _rtol(1.0e-12) { }
 
             // The following precision setting seems to work only semi-stable:
             // ODESolver() : _atol(EPMACH), _rtol(1.0e-9) { }
 
-            Real _atol, _rtol;
+            int     _debugflag;
+            Real    _atol, _rtol;
     };
 
 }

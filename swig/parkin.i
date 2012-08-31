@@ -6,12 +6,18 @@
 //
 %module parkin
 
+%{
+#include <common/Constants.h>
+%}
+
+%constant int  PARKINCPP_VERSION = PARKINCPP_VERSION;
+%constant char PARKINCPP_DOTTED_VERSION[] = PARKINCPP_DOTTED_VERSION;
+
 
 %include linalg.i
 %include nonlin.i
 %include odelib.i
 %include system.i
-
 
 
 %include <typemaps.i>
