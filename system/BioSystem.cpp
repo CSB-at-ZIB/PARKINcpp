@@ -892,7 +892,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
     Parameter const&    parameter = _ode.getParameters();
     long                j = 0;
     long                k = 0;
-    long                n = species.size() + 1;
+    long                n = species.size() + 1L;  // one more for virtual time variable
     long                q = parameter.size();
     long                qq = var.size();
     long                T; //  = _tpMeas.size();
@@ -964,7 +964,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
                                             _tInterval[0],
                                             iniValues, _tpMeas,
                                             _tInterval[Tb-1]
-                                            // ,(int) n
+                                            , (int) n
                                             // BioSystemWrapper::outVar
                                         );
     // dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
@@ -1076,19 +1076,32 @@ BioSystem::computeJacobian(Expression::Param const& var,
         }
 
         // now skip to the results of the variational equations (k = n+qq is correct here!)
-        k = n + qq;
+        // 13.09.12 td: !! see comment below !!  (Now k = n is correct.  Really!)
+        k = n; // + qq;
         _jacobian.push_back( MeasurementPoint() );
-        for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
+
+        // 13.09.12 td: Note, here  we first iterate over the parameters because there had
+        //              been a reordering in yy (for LIMEX), and therefore in the sim array.
+        //              And, most importantly (!!!), the k++ offsets are changed: k = n from
+        //              above is now correct.  Indeed!
+
+        // for (StrIterConst itPar = pBeg; itPar != pEnd; ++itPar)
+        for (Expression::ParamIterConst itPar = vBeg; itPar != vEnd; ++itPar)
         {
-            // for (StrIterConst itPar = pBeg; itPar != pEnd; ++itPar)
-            for (Expression::ParamIterConst itPar = vBeg; itPar != vEnd; ++itPar)
+            k++;
+
+            for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
             {
                 std::string s = *itSpe + " / " + (itPar->first);
 
                 if ( k < (long)sim.size() )
+                {
                     _jacobian[tp][s] = std::make_pair<Real,Real>( sim[k++][tp], 1.0 );
+                }
                 else
+                {
                     _jacobian[tp][s] = std::make_pair<Real,Real>( 0.0, GREAT );
+                }
             }
         }
     }
@@ -1399,56 +1412,57 @@ BioSystemWrapper::fcnVar(
 {
     const double                one = 1.0;
     Expression::Param&          opt  = _obj->getOptPar();
-    // Expression::Param&          sys  = _obj->getSysPar();
-    // BioRHS                      ode  = _obj->getODE();
-    // BioRHS::Species const&      spe  = _ode.getSpecies();
-    // BioRHS::Parameter const&    par  = _ode.getParameters();
-    // StrIterConst                sBeg = spe.begin();
-    // StrIterConst                sEnd = spe.end();
-    long                        n    = _ode.getSpecies().size() + 1;
+//Expression::Param&          sys  = _obj->getSysPar();
+//BioRHS::Species const&      spe  = _ode.getSpecies();
+//StrIterConst                sBeg = spe.begin();
+//StrIterConst                sEnd = spe.end();
+    long                        n    = _ode.getSpecies().size() + 1L;
     long                        qq   = opt.size();          // ((long)(*nq) - n) / n;
     double*                     yy   = yyu + n;
-    // Matrix                      Z(n,qq);
-    // Vector                      y(n);
+//Matrix                      Z(n,qq);
+//Vector                      y(n);
 
     *nqz = *nq;
     yy[0] =
     yyu[0] = *t;
-    // sys["odeTime"] = *t;
-    // yyu++;
-    // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *yyu++;
-
-    /*
-    for (long j = 1; j <= n; ++j)
-    {
-        for (long k = 1; k <= qq; ++k)
-        {
-            Z(j,k) = *yy++;
-        }
-    }
-    */
-
-    // Z = _ode.rhsVarODE( Z, sys );
-    // y = _ode.rhsODE( sys );
+//sys["odeTime"] = *t;
+//yyu++;
+//for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *yyu++;
+//
+//for (long k = 1; k <= qq; ++k)
+//{
+//    for (long j = 1; j <= n; ++j)
+//    {
+//        Z(j,k) = *yy++;
+//    }
+//}
+//
+//Z = _ode.df( opt, Z, sys );
+//y = _ode.f( sys );
 
     _ode.df( opt, yy, yyu, n, qq, dydyu+n );
     _ode.f( yyu, n, dydyu );
 
-    // for (long j = 1; j <= n; ++j)
-    // {
-    //     *dydyu++ = y(j);
-    // }
-    /*
-    dydyu += n;
+//for (long j = 1; j <= n; ++j)
+//{
+//    *dydyu++ = y(j);
+//}
+//
+// /*
+//std::cerr << std::endl;
+//std::cerr << "### BioSystemWrapper::fcnVar() ###" << std::endl;
+//std::cerr << "   Z = " << std::endl;
+//std::cerr << Z.t() << std::endl;
+// */
+//
+//for (long k = 1; k <= qq; ++k)
+//{
+//    for (long j = 1; j <= n; ++j)
+//    {
+//        *dydyu++ = Z(j,k);
+//    }
+//}
 
-    for (long j = 1; j <= n; ++j)
-    {
-        for (long k = 1; k <= qq; ++k)
-        {
-            *dydyu++ = Z(j,k);
-        }
-    }
-    */
 
     for (int j = 1; j <= *nqz; ++j)
     {
@@ -1475,7 +1489,6 @@ BioSystemWrapper::jacVar(
                         )
 {
     Expression::Param       sys  = _obj->getSysPar();
-    // BioRHS                  ode  = _obj->getODE();
     BioRHS::Species const&  spec = _ode.getSpecies();
     StrIterConst            sBeg = spec.begin();
     StrIterConst            sEnd = spec.end();
@@ -1490,6 +1503,7 @@ BioSystemWrapper::jacVar(
 
     if ( *full_or_band == 0 )
     {
+
         long  q1 = (long)(*nq) / n;    // q1 := q + 1; loop below counts til m < q1 !
 
         for (long k = 1; k <= n; ++k)
@@ -1500,32 +1514,74 @@ BioSystemWrapper::jacVar(
 
                 for (long m = 0; m < q1; ++m)
                 {
-                    Ju[ *ldJu*(k-1 + m*n) + (j-1 + m*n) ] = tmp;
+                    Ju[ (*ldJu)*(k-1 + m*n) + (j-1 + m*n) ] = tmp;
+                                            //  Ju(j + q*n, k + q*n) = tmp
+                }
+            }
+        }
+
+    }
+    else // if ( ((long)(*mu) == n) && ((long)(*ml) == n) )
+    {
+/*
+std::cerr << std::endl;
+std::cerr << "##### BioSystemWrapper::jacVar() #####" << std::endl;
+std::cerr << "  *ldJu = " << *ldJu << std::endl;
+std::cerr << "    *mu = " << *mu << std::endl;
+std::cerr << "    *ml = " << *ml << std::endl;
+std::cerr << "      n = " << n << std::endl;
+std::cerr << std::endl;
+*/
+        // long  nn = 2*n + 1L;
+        long  q1 = (long)(*nq) / n;    // q1 := q + 1; loop below counts til m < q1 !
+
+        for (long k = 1; k <= n; ++k)
+        {
+            long off = n + 1L - k;
+
+            for (long j = 1; j <= n; ++j)
+            {
+                double tmp = Fz(j,k);
+
+                for (long m = 0; m < q1; ++m)
+                {
+                    Ju[ (*ldJu)*(k-1 + m*n) + (j-1 + off) ] = tmp;
                                             //  Ju(j + q*n, k + q*n) = tmp
                 }
             }
         }
     }
+/*
     else
     {
+        // long q1 = (long)(*nq) / n;
+
         for (long k = 1; k <= *nq; ++k)
         {
-            long upp = std::max(        1L, k - (long)*mu );
-            long low = std::min( (long)*nq, k + (long)*ml );
-            long off = (long)*mu + 1 - k;
+            long upp = std::max(          1L, k - (long)(*mu) );
+            long low = std::min( (long)(*nq), k + (long)(*ml) );
+            long off = (long)(*mu) + 1 - k;
 
-            for (long jj = 1, j = upp; j <= low; ++j)
+            long  q = 1 + (k-1) % n;
+            long  m = 1 + (k-1) / n;
+            long mm = m + n;
+            long jj = 0;
+
+            // for (long jj = 1, j = upp; j <= low; ++j)
+            for (long j = upp; j <= low; ++j)
             {
                 double tmp = 0.0;
-                long m = (k-1) / n;
+                // long m = (k-1) / n;
 
-                if ( (m*n < j) && (j <= (m+1)*n) ) tmp = Fz( jj++, 1 + (k-1)%n );
+                // if ( (m*n < j) && (j <= (m+1)*n) ) tmp = Fz( jj++, 1 + (k-1)%n );
+                if ( (m <= j) && (j <= mm) ) tmp = Fz( ++jj, q );
 
-                Ju[ *ldJu*(k-1) + (j-1+off) ] = tmp;
+                Ju[ (*ldJu)*(k-1) + (j-1+off) ] = tmp;
                                                     //  Ju(j+off, k) = tmp
             }
         }
     }
+*/
 
     *info = 0;
 }

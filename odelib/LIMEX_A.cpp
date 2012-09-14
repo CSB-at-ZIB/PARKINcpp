@@ -777,15 +777,17 @@ LIMEX_A::setODESystem(
     _iOpt[30] = 1;      // choose B = const. for LIMEX integration
                         // 0: B = id, 1: B = const., 2: B = var.
 
-    _iOpt[6] = 0;       // NO analytic Jacobian (supplied by routine 'jac')
+    _iOpt[6] = (bandwidth == 0) ? 0 : 1;       // 0: NO analytic Jacobian (supplied by routine 'jac')
 
     int bw = (bandwidth == 0) ? _n : bandwidth;
 
     _iOpt[7] = bw;      // lower band of Jacobian set to max. in relation to 'fcn'
     _iOpt[8] = bw;      // upper band of Jacobian set to max. in relation to 'fcn'
 
-//    _iOpt[17] = 10;     // 'Jacobian.ps' output in step #10
-//    _iOpt[9]  = 0;      // ... but only if Jacobian re-use is switched off!
+/*
+    _iOpt[17] = 10;     // 'Jacobian.ps' output in step #10
+    _iOpt[9]  = 0;      // ... but only if Jacobian re-use is switched off!
+*/
 
     _iOpt[15] = -1;      // type of limex call: 0 initial, 1 successive
 

@@ -561,10 +561,10 @@ BioRHS::Jf(Expression::Param& par,
     if ( n == 0 )
     {
         // long
-        n = _species.size();
+        n = _species.size() + 1L;
         Fz.zeros( n, n );
 
-        Fz(1,1) = 1.0;
+        Fz(1,1) = 0.0;
 
         for (long j = 2; j <= n; ++j)
         {
@@ -583,9 +583,9 @@ BioRHS::Jf(Expression::Param& par,
     ///
 
 
-    J[ 0 ] = 1.0;
+    // J[ 0 ] = 0.0;
 
-    for (long j = 1; j < n; ++j)
+    for (long j = 0; j < n; ++j)
     {
         J[ j ] = 0.0;
     }
@@ -627,7 +627,7 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
     Fz.zeros(n,n);
     Fp.zeros(n,q);
 
-    Fz(1,1) = 1.0;
+    Fz(1,1) = 0.0;
 
     for (long j = 2; j <= n; ++j)
     {
@@ -673,18 +673,18 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
 
 
     double* FzSave = new double[n*n];
-    double* ZpSave = new double[n*q];
+    //obsolete: double* ZpSave = new double[n*q];
     double* FpSave = new double[n*q];
 
     double* Fz    = FzSave;
-    double* Zptmp = ZpSave;
+    //obsolete: double* Zptmp = ZpSave;
     double* Fp    = FpSave;
 
 
     _data_table[0] = y;
 
 
-    *Fz++  = 1.0;
+    *Fz++  = 0.0;
 
     for (long k = 1; k < n; ++k)
     {
@@ -695,7 +695,7 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
     {
         *Fp++ = 0.0;
 
-        *Zptmp++ = *Zp++;
+        //obsolete: *Zptmp++ = *Zp++;
     }
 
 
@@ -721,38 +721,42 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
 
             *Fp++ = _drhs[t].eval( _data_table );
 
-            *Zptmp++ = *Zp++;
+            //obsolete: *Zptmp++ = *Zp++;
         }
     }
 
+
     Fz = FzSave;
-    Zp = ZpSave;
+    //obsolete: Zp = ZpSave;
     Fp = FpSave;
 
-    for (long j = 0; j < n; ++j)
-    {
-        for (long k = 0; k < q; ++k)
-        {
-            double* Fztmp = Fz;
-            double* Zptmp = Zp + k;
 
-            *dZ = *Fp++;
+    for (long k = 0; k < q; ++k)
+    {
+        double*   Fpk = Fp++;
+        double* Fztmp = Fz;
+
+        for (long j = 0; j < n; ++j)
+        {
+            double* Zptmp = Zp;
+
+            *dZ = *Fpk;
 
             for (long l = 0; l < n; ++l)
             {
-                *dZ += (*Fztmp++) * (*Zptmp);
-                Zptmp += q;
+                *dZ += (*Fztmp++) * (*Zptmp++);
             }
 
-            dZ++;
+            ++dZ;
+            Fpk += q;
         }
 
-        Fz += n;
+        Zp += n;
     }
 
 
     delete[] FpSave;
-    delete[] ZpSave;
+    //obsolete: delete[] ZpSave;
     delete[] FzSave;
 
 

@@ -585,6 +585,7 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeModel() *** " << std::endl;
 //    Jac.zeros( n*T, 7 );
 
 
+    biosys.setSolverDebugFlag(1);
 TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::endl;
 
     // Jac.set_colm( 1, 3 ) =
@@ -592,6 +593,8 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
         biosys.computeJacobian( par, "adaptive" ); // * utmp.diag();  // ... * exp( u=log(par) ).diag()
 
 , std::cerr )
+    biosys.setSolverDebugFlag(0);
+
 
     Jac.zeros( tmat.nr(), 7 );
     Jac.set_colm( 1 , 3 ) = tmat;
@@ -694,9 +697,9 @@ TIME_THIS_TO( std::cerr << " *** Call: biosys.computeJacobian() *** " << std::en
     /// and, subsequently, prepare and solve for the inverse problem
     ///
 
-    Real   xtol       = 1.0e-5;
-    Real   solverRTol = 1.0e-8;
-    Real   solverATol = 1.0e-8;
+    Real   xtol       = 1.0e-04;
+    Real   solverRTol = 1.0e-06;
+    Real   solverATol = 1.0e-12;
     Vector p, pscal;
     // Vector syndata, synscal;
 
@@ -855,18 +858,18 @@ TIME_THIS_TO( std::cerr << " *** Call: invBiosys.computeJacobian() *** " << std:
 //    BioPAR         prob( &invBiosys, par1 );
     std::string    gnMethod;
 
-    // gnMethod = "nlscon";
-    gnMethod = "parkin";
+    gnMethod = "nlscon";
+    // gnMethod = "parkin";
 
     BioProcessor   proc( &invBiosys, gnMethod );
 
     iopt.mode      = 0;     // 0:normal run, 1:single step
     iopt.jacgen    = 3;     // 1:user supplied Jacobian, 2:num.diff., 3:num.diff.(with feedback)
     iopt.qrank1    = false;     // allow Broyden rank-1 updates if __true__
-    iopt.nonlin    = 4;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
+    iopt.nonlin    = 3;     // 1:linear, 2:mildly nonlin., 3:highly nonlin., 4:extremely nonlin.
     iopt.rscal     = 1;     // 1:use unchanged fscal, 2:recompute/modify fscal, 3:use automatic scaling only
     iopt.norowscal = false;     // allow for automatic row scaling of Jacobian if __false__
-    iopt.lpos      = false;     // force solution vector to be positive (all components > 0.0)
+    iopt.transf    = 0;          // force solution vector to be positive (all components > 0.0)
                             //          _mprmon =   0      1      2      3      4       5       6
                             //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE
     iopt.itmax     = 45;

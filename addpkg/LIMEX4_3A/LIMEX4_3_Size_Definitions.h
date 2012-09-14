@@ -82,16 +82,16 @@ c
 c-----------------------------------------------------------------------
 c
 
-      parameter ( Max_Nr_of_Equations    =    6144 )
+      parameter ( Max_Nr_of_Equations    =    4096 )
 c
-      parameter ( Max_Non_Zeros_Jacobian =   49152 )
+      parameter ( Max_Non_Zeros_Jacobian =   32768 )
 c
-      parameter ( Max_Non_Zeros_B        =    6144 )
+      parameter ( Max_Non_Zeros_B        =    4096 )
 c
-      parameter ( Max_Lower_Diagonals    =    6144 )
+      parameter ( Max_Lower_Diagonals    =    4096 )
 c
-      parameter ( Max_Upper_Diagonals    =    6144 )
+      parameter ( Max_Upper_Diagonals    =    4096 )
 c
-      parameter ( Max_It_Vectors         =      96 )
+      parameter ( Max_It_Vectors         =       1 )
 c
 c-----------------------------------------------------------------------

@@ -1063,7 +1063,7 @@ c
 c     dgetrs     Solves a general real linear system
 c
 */
-#define MAX_NO_EQNS 6144
+#define MAX_NO_EQNS 4096
 #define MAX_ROW_TAB 7
 
 
