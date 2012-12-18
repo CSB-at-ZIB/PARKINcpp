@@ -340,6 +340,18 @@ PARKIN::operator+ (Matrix const& A, Matrix const& B)
 
 //-----------------------------------------------------------------------------
 Matrix
+PARKIN::operator- (Matrix const& A, Matrix const& B)
+{
+    Matrix M;
+    M.impl()->subtract( *A.impl(), *B.impl() );
+    return M;
+}
+//-----------------------------------------------------------------------------
+
+//
+
+//-----------------------------------------------------------------------------
+Matrix
 PARKIN::operator* (Real const c, Matrix const& A)
 {
     Matrix M;
@@ -379,6 +391,16 @@ Matrix
 PARKIN::add (Matrix const& A, Matrix const& B)
 {
     return A + B;
+}
+//-----------------------------------------------------------------------------
+
+//
+
+//-----------------------------------------------------------------------------
+Matrix
+PARKIN::subtract (Matrix const& A, Matrix const& B)
+{
+    return A - B;
 }
 //-----------------------------------------------------------------------------
 

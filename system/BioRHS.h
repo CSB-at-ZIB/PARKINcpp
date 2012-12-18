@@ -110,6 +110,7 @@ namespace PARKIN
 
         private:
 
+            /// void reserveJacobianMemory();
             void computeDerivativeExpression();
 
             ExprTypeMap     _rhs_type;
@@ -119,6 +120,8 @@ namespace PARKIN
             Parameter       _parameter;
             long            _num_table_entries;
             double**        _data_table;
+            /// double*         _Fz;
+            /// double*         _Fp;
     };
 
 }

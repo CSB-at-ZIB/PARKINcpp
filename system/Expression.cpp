@@ -49,6 +49,13 @@ Expression::Expression(ExprNodeType const& op,
 {
 }
 //----------------------------------------------------------------------------
+Expression::Expression(Names const& names,
+                       Coeff const& coeff,
+                       std::vector<Multix> const& multIdx) :
+    _node( new Polynomial(names, coeff, multIdx) )
+{
+}
+//----------------------------------------------------------------------------
 Expression::~Expression()
 {
     --(_node->_count);
@@ -98,6 +105,11 @@ void
 Expression::off(std::string const& n, long const a)
 {
     _node -> off(n, a);
+}
+void
+Expression::off(Names const& nVec, std::vector<long> const& aVec)
+{
+    _node -> off(nVec, aVec);
 }
 //----------------------------------------------------------------------------
 

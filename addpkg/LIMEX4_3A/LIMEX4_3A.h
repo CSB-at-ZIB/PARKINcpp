@@ -1116,9 +1116,56 @@ extern void limd_(
             int*      iPos,
             int*      ifail);
 
+// extenteded API (as above) with extrapolation entry if iOpt(32)==1
+// note: this version uses " erri <= rTol |yi| + aTol " as error
+//       tolerance, NOT the scaled "scali := erri/rTol = |yi| + qTol" !!!
+extern void limdherm_dd_(
+            int*      n,
+            Fcn       fcn,
+            Jac       jac,
+            double*   t0,
+            double*   T,
+            double*   y0,
+            double*   dy0,
+            double*   rTol,
+            double*   aTol,
+            double*   h,
+            int*      iOpt,
+            double*   rOpt,
+            int*      iPos,
+            int*      ifail,
+            int*      kOrder,
+            double*   Dense,        // returns the comp_herm_() output array 'Dense' in this special version of LIMEX
+            double*   t1,
+            double*   t2);
+
 
 // extenteded API (as above) with extrapolation entry if iOpt(32)==1
 extern void limdherm_(
+            int*      n,
+            Fcn       fcn,
+            Jac       jac,
+            double*   t0,
+            double*   T,
+            double*   y0,
+            double*   dy0,
+            double*   rTol,
+            double*   aTol,
+            double*   h,
+            int*      iOpt,
+            double*   rOpt,
+            int*      iPos,
+            int*      ifail,
+            int*      kOrder,
+            double*   Dense,        // returns the comp_herm_() output array 'Dense' in this special version of LIMEX
+            double*   t1,
+            double*   t2);
+
+// once more extenteded API with *sensitivity* part included: n = nDAE + sens.eq.
+// (and, of course, extrapolation entry if iOpt(32)==1)
+// Note: there is ***NO*** checking if sens. part makes really sense...
+extern void slimdherm_(
+            int*      nDAE,
             int*      n,
             Fcn       fcn,
             Jac       jac,

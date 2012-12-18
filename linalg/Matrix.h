@@ -109,12 +109,14 @@ namespace PARKIN
     /// =======================================================================
 
     Matrix operator+ (Matrix const& A, Matrix const& B);
+    Matrix operator- (Matrix const& A, Matrix const& B);
     Matrix operator* (Real const c, Matrix const& A);
     Matrix operator* (Matrix const& A, Real const c);
     Matrix operator* (Matrix const& A, Matrix const& B);
     std::ostream& operator<< (std::ostream& os, Matrix const& A);
 
     Matrix add(Matrix const& A, Matrix const& B);
+    Matrix subtract(Matrix const& A, Matrix const& B);
     Matrix mult(Matrix const& A, Matrix const& B);
 }
 #endif // __MATRIX_H

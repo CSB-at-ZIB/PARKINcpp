@@ -7,6 +7,7 @@
 #ifndef __LIMEX_A_H
 #define __LIMEX_A_H
 
+#include "FirstOrderODESystem.h"
 #include "ODESolver.h"
 #include "LIMEXTrajectory.h"
 
@@ -27,6 +28,14 @@ namespace PARKIN
             LIMEX_A();
             virtual ~LIMEX_A();
 
+            virtual void setODESystem(
+                                        FirstOrderODESystem& ode,
+                                        double              t0,
+                                        Grid const&         y0,
+                                        double              tEnd
+                                       );
+
+
             virtual int integrate();
             virtual int integrate(unsigned n, double* yIni,
                                   double tLeft, double tRight);
@@ -36,9 +45,23 @@ namespace PARKIN
 
             ///
 
+            int integrateSensitivitySystem(unsigned nDAE);
+            int integrateSensitivitySystem(unsigned nDAE, unsigned n, double* yIni,
+                                        double tLeft, double tRight);
+
             int integrateWithoutInterpolation();
             int integrateWithoutInterpolation(unsigned n, double* yIni,
                                               double tLeft, double tRight);
+
+            void setODESystem(
+                                FirstOrderODESystem& ode,
+                                double              t0,
+                                Grid const&         y0,
+                                Grid const&         refGrid,
+                                double              tEnd,
+                                int                 bandwidth = 0
+                             );
+
 
             void setODESystem(
                                 Fcn         fcn,
@@ -89,5 +112,33 @@ namespace PARKIN
 
             LIMEXTrajectory _trajectory;
     };
+
+    ///
+
+    class LIMEXWrapper
+    {
+        public:
+            // LIMEX callback interface:
+            //    'static' qualifier needed as calling parameter
+            //     of FORTRAN subroutine limex_( ... ) !
+            static void xfcn(  int* n, int* nz,
+                                double* t, double* y, double* dy,
+                                double* B, int* ir, int* ic,
+                                int* info);
+            static void xjac(  int* n,
+                                double* t, double* y, double* dy,
+                                double* J, int* ldJ,
+                                int* ml, int* mu, int* full_or_band,
+                                int* info);
+
+            static void setODE(FirstOrderODESystem& ode)
+            {
+                _ode = &ode;
+            }
+
+        private:
+            static FirstOrderODESystem* _ode;
+    };
+
 }
 #endif // __LIMEX_A_H

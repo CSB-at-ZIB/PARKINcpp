@@ -1,8 +1,28 @@
-      subroutine LIMDHERM ( n, Fcn, Jacobian, t_Begin, t_End, y, ys,
-     2                      rTol, aTol, h, Iopt, Ropt, IPos, IFail,
-     3                      kOrder, Dense, t1, t2 )
+      subroutine SLIMDHERM ( nDAE, n, Fcn, Jacobian, t_Begin, t_End,
+     2                  y, ys, rTol, aTol, h, Iopt, Ropt, IPos, IFail,
+     3                  kOrder, Dense, t1, t2 )
 c
       implicit none
+c
+c***********************************************************************
+c***********************************************************************
+c     SLIMEX = Sensitivity-LIMEX
+c     This is a modified version of LIMEX which utilizes the fact, that
+c     a simplified Jacobian factorization can be applied to systems
+c     which consist of a combination of DAE equations and sensitivity
+c     equations.
+c
+c     This is the dense version
+c
+c     Modification following ideas of:
+c      Martin Schlegel
+c      Lehrstuhl fuer Prozesstechnik, RWTH Aachen
+c
+c     All changed parts in the origial code are framed by '****' - lines
+c     Sections with important changes are starting with the words
+c     'Change section'
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -304,6 +324,17 @@ c
 c     All restrictions  are  checked, but  no further  control of  the
 c     consistency of the input data will be performed.
 c
+c***********************************************************************
+c***********************************************************************
+c
+c     nDAE       Integer variable, must be set by caller on entry, not
+c                modified.  Size of the (small) DAE system; in contrast
+c                to n, the size of the overall system DAE + Sens. Eq.
+c                Restriction: n => nDAE => 1.
+c
+c***********************************************************************
+c***********************************************************************
+c
 c     n          Integer variable, must be set by caller on entry, not
 c                modified. Size of the  differential algebraic system.
 c                Restriction: Max_Nr_of_Equations => n => 1.
@@ -373,7 +404,7 @@ c                changed. On exit h is the  estimated optimal stepsize
 c                for the next  integration step. If an  error occurred
 c                h is set to zero.
 c
-c     Iopt       Integer  array  of  size 30, values  from  Iopt(1) to
+c     Iopt       Integer  array  of  size 32, values  from  Iopt(1) to
 c                Iopt(18) must be set by caller on  entry. Integration
 c                control parameters.
 c
@@ -1081,6 +1112,16 @@ c
      2                   aTol ( * ), h, Ropt ( 5 ), t1, t2
 c
       external           Fcn, Jacobian
+c***********************************************************************
+c***********************************************************************
+      integer            nDAE, nSWAP, nzSWAP
+c  - nDAE is the dimension of the DAE system as compared to n, which is
+c    the dimension of the entire system (DAE + sens. eqns.)
+c  - nSWAP is a working space integer for easy changes in the original
+c    code
+c  - nzSWAP is a working space integer for intermediate storage of nz
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -1189,6 +1230,15 @@ c
      7                   Temp4 ( Max_Size ),
      8                   TolQu ( Max_Size ),
      9                   yk    ( Max_Size )
+c
+c***********************************************************************
+c***********************************************************************
+      double precision   delMSWAP(Max_Size,Max_Size)
+      integer            ii, jj
+c  - delSWAP is a working space matrix for the right hand sides
+c  - ii and jj are loop counters      
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -1938,6 +1988,7 @@ c     Preparations for dense output.
 c
 c-----------------------------------------------------------------------
 c
+cTD
       if ( NoDense .eq. 1 .or. Iopt(17) .eq. 1 .or. Iopt(32) .eq. 1 )
      2   then
 c
@@ -2131,6 +2182,14 @@ c     Compute new Jacobian matrix.
 c
 c-----------------------------------------------------------------------
 c
+c***********************************************************************
+c***********************************************************************
+c     Save original n in nSWAP, change n to nDAE
+         nSWAP = n
+         n = nDAE
+c***********************************************************************
+c***********************************************************************
+c
       if ( HoldJac .eq. 0 ) then
 c
          JacAct = 1
@@ -2152,6 +2211,12 @@ c
 c-----------------------------------------------------------------------
 c
             if ( Full_or_Band .eq. 0 ) then
+c
+c***********************************************************************
+c***********************************************************************
+               nzSWAP = nz
+c***********************************************************************
+c***********************************************************************
 c
                do j = 1, n
 c
@@ -2209,6 +2274,12 @@ c
 c
                end do
 c
+c***********************************************************************
+c***********************************************************************
+               nz = nzSWAP
+c***********************************************************************
+c***********************************************************************
+c
             else
 c
 c-----------------------------------------------------------------------
@@ -2216,6 +2287,12 @@ c
 c     The Jacobian matrix is a banded matrix.
 c
 c-----------------------------------------------------------------------
+c
+c***********************************************************************
+c***********************************************************************
+               nzSWAP = nz
+c***********************************************************************
+c***********************************************************************
 c
                do j = 1, mb2
 c
@@ -2283,6 +2360,12 @@ c
                   end do
 c
                end do
+c
+c***********************************************************************
+c***********************************************************************
+               nz = nzSWAP
+c***********************************************************************
+c***********************************************************************
 c
             end if
 c
@@ -2355,6 +2438,13 @@ c
          JacAct = 0
 c
       end if
+c
+c***********************************************************************
+c***********************************************************************
+c     Reset the dimensions
+      n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -2452,6 +2542,13 @@ c     Compute B(0) / h - A.
 c
 c-----------------------------------------------------------------------
 c
+c***********************************************************************
+c***********************************************************************
+         nSWAP = n
+         n = nDAE
+c***********************************************************************
+c***********************************************************************
+c
          if ( Full_or_Band .eq. 0 ) then
 c
             do i = 1, n
@@ -2467,6 +2564,14 @@ c
             end do
 c
          end if
+c
+c***********************************************************************
+c***********************************************************************
+         n = nSWAP
+         nzSWAP = nz
+         nz = (nz*nDAE)/nSWAP
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -2527,6 +2632,14 @@ c     Factorize B(0) / h - A.
 c
 c-----------------------------------------------------------------------
 c
+c***********************************************************************
+c***********************************************************************
+         nz = nzSWAP
+         nSWAP = n
+         n = nDAE
+c***********************************************************************
+c***********************************************************************
+c
          if ( Full_or_Band .eq. 0 ) then
 c
             call dgetrf ( n, n, B_Jac, LDBJac, Pivot, IFail(2) )
@@ -2538,6 +2651,12 @@ c
          end if
 c
          nDec = nDec + 1
+c
+c***********************************************************************
+c***********************************************************************
+         n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -2568,19 +2687,55 @@ c-----------------------------------------------------------------------
 c
          call dcopy ( n, dz, 1, del, 1 )
 c
+c Change section 1          
+c***********************************************************************
+c***********************************************************************
+c     Save original n in nSWAP, change n to nDAE
+         nSWAP = n
+         n = nDAE
+
+c     Save the right hand sides in the matrix delMSWAP
+         do ii = 1,n
+            do jj = 1,(nSWAP/n)
+               delMSWAP(ii,jj) =
+     2              del((jj-1)*n + ii)*Scal((jj-1)*n + ii)/Scal(ii)
+            end do
+         end do
+c In the following section the following changes have been made:
+c     - '(nSWAP/n)' replaces '1'
+c     - 'delMSWAP' replaces 'del'      
+c***********************************************************************
+c***********************************************************************
          if ( Full_or_Band .eq. 0 ) then
 c
-            call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, del,
+            call dgetrs ( 'N', n, (nSWAP/n), B_Jac, LDBJac, Pivot, 
+     1                    delMSWAP,
      2                    Max_Size, IFail(2) )
 c
          else
 c
-            call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot, del,
+            call dgbtrs ( 'N', n, ml, mu, (nSWAP/n), B_Jac, LDBJac, 
+     1                    Pivot, delMSWAP,
      2                    Max_Size, IFail(2) )
 c
          end if
 c
          nSol = nSol + 1
+c
+c Change section 2         
+c***********************************************************************
+c***********************************************************************
+c     Restore del         
+         do ii = 1,n
+            do jj = 1,(nSWAP/n)
+               del((jj-1)*n + ii)
+     2              = delMSWAP(ii,jj)*Scal(ii)/Scal((jj-1)*n + ii)
+            end do
+         end do
+c     Re-adjust n
+         n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -2916,6 +3071,15 @@ c     Build matrix B(k) / h - A.
 c
 c-----------------------------------------------------------------------
 c
+c***********************************************************************
+c***********************************************************************
+               nSWAP = n
+               n = nDAE
+               nzSWAP = nz
+               nz = (nz*nDAE)/nSWAP
+c***********************************************************************
+c***********************************************************************
+c
                if ( Full_or_Band .eq. 0 ) then
 c
                   do i = 1, n
@@ -2938,6 +3102,7 @@ c
 c     Add entries of B(t,y).
 c
 c-----------------------------------------------------------------------
+c
 cTD
                if ( Iopt(31) .eq. 0 ) then
 c
@@ -3020,19 +3185,53 @@ c     or dgbtrf to h/nj(j) * f((y(k)).
 c
 c-----------------------------------------------------------------------
 c
+c Change section 3
+c***********************************************************************
+c***********************************************************************
+c     Save the right hand sides in the matrix delMSWAP
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     delMSWAP(ii,jj) =
+     2                 del((jj-1)*n + ii)*Scal((jj-1)*n + ii)/Scal(ii)
+                  end do
+               end do
+c In the following section the following changes have been made:
+c     - '(nSWAP/n)' repclaces '1'
+c     - 'delMSWAP' replaces 'del'              
+c***********************************************************************
+c***********************************************************************
+c
                if ( Full_or_Band .eq. 0 ) then
 c
-                  call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, del,
+                  call dgetrs ( 'N', n, (nSWAP/n), B_Jac, LDBJac, Pivot,
+     1                          delMSWAP,
      2                          Max_Size, IFail(2) )
 c
                 else
 c
-                  call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot,
-     2                          del, Max_Size, IFail(2) )
+                  call dgbtrs ( 'N', n, ml, mu, (nSWAP/n), B_Jac, 
+     1                          LDBJac, Pivot,
+     2                          delMSWAP, Max_Size, IFail(2) )
 c
                end if
 c
                nSol = nSol + 1
+c
+c Change section 4
+c***********************************************************************
+c***********************************************************************
+c     Restore del
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     del((jj-1)*n + ii)
+     2                 = delMSWAP(ii,jj)*Scal(ii)/Scal((jj-1)*n + ii)
+                  end do
+               end do
+c      
+               nz = nzSWAP
+               n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
             end if
 c
@@ -3052,19 +3251,58 @@ c     decomposition of B(0) / h - A.
 c
 c-----------------------------------------------------------------------
 c
+c Change section 5              
+c***********************************************************************
+c***********************************************************************
+               nSWAP = n
+               n = nDAE
+               nzSWAP = nz
+               nz = (nz*nDAE)/nSWAP
+c               
+c     Save the right hand sides in the matrix delMSWAP
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     delMSWAP(ii,jj) =
+     2               del((jj-1)*n + ii)*Scal((jj-1)*n + ii)/Scal(ii)
+                  end do
+               end do
+c     In the following section the following changes have been made:
+c     - '(nSWAP/n)' repclaces '1'
+c     - 'delMSWAP' replaces 'del'              
+c***********************************************************************
+c***********************************************************************
+c
                if ( Full_or_Band .eq. 0 ) then
 c
-                  call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, del,
+                  call dgetrs ( 'N', n, (nSWAP/n), B_Jac, LDBJac,
+     1                          Pivot, delMSWAP,
      2                          Max_Size, IFail(2) )
 c
                else
 c
-                  call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot,
-     2                          del, Max_Size, IFail(2) )
+                  call dgbtrs ( 'N', n, ml, mu, (nSWAP/n), 
+     1                          B_Jac, LDBJac, Pivot,
+     2                          delMSWAP, Max_Size, IFail(2) )
 c
                end if
 c
                nSol = nSol + 1
+c
+c Change section 6
+c***********************************************************************
+c***********************************************************************
+c     Restore del
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     del((jj-1)*n + ii)
+     2                 = delMSWAP(ii,jj)*Scal(ii)/Scal((jj-1)*n + ii)
+                  end do
+               end do
+c
+               nz = nzSWAP
+               n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -3128,19 +3366,58 @@ c     ( B(0) / h - A )**(-1) * ( delta(B(k) / h ) * delta(k+1).
 c
 c-----------------------------------------------------------------------
 c
+c Change section 7
+c***********************************************************************
+c***********************************************************************
+               nSWAP = n
+               n = nDAE
+               nzSWAP = nz
+               nz = (nz*nDAE)/nSWAP
+c
+c     Save the right hand sides in the matrix delMSWAP
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     delMSWAP(ii,jj) =
+     2                Temp1((jj-1)*n + ii)*Scal((jj-1)*n + ii)/Scal(ii)
+                  end do
+               end do
+c In the following section the following changes have been made:
+c     - '(nSWAP/n)' repclaces '1'
+c     - 'delMSWAP' replaces 'Temp1'              
+c***********************************************************************
+c***********************************************************************
+c
                if ( Full_or_Band .eq. 0 ) then
 c
-                  call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, Temp1,
+                  call dgetrs ( 'N', n, (nSWAP/n), B_Jac, LDBJac, 
+     1                          Pivot, delMSWAP,
      2                          Max_Size, IFail(2) )
 c
                else
 c
-                  call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot,
-     2                          Temp1, Max_Size, IFail(2) )
+                  call dgbtrs ( 'N', n, ml, mu, (nSWAP/n), 
+     1                          B_Jac, LDBJac, Pivot,
+     2                          delMSWAP, Max_Size, IFail(2) )
 c
                end if
 c
                nSol = nSol + 1
+c
+c Change section 8
+c***********************************************************************
+c***********************************************************************
+c     Restore Temp1
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     Temp1((jj-1)*n + ii)
+     2                 = delMSWAP(ii,jj)*Scal(ii)/Scal((jj-1)*n + ii)
+                  end do
+               end do
+c
+               nz = nzSWAP
+               n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -3214,19 +3491,58 @@ c
 c
             if ( Iopt(10) .eq. 1. and. j .eq. 2 .and. iCIV .eq. 0 ) then
 c
+c Change section 9
+c***********************************************************************
+c***********************************************************************
+               nSWAP = n
+               n = nDAE
+               nzSWAP = nz
+               nz = (nz*nDAE)/nSWAP
+c
+c     Save the right hand sides in the matrix delMSWAP
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     delMSWAP(ii,jj) =
+     2                 Temp3((jj-1)*n + ii)*Scal((jj-1)*n + ii)/Scal(ii)
+                  end do
+               end do
+c In the following section the following changes have been made:
+c     - '(nSWAP/n)' repclaces '1'
+c     - 'delMSWAP' replaces 'Temp3'              
+c***********************************************************************
+c***********************************************************************
+c
                if ( Full_or_Band .eq. 0 ) then
 c
-                  call dgetrs ( 'N', n, 1, B_Jac, LDBJac, Pivot, Temp3,
+                  call dgetrs ( 'N', n, (nSWAP/n), B_Jac, LDBJac, 
+     1                          Pivot, delMSWAP,
      2                          Max_Size, IFail(2) )
 c
                else
 c
-                  call dgbtrs ( 'N', n, ml, mu, 1, B_Jac, LDBJac, Pivot,
-     2                          Temp3, Max_Size, IFail(2) )
+                  call dgbtrs ( 'N', n, ml, mu, (nSWAP/n), 
+     1                          B_Jac, LDBJac, Pivot,
+     2                          delMSWAP, Max_Size, IFail(2) )
 c
                end if
 c
                nSol = nSol + 1
+c
+c Change section 10
+c***********************************************************************
+c***********************************************************************
+c     Restore Temp3
+               do ii = 1,n
+                  do jj = 1,(nSWAP/n)
+                     Temp3((jj-1)*n + ii)
+     2                  = delMSWAP(ii,jj)*Scal(ii)/Scal((jj-1)*n + ii)
+                  end do
+               end do
+c
+               nz = nzSWAP
+               n = nSWAP
+c***********************************************************************
+c***********************************************************************
 c
                tmp = zero
 c
@@ -3279,6 +3595,7 @@ c
                Temp3(i) = Scal(i) * del(i)
             end do
 c
+cTD
              if ( n_Dense .eq. 1 .or. Iopt(32)  .eq. 1 )
      2         call dcopy ( n, Temp3, 1, Dense(1,ipt(j-1)+k+1), 1 )
 c
@@ -3428,6 +3745,25 @@ c
             end do
 c
          end if
+c
+c Change section 11         
+c***********************************************************************
+c***********************************************************************
+c     Within sensitivity computation consider only the original DAE
+c     states
+         if (n .eq. 0) then
+c
+            do i = 1, n
+               del(i) = zero
+            end do
+c
+            do i = 1, nDAE
+               del(i) = g * ys(i) / Scal(i)
+            end do
+c
+         end if
+c***********************************************************************
+c***********************************************************************
 c
 c-----------------------------------------------------------------------
 c
@@ -3795,6 +4131,7 @@ c-----------------------------------------------------------------------
 c
   300 continue
 c
+cTD
       if ( n_Dense .eq. 0 .and. Iopt(32) .ne. 1 ) go to 350
 c
       call dcopy ( n, yk, 1, Dense(1,2), 1 )

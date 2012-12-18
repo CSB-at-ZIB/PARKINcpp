@@ -12,6 +12,7 @@
 // #include <set>
 #include "common/Constants.h"
 #include "common/Types.h"
+#include "FirstOrderODESystem.h"
 
 namespace PARKIN
 {
@@ -23,9 +24,14 @@ namespace PARKIN
             typedef std::map< unsigned, std::vector<Real> >     Trajectory;
             typedef Grid::const_iterator                        GridIterConst;
 
+            virtual void setODESystem(
+                                            FirstOrderODESystem& ode,
+                                            double              t0,
+                                            Grid const&         y0,
+                                            double              tEnd
+                                       ) = 0;
 
             virtual ~ODESolver() { }
-
 
             virtual int         integrate()                            = 0;
             virtual int         integrate(unsigned n, double* yIni,

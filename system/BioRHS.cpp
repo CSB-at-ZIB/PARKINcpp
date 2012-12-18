@@ -15,6 +15,7 @@ BioRHS::BioRHS() :
     _rhs_type(),
     _rhs(), _drhs(), _species(), _parameter(),
     _num_table_entries(2), _data_table(new double*[2])
+    /// , _Fz(0), _Fp(0)
 {
     _data_table[0] = _data_table[1] = 0;
 }
@@ -38,6 +39,7 @@ BioRHS::BioRHS(ExpressionMap const& emap) :
     _rhs_type(),
     _rhs(emap), _drhs(), _species(), _parameter(),
     _num_table_entries(2), _data_table(new double*[2])
+    /// _Fz(0), _Fp(0)
 {
     EMapIterConst eBeg = emap.begin();
     EMapIterConst eEnd = emap.end();
@@ -69,6 +71,7 @@ BioRHS::BioRHS(ExpressionMap const& emap) :
 
     _data_table[0] = _data_table[1] = 0;
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -76,6 +79,7 @@ BioRHS::BioRHS(Species const& species) :
     _rhs_type(),
     _rhs(), _drhs(), _species(), _parameter(),
     _num_table_entries(2), _data_table(new double*[2])
+    /// , _Fz(0), _Fp(0)
 {
     StrIterConst sBeg = species.begin();
     StrIterConst sEnd = species.end();
@@ -118,6 +122,7 @@ BioRHS::BioRHS(Species const& species) :
 
     _data_table[0] = _data_table[1] = 0;
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -126,6 +131,7 @@ BioRHS::BioRHS(ExpressionMap const& emap,
     _rhs_type(),
     _rhs(emap), _drhs(), _species(), _parameter(param),
     _num_table_entries(2), _data_table(new double*[2])
+    /// , _Fz(0), _Fp(0)
 {
     EMapIterConst eBeg = emap.begin();
     EMapIterConst eEnd = emap.end();
@@ -160,6 +166,7 @@ BioRHS::BioRHS(ExpressionMap const& emap,
 
     _data_table[0] = _data_table[1] = 0;
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -167,6 +174,9 @@ BioRHS::~BioRHS()
 {
     // for (long j = 1; j < _num_table_entries; ++j) delete[] _data_table[j];
     delete[] _data_table;
+
+    /// delete[] _Fz;
+    /// delete[] _Fp;
 }
 //----------------------------------------------------------------------------
 BioRHS::BioRHS(BioRHS const& r)
@@ -184,6 +194,8 @@ BioRHS::BioRHS(BioRHS const& r)
         for (long j = 0; j < _num_table_entries; ++j)
             _data_table[j] = r._data_table[j];
 
+        /// _Fz = _Fp = 0;
+        /// reserveJacobianMemory();
         // computeDerivativeExpression();
     }
 }
@@ -207,11 +219,32 @@ BioRHS::operator= (BioRHS const& r)
         for (long j = 0; j < _num_table_entries; ++j)
             _data_table[j] = r._data_table[j];
 
+        /// _Fz = _Fp = 0;
+        /// reserveJacobianMemory();
         // computeDerivativeExpression();
     }
 
     return *this;
 }
+//----------------------------------------------------------------------------
+/*
+void
+BioRHS::reserveJacobianMemory()
+{
+    long n = _species.size() + 1L;
+    long q = _parameter.size();
+
+    delete[] _Fz;
+    delete[] _Fp;
+
+    _Fz = new double[n*n];
+
+    if ( q > 0L )
+    {
+        _Fp = new double[n*q];
+    }
+}
+*/
 //----------------------------------------------------------------------------
 void
 BioRHS::computeDerivativeExpression() // Expression::Param const& var)
@@ -328,6 +361,7 @@ BioRHS::setRHS(ExpressionMap const& emap)
 
     // _parameter.clear();
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -373,6 +407,7 @@ BioRHS::resetSpecies(BioRHS::Species const& species)
 
     // _parameter.clear();
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -406,6 +441,7 @@ BioRHS::setParameters(Expression::Param const& param)
             expr.off(*itPar, --b);
     }
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -428,6 +464,7 @@ BioRHS::setParameters(Parameter const& param)
             expr.off(*itPar, --b);
     }
 
+    /// reserveJacobianMemory();
     computeDerivativeExpression();
 }
 //----------------------------------------------------------------------------
@@ -614,8 +651,8 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
 {
     long                n = Zp.nr();
     long                q = Zp.nc();
-    Matrix              Fz; // ( n, n );
-    Matrix              Fp; // ( n, q );
+    Matrix              FzWork; // ( n, n );
+    Matrix              FpWork; // ( n, q );
 
     if ( ( (n-1) > (long)_species.size()   ) ||
          (     q > (long)_parameter.size() )
@@ -624,10 +661,10 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
        return Matrix();
     }
 
-    Fz.zeros(n,n);
-    Fp.zeros(n,q);
+    FzWork.zeros(n,n);
+    FpWork.zeros(n,q);
 
-    Fz(1,1) = 0.0;
+    FzWork(1,1) = 0.0;
 
     for (long j = 2; j <= n; ++j)
     {
@@ -637,7 +674,7 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
         {
             std::string t = s + _species[k-2];
 
-            Fz(j,k) = _drhs[t].eval(par);
+            FzWork(j,k) = _drhs[t].eval(par);
         }
 
         Expression::ParamIterConst it = var.begin();
@@ -647,13 +684,13 @@ BioRHS::df(Expression::Param const& var, Matrix const& Zp,
             // std::string t = s + _parameter[k-1];
             std::string t = s + ((it++)->first);
 
-            Fp(j,k) = _drhs[t].eval(par);
+            FpWork(j,k) = _drhs[t].eval(par);
         }
     }
 
-    // Matrix dZ = Fz * Zp + Fp;
+    // Matrix dZ = FzWork * Zp + FpWork;
 
-    return  Fz * Zp  +  Fp;  //  dZ;
+    return  FzWork * Zp  +  FpWork;  //  dZ;
 }
 //----------------------------------------------------------------------------
 Matrix
@@ -676,24 +713,24 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
     //obsolete: double* ZpSave = new double[n*q];
     double* FpSave = new double[n*q];
 
-    double* Fz    = FzSave;
+    double* FzWork    = FzSave; // _Fz;
     //obsolete: double* Zptmp = ZpSave;
-    double* Fp    = FpSave;
+    double* FpWork    = FpSave; // _Fp;
 
 
     _data_table[0] = y;
 
 
-    *Fz++  = 0.0;
+    *FzWork++  = 0.0;
 
     for (long k = 1; k < n; ++k)
     {
-        *Fz++ = 0.0;
+        *FzWork++ = 0.0;
     }
 
     for (long k = 0; k < q; ++k)
     {
-        *Fp++ = 0.0;
+        *FpWork++ = 0.0;
 
         //obsolete: *Zptmp++ = *Zp++;
     }
@@ -703,13 +740,13 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
     {
         std::string s = _species[j-1] + " / ";
 
-        *Fz++ = 0.0;
+        *FzWork++ = 0.0;
 
         for (long k = 1; k < n; ++k)
         {
             std::string t = s + _species[k-1];
 
-            *Fz++ = _drhs[t].eval( _data_table );
+            *FzWork++ = _drhs[t].eval( _data_table );
         }
 
 
@@ -719,22 +756,22 @@ BioRHS::df(Expression::Param const& var, double* Zp, double* y,
         {
             std::string t = s + ((it++)->first);
 
-            *Fp++ = _drhs[t].eval( _data_table );
+            *FpWork++ = _drhs[t].eval( _data_table );
 
             //obsolete: *Zptmp++ = *Zp++;
         }
     }
 
 
-    Fz = FzSave;
+    FzWork = FzSave; // _Fz; // FzSave;
     //obsolete: Zp = ZpSave;
-    Fp = FpSave;
+    FpWork = FpSave; // _Fp; // FpSave;
 
 
     for (long k = 0; k < q; ++k)
     {
-        double*   Fpk = Fp++;
-        double* Fztmp = Fz;
+        double*   Fpk = FpWork++;
+        double* Fztmp = FzWork;
 
         for (long j = 0; j < n; ++j)
         {

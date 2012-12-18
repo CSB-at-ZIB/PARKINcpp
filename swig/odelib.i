@@ -8,6 +8,7 @@
 
 %{
 // #include <common/Types.h>
+#include <odelib/FirstOrderODESystem.h>
 #include <odelib/ODESolver.h>
 #include <odelib/ODETrajectory.h>
 // #include <odelib/DOP853.h>
@@ -21,6 +22,7 @@
 // %template(Trajectory) std::map< unsigned, PARKIN::ODESolver::Grid >;
 
 %include "common/Types.h"
+%include "odelib/FirstOrderODESystem.h"
 %include "odelib/ODESolver.h"
 %include "odelib/ODETrajectory.h"
 // %include "odelib/DOP853.h"

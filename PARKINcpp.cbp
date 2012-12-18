@@ -168,10 +168,12 @@
 		<Unit filename="addpkg/LIMEX4_3A/HERMINE.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMD.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMDHERM.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMDHERM_DD.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.h" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Dense.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Size_Definitions.h" />
+		<Unit filename="addpkg/LIMEX4_3A/sLIMDHERM.f" />
 		<Unit filename="addpkg/Ode/dop853b.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -308,12 +310,21 @@
 		<Unit filename="linalg/dlibMatrixImpl.h" />
 		<Unit filename="nonlin/GaussNewton.cpp" />
 		<Unit filename="nonlin/GaussNewton.h" />
+		<Unit filename="nonlin/MultipleShootingGN.cpp">
+			<Option target="SharedCppLib" />
+			<Option target="SharedCppLibDebug" />
+		</Unit>
+		<Unit filename="nonlin/MultipleShootingGN.h">
+			<Option target="SharedCppLib" />
+			<Option target="SharedCppLibDebug" />
+		</Unit>
 		<Unit filename="nonlin/UserFunc.cpp" />
 		<Unit filename="nonlin/UserFunc.h" />
 		<Unit filename="nonlin/YeOldeParkinCore.cpp" />
 		<Unit filename="nonlin/YeOldeParkinCore.h" />
 		<Unit filename="odelib/DOP853.cpp" />
 		<Unit filename="odelib/DOP853.h" />
+		<Unit filename="odelib/FirstOrderODESystem.h" />
 		<Unit filename="odelib/LIMEXTrajectory.cpp" />
 		<Unit filename="odelib/LIMEXTrajectory.h" />
 		<Unit filename="odelib/LIMEX_A.cpp" />

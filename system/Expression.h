@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <map>
 
 
@@ -51,6 +52,10 @@ namespace PARKIN
             typedef std::map <std::string, Real>  Param;            // for declaration of method eval(Param&) below
             typedef Param::const_iterator         ParamIterConst;
 
+            typedef std::vector<std::string>      Names;
+            typedef std::vector<Real>               Coeff;
+            typedef std::vector<long>              Multix;
+
             ///
 
             Expression();
@@ -79,6 +84,10 @@ namespace PARKIN
 
             ///
 
+            Expression(Names const&, Coeff const&, std::vector<Multix> const&);
+
+            ///
+
             ~Expression();
 
             Expression(Expression const& e);
@@ -90,6 +99,7 @@ namespace PARKIN
             void        prt (std::ostream&)      const;
             bool        eq  (Real)               const;
             void        off (std::string const&, long const);
+            void        off (Names const&, std::vector<long> const&);
 
         private:
             ExprNode* _node;

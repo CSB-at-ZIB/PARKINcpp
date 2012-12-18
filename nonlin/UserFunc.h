@@ -29,7 +29,7 @@ namespace PARKIN
     struct IOpt
     {
         // Real    ;
-        int       iscal, mode, iterm, jacgen, boundeddamp;
+        int       iauto, iscal, mode, iterm, jacgen, boundeddamp;
         int       nonlin, rscal, itmax;
         int       mprerr, mprmon, mprsol, mprtim;
         int       transf;

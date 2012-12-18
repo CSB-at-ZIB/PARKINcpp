@@ -908,7 +908,10 @@ BioSystem::computeJacobian(Expression::Param const& var,
     StrIterConst        sEnd = species.end();
     StrIterConst        pBeg = parameter.begin();
     StrIterConst        pEnd = parameter.end();
-
+/*
+    Real                rTolSave = _odeSolver -> getRTol();
+    Real                aTolSave = _odeSolver -> getATol();
+*/
     // Z.zeros(n,qq);
     // jacobian.zeros(_totmeasData,qq);
 
@@ -957,6 +960,11 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
     iniValues[0] = _tInterval[0];
 
+/*
+    _odeSolver -> setRTol(1.0e-2);
+    _odeSolver -> setATol(1.0e-3);
+*/
+
     dynamic_cast<LIMEX_A*>(_odeSolver) ->
                             setODESystem(
                                             BioSystemWrapper::fcnVar,
@@ -994,7 +1002,12 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
         //$$$ std::cerr << "*** dop853: rc = " <<
         // std::cerr << "\n*** BioSystem::computeJacobian() : limex_a: rc = " <<
-        _odeErrorFlag = _odeSolver -> integrate(N, yy, _tInterval[jj-1], _tInterval[jj]);
+/*
+        _odeErrorFlag = _odeSolver ->
+                            integrate(N, yy, _tInterval[jj-1], _tInterval[jj]);
+*/
+        _odeErrorFlag = dynamic_cast<LIMEX_A*>(_odeSolver) ->
+                            integrateSensitivitySystem(n, N, yy, _tInterval[jj-1], _tInterval[jj]);
         // std::cerr << std::endl;
 
         /*
@@ -1032,6 +1045,10 @@ BioSystem::computeJacobian(Expression::Param const& var,
         sim = dynamic_cast<LIMEX_A*>(_odeSolver) -> getDataTrajectory();
     }
 
+/*
+    _odeSolver -> setRTol( rTolSave );
+    _odeSolver -> setATol( aTolSave );
+*/
 
     _linftyModel.clear();
     _synData.clear();

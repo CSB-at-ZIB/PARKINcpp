@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <map>
 
 #include "common/Types.h"
@@ -34,6 +35,8 @@ namespace PARKIN
             virtual void        prt (std::ostream&)      const = 0;
             virtual bool        eq  (Real)               const = 0;
             virtual void        off (std::string const&, long const) = 0;
+            virtual void        off (Expression::Names const&,
+                                      std::vector<long> const&) { }
 
         private:
             long _count;
@@ -210,8 +213,42 @@ namespace PARKIN
         private:
             std::string     _name;
             Expression      _expr;
-
     };
+
+    ///
+
+    class Polynomial : public ExprNode
+    {
+        public:
+            Polynomial(Expression::Names const&                 names,
+                       Expression::Coeff const&                 coeff,
+                       std::vector<Expression::Multix> const&  multIdx) :
+                    _N(names.size()), _names(names), _offs(),
+                    _Jcoeff(coeff.size()), _coeff(coeff), _multIdx(multIdx)
+            { _offs.resize(_N); }
+            // virtual ~Polynomial() {}
+
+            virtual Real        eval(Param& x)                const;
+            virtual Real        eval(double* y[])            const;
+            virtual Expression  df  (std::string const& n)  const;
+            virtual void        prt (std::ostream& s)        const;
+            virtual bool        eq  (Real v)                  const;
+            virtual void        off (std::string const&     n,
+                                       long const              a);
+            virtual void        off (Expression::Names const&       nVec,
+                                       std::vector<long> const&     aVec);
+
+        private:
+            long                   _N;  // _N == _names.size() == _multIdx[j].size()
+            Expression::Names       _names;
+            std::vector<long>     _offs;
+
+            long                               _Jcoeff;
+            Expression::Coeff                   _coeff;
+            std::vector<Expression::Multix>   _multIdx;
+    };
+
+    ///
 
     Real sign(Real x);
 }

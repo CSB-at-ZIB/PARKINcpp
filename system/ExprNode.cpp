@@ -691,6 +691,170 @@ UserExpr::off(std::string const& n, long const a)
 }
 //---------------------------------------------------------------------------
 
+///
+
+//---------------------------------------------------------------------------
+Real
+Polynomial::eval(Param& x) const
+{
+    Real    polysum = 0.0;
+
+    for (long j = 0; j < _Jcoeff; ++j)
+    {
+        Real                monom_result = 1.0;
+        Expression::Multix  mIdx = _multIdx[j];
+
+        for (long n = 0; n < _N; ++n)
+        {
+            long K = mIdx[n];
+
+            if ( K > 0 )
+            {
+                Real tmp = x[ _names[n] ];
+
+                for (long k = 1; k <= K; ++k) monom_result *= tmp;
+            }
+        }
+
+        polysum += (_coeff[j] * monom_result);
+    }
+
+    return polysum;
+}
+//---------------------------------------------------------------------------
+Real
+Polynomial::eval(double* y[]) const
+{
+    const long zero = 0;
+    const long one = 1;
+
+    Real     polysum = 0.0;
+
+    for (long j = 0; j < _Jcoeff; ++j)
+    {
+        Real                monom_result = 1.0;
+        Expression::Multix  mIdx = _multIdx[j];
+
+        for (long n = 0; n < _N; ++n)
+        {
+            long K = mIdx[n];
+
+            if ( K > 0 )
+            {
+                long offset = _offs[n];
+
+                Real tmp = ( offset < zero ) ? *(y[1] - offset - one)
+                                             : *(y[0] + offset);
+
+                for (long k = 1; k <= K; ++k) monom_result *= tmp;
+            }
+        }
+
+        polysum += (_coeff[j] * monom_result);
+    }
+
+    return polysum;
+}
+//---------------------------------------------------------------------------
+Expression
+Polynomial::df(std::string const& n) const
+{
+    const long zero = 0;
+    const long one = 1;
+
+    Expression::Coeff                   coeff(_coeff);
+    std::vector<Expression::Multix>    multIdx(_multIdx);
+    long                    idx = -1;
+
+    for (long k = 0; k < _N; ++k)
+    {
+        if (_names[k].compare(n) == 0) { idx = k; break; }
+    }
+
+    if ( idx >= 0 )
+    {
+        for (long j = 0; j < _Jcoeff; ++j)
+        {
+            Expression::Multix*  mIdx = &multIdx[j];
+            long                b = (*mIdx)[idx];
+
+            coeff[j]    *= b;
+            (*mIdx)[idx] = std::max(b-one, zero);
+        }
+    }
+
+    Expression dpoly(_names, coeff, multIdx);
+
+    dpoly.off(_names, _offs);
+
+    return dpoly;
+}
+//---------------------------------------------------------------------------
+void
+Polynomial::prt(std::ostream& s) const
+{
+    for (long j = 0; j < _Jcoeff; ++j)
+    {
+        std::string       monom_str = " 1.0 ";
+        Expression::Multix mIdx = _multIdx[j];
+
+        for (long n = 0; n < _N; ++n)
+        {
+            long K = mIdx[n];
+
+            if ( K > 0 )
+            {
+                std::string tstr = _names[n];
+
+                for (long k = 1; k <= K; ++k) monom_str += ("*" + tstr);
+
+                monom_str += " ";
+            }
+        }
+
+        s <<  " + (" << _coeff[j] << ") * (" << monom_str << ")";
+    }
+}
+//---------------------------------------------------------------------------
+bool
+Polynomial::eq(Real v) const
+{
+    return false;
+}
+//---------------------------------------------------------------------------
+void
+Polynomial::off(std::string const& n, long const a)
+{
+    for (long j = 0; j < _N; ++j)
+    {
+        if (_names[j].compare(n) == 0) { _offs[j] = a;  break; }
+    }
+}
+//---------------------------------------------------------------------------
+void
+Polynomial::off(Expression::Names const& nVec,
+                std::vector<long> const& aVec)
+{
+    long K = nVec.size();
+
+    if ( K != (long)aVec.size() ) return;
+
+    //
+
+    for (long k = 0; k < K; ++k)
+    {
+        std::string n = nVec[k];
+
+        for (long j = 0; j < _N; ++j)
+        {
+            if (_names[j].compare(n) == 0) { _offs[j] = aVec[k]; break; }
+        }
+    }
+}
+//---------------------------------------------------------------------------
+
+///
+
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 Real

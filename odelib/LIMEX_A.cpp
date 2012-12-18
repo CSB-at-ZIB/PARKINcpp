@@ -13,9 +13,101 @@ using namespace PARKIN;
 // int _iOptStandard[30] = { 0 };
 
 //----------------------------------------------------------------------------
+FirstOrderODESystem* LIMEXWrapper::_ode = 0;
+//----------------------------------------------------------------------------
+extern "C"
+void
+LIMEXWrapper::xfcn( int* n, int* nz, double* t, double* y, double* dy,
+                    double* B, int* ir, int* ic, int* info)
+{
+
+    if ( _ode == 0 ) { *info = -999; return; }
+
+    //
+
+    *n = _ode -> getSystemDimension();
+
+    _ode -> computeDerivatives( *t, y, dy, info );
+
+    if ( *info < 0 ) { return; }
+
+    //
+
+    *nz = _ode -> getMassMatrixNz();
+
+    if ( *nz != 0 )
+    {
+        _ode -> computeMassMatrix( *t, y, B, ir, ic );
+    }
+    else
+    {
+        *nz = *n;
+        for (int j = 0; j < *nz; ++j)
+        {
+            B[j] = 1.0;
+            ir[j] = ic[j] = j+1;
+        }
+    }
+
+}
+//----------------------------------------------------------------------------
+extern "C"
+void
+LIMEXWrapper::xjac( int* n, double* t, double* y, double* dy,
+                    double* J, int* ldJ, int* ml, int* mu,
+                    int* full_or_band, int* info)
+{
+
+    if ( _ode == 0 ) { *info = -999; return; }
+
+    //
+
+    *n = _ode -> getSystemDimension();
+
+    double Jac[(*n) * (*n)];
+
+    _ode -> computeJacobian( *t, y, dy, Jac, info );
+
+    if ( *info < 0 ) { return; }
+
+    //
+
+    if ( *full_or_band != 0 )
+    {
+        for (int k = 0; k < *n; ++k)
+        {
+            int j0 = *mu - k;
+            int jj = 0;
+
+            for (int j = j0; j < *n; ++j)
+            {
+                J[j + (*ldJ) * k] = Jac[jj + (*n) * k];
+                ++jj;
+            }
+        }
+    }
+    else  //  *full_or_band == 0
+    {
+        for (int k = 0; k < *n; ++k)
+        {
+            for (int j = 0; j < *n; ++j)
+            {
+                J[j + (*ldJ) * k] = Jac[j + (*n) * k];
+            }
+        }
+    }
+
+}
+//----------------------------------------------------------------------------
+
+///
+///
+///
+
+//----------------------------------------------------------------------------
 LIMEX_A::LIMEX_A() :
     ODESolver(),
-    _n(0), _fcn(0), _jac(0),
+    _n(0), _fcn(LIMEXWrapper::xfcn), _jac(LIMEXWrapper::xjac),
     _t0(0.0), _T(0.0),
     _y0(0), _dy0(0),
     _h(0.0),
@@ -130,6 +222,7 @@ LIMEX_A::integrate()
 
     //
 
+    _iOpt[10] = 0;      // Switch for error tolerances: 0 rTol&aTol scalar, 1 rTol&aTol are vectors
     _iOpt[11] = 1;      // single step mode ON
     _iOpt[12] = 0;      // no dense output
     _iOpt[13] = 0;
@@ -148,6 +241,7 @@ LIMEX_A::integrate()
 
     while ( (_ifail[0] == 0) && (*t < T) )
     {
+        /* limdherm_dd_( */
         limdherm_(
                     &_n,
                     _fcn, _jac,
@@ -334,6 +428,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
 
     //
 
+    _iOpt[10] = 0;      // Switch for error tolerances: 0 rTol&aTol scalar, 1 rTol&aTol are vectors
     _iOpt[11] = 1;      // single step mode ON
     _iOpt[12] = 0;      // no dense output (!), but interpolation will be used below
     _iOpt[13] = 0;
@@ -353,6 +448,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
 
     while ( (_ifail[0] == 0) && (*t < T) )
     {
+        /* limdherm_dd_( */
         limdherm_(
                     &_n,
                     _fcn, _jac,
@@ -530,6 +626,277 @@ LIMEX_A::integrate( unsigned n, double* yIni,
     return _ifail[0];
 }
 //----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+int
+LIMEX_A::integrateSensitivitySystem(unsigned nnDAE)
+{
+    int           nDAE[1];
+    int           maxEqns = (int) MAX_NO_EQNS;
+    GridIterConst dBeg = _datPoints.begin();
+    GridIterConst dEnd = _datPoints.end();
+    double        rTol[_n], aTol[_n];
+    double        t[1], z[_n]; //, yEval[_n];
+    double        T = 0.0;
+    double*       ztmp = 0;
+
+    *nDAE = nnDAE;
+
+    *t = _t0;
+    T = _T;
+
+    for (long j = 0; j < _n; ++j)
+    {
+        z[j] = _y0[j];
+        _dy0[j] = 0.0;
+
+        rTol[j] = (j < (long)nnDAE) ? _rtol : 1.0e-3;
+        aTol[j] = (j < (long)nnDAE) ? _atol : 1.0e-3;
+    }
+
+    _solPoints.clear();
+    _solution.clear();
+    _data.clear();
+    _trajectory.clear();
+
+    //
+
+    _iOpt[10] = 1;      // Switch for error tolerances: 0 rTol&aTol scalar, 1 rTol&aTol are vectors
+    _iOpt[11] = 1;      // single step mode ON
+    _iOpt[12] = 0;      // no dense output
+    _iOpt[13] = 0;
+    _iOpt[14] = 0;
+
+    _iOpt[15] = 0;      // type of call of limex_(): 0 initial call
+
+    _iOpt[16] = 0;      // integration for t > T internally switched off
+    _iOpt[31] = 1;      // switch on interpolation (for single step mode), only available in LIMDHERM !!!
+
+    //
+
+    _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
+
+    //
+
+    while ( (_ifail[0] == 0) && (*t < T) )
+    {
+        /* slimdherm_dd_( */
+        slimdherm_(
+                    nDAE,
+                    &_n,
+                    _fcn, _jac,
+                    t, &T,
+                    z, _dy0,
+                    rTol, aTol, &_h,
+                    _iOpt, _rOpt, _iPos,
+                    _ifail,
+                    &_kOrder, _Dense, &_t1, &_t2
+                 );
+
+/*
+        // possibly very dangerous: cleaning up for numerical errors...
+        ztmp = z;
+        for (long j = 0; j < _n; ++j)
+        {
+            if ( std::fabs( *ztmp ) < EPMACH ) *ztmp = 0.0;
+            ++ztmp;
+        }
+*/
+
+        // in single step mode: save the new, adaptive time point
+        if (*t <= T)
+        {
+            _solPoints.push_back( *t );
+            ztmp = z;
+            ztmp++;  // skipping first component (the time variable)
+            for (long j = 0; j < (_n - 1); ++j)
+            {
+                 _solution[j].push_back( *ztmp++ );
+            }
+
+            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+        }
+
+    } // end while slimdherm_
+
+    //
+    // Evaluate and save the _data at measuremet points
+    //
+    for (GridIterConst it = dBeg; it != dEnd; ++it)
+    {
+        double tEval = (double) *it;
+
+        std::vector<Real> yEval = _trajectory.eval( tEval );
+
+        if ( yEval.size() == (unsigned) _n )
+        {
+            for (long j = 0; j < (_n - 1); ++j)
+            {
+                _data[j].push_back( yEval[j+1] );
+            }
+        }
+    }
+
+    //
+
+    return _ifail[0];
+}
+//----------------------------------------------------------------------------
+int
+LIMEX_A::integrateSensitivitySystem(
+                    unsigned nnDAE, unsigned n, double* yIni,
+                    double tLeft, double tRight)
+{
+    if ( n != (unsigned)_n ) return -99;
+
+    int           nDAE[1];
+    int           maxEqns = (int) MAX_NO_EQNS;
+    GridIterConst dBeg = _datPoints.begin();
+    GridIterConst dEnd = _datPoints.end();
+    double        rTol[_n], aTol[_n];
+    double        t[1], z[_n]; // , yEval[_n];
+    double        T = 0.0;
+    double*       ztmp = 0;
+
+    if ( yIni == 0 )
+    {
+        for (long j = 0; j < _n; ++j)
+        {
+            z[j] = _y0[j];
+            _dy0[j] = 0.0;
+
+            rTol[j] = (j < (long)nnDAE) ? _rtol : 1.0e-3;
+            aTol[j] = (j < (long)nnDAE) ? _atol : 1.0e-3;
+        }
+    }
+    else
+    {
+        for (long j = 0; j < _n; ++j)
+        {
+            z[j] = yIni[j];
+
+            rTol[j] = (j < (long)nnDAE) ? _rtol : 1.0e-3;
+            aTol[j] = (j < (long)nnDAE) ? _atol : 1.0e-3;
+        }
+    }
+
+    *nDAE = nnDAE;
+
+    *t = tLeft;
+    T  = tRight;
+
+    //
+
+    _iOpt[10] = 1;      // Switch for error tolerances: 0 rTol&aTol scalar, 1 rTol&aTol are vectors
+    _iOpt[11] = 1;      // single step mode ON
+    _iOpt[12] = 0;      // no dense output (!), but interpolation will be used below
+    _iOpt[13] = 0;
+    _iOpt[14] = 0;
+
+    if ( _iOpt[15] == -1 ) {
+        _iOpt[15] = 0;  // type of call of limex_(): 0 initial call, 1 successive call
+
+        _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
+        _h = _rtol;
+    }
+
+    _iOpt[16] = 0;      // integration for t > T internally forbidden
+    _iOpt[31] = 1;      // switch on interpolation (for single step mode), only available in LIMDHERM !!!
+
+    //
+
+    while ( (_ifail[0] == 0) && (*t < T) )
+    {
+        /* slimdherm_dd_( */
+        slimdherm_(
+                    nDAE,
+                    &_n,
+                    _fcn, _jac,
+                    t, &T,
+                    z, _dy0,
+                    rTol, aTol, &_h,
+                    _iOpt, _rOpt, _iPos,
+                    _ifail,
+                    &_kOrder, _Dense, &_t1, &_t2
+                 );
+
+/*
+        // possibly very dangerous: cleaning up for numerical errors...
+        ztmp = z;
+        for (long j = 0; j < _n; ++j)
+        {
+            if ( std::fabs( *ztmp ) < EPMACH ) *ztmp = 0.0;
+            ++ztmp;
+        }
+*/
+
+        // in single step mode: save the new, adaptive time point
+        if (*t <= T)
+        {
+//std::cerr << "***" << std::endl;
+//std::cerr << "*** Next adaptive time point: " << *t << std::endl;
+            _solPoints.push_back( *t );
+            ztmp = z;
+            ztmp++;  // skipping first component (the time variable)
+            for (long j = 0; j < (_n - 1); ++j)
+            {
+                _solution[j].push_back( *ztmp++ );
+            }
+
+            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+        }
+    } // end while slimdherm_
+
+
+    GridIterConst gBeg = std::lower_bound( dBeg, dEnd, tLeft);    // gBeg pointing to first element in [dBeg, dEnd[ that does *not* compare less than tLeft
+    GridIterConst gEnd = std::upper_bound( dBeg, dEnd, tRight);   // gEnd pointing to first element in [dBeg, dEnd[ that compares greater than tRight
+
+    //
+    // Evaluate and save the _data at measuremet points
+    //
+//std::cerr << std::endl;
+//std::cerr << "*** Data point eval ***" << std::endl;
+    for (GridIterConst it = gBeg; it != gEnd; ++it)
+    {
+        double tEval = (double) *it;
+
+        std::vector<Real> yEval = _trajectory.eval( tEval );
+
+//std::cerr << "     t = " << tEval << std::endl;
+//std::cerr << " yEval = " << std::endl;
+//for (unsigned j = 0; j < yEval.size(); ++j)
+//{
+//std::cerr <<  "  " << yEval[j];
+//}
+//std::cerr << std::endl << std::endl;
+
+        if ( yEval.size() == (unsigned) _n )
+        {
+            for (long j = 0; j < (_n - 1); ++j)
+            {
+                _data[j][long(it-dBeg)] = yEval[j+1];
+            }
+        }
+    }
+//std::cerr << "***" << std::endl;
+
+    //
+    if ( (_ifail[0] == 0) && (yIni != 0) )
+    {
+        ztmp = z;
+        for (long j = 0; j < _n; ++j)
+        {
+            yIni[j] = *ztmp++;
+        }
+    }
+    //
+
+    return _ifail[0];
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 //----------------------------------------------------------------------------
 void
 LIMEX_A::computeAndSaveLimexTrajectory(double* t, double T, double* y)
@@ -725,6 +1092,38 @@ LIMEX_A::getAdaptiveSolution()
     return _solution;
 }
 //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void
+LIMEX_A::setODESystem(
+                     FirstOrderODESystem& ode,
+                     double              t0,
+                     Grid const&         y0,
+                     double              tEnd
+                    )
+{
+    Grid no_refGrid;
+
+    setODESystem( ode, t0, y0, no_refGrid, tEnd );
+}
+//----------------------------------------------------------------------------
+void
+LIMEX_A::setODESystem(
+                     FirstOrderODESystem& ode,
+                     double              t0,
+                     Grid const&         y0,
+                     Grid const&         refGrid,
+                     double              tEnd,
+                     int                  bandwidth
+                    )
+{
+    setODESystem(
+                    LIMEXWrapper::xfcn, LIMEXWrapper::xjac,
+                    t0, y0, refGrid, tEnd,
+                    bandwidth
+                );
+
+    LIMEXWrapper::setODE(ode);
+}
 //----------------------------------------------------------------------------
 void
 LIMEX_A::setODESystem(

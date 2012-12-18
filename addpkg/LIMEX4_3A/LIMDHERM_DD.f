@@ -1,6 +1,6 @@
-      subroutine LIMDHERM ( n, Fcn, Jacobian, t_Begin, t_End, y, ys,
-     2                      rTol, aTol, h, Iopt, Ropt, IPos, IFail,
-     3                      kOrder, Dense, t1, t2 )
+      subroutine LIMDHERM_DD ( n, Fcn, Jacobian, t_Begin, t_End, y, ys,
+     2                           rTol, aTol, h, Iopt, Ropt, IPos, IFail,
+     3                           kOrder, Dense, t1, t2 )
 c
       implicit none
 c
@@ -350,7 +350,7 @@ c                interpreted as a scalar or a vector  depending on the
 c                value of Iopt(11). The code keeps the local  error of
 c                y(i)  below  rTol(i)*abs(y(i))+aTol(i).
 c
-c                Restriction: rTol(*) > 0.
+c                Restriction: rTol(*) => 0.
 c
 c     aTol       Real array  of size 1 at least  for Iopt(11) = 0 or n
 c                for  Iopt(11) = 1. Values  must be set by  caller  on
@@ -727,7 +727,7 @@ c
 c                         -1            Max_Nr_of_Equations  <  n   or
 c                                       n < 1
 c
-c                         -2            rTol(i) <= 0 for some index i
+c                         -2            rTol(i) < 0 for some index i
 c
 c                         -3            aTol(i) < 0 for some index i
 c
@@ -1169,8 +1169,8 @@ c
      3                   del_quot, eph, eps_Mach, eps_Mach10, EtaDif,
      4                   fc, fcm, fco, g, g_inv, h_proposed, h_True,
      5                   hMax, hMax_Int, hSave, Mean_rTol, omj, omjo,
-     6                   ones, red, rTol2, t, t_dense, tEnd_t, th, tmp,
-     7                   tn_Dense, TolQuot, y_orig
+     6                   ones, red, t, t_dense, tEnd_t, th, tmp,
+     7                   tn_Dense, y_orig
 c
       double precision   dnrm2
 c
@@ -1187,7 +1187,6 @@ c
      5                   Temp2 ( Max_Size ),
      6                   Temp3 ( Max_Size ),
      7                   Temp4 ( Max_Size ),
-     8                   TolQu ( Max_Size ),
      9                   yk    ( Max_Size )
 c
 c-----------------------------------------------------------------------
@@ -1562,7 +1561,7 @@ c
 c
       if ( Iopt(11) .eq. 0 ) then
 c
-         if ( rTol(1) .le. zero ) then
+         if ( rTol(1) .lt. zero ) then
             if ( Iopt(1) .ne. 0 ) write ( MonOut, 9080 ) 1, rTol(1)
             IFail(1) = - 2
             go to 510
@@ -1581,7 +1580,7 @@ c
 c
          do i = 1, n
 c
-            if ( rTol(i) .le. zero ) then
+            if ( rTol(i) .lt. zero ) then
                if ( Iopt(1) .ne. 0 ) write ( MonOut, 9080 ) i, rTol(i)
                IFail(1) = - 2
                go to 510
@@ -1841,20 +1840,16 @@ c-----------------------------------------------------------------------
 c
       if ( Iopt(11) .eq. 0 ) then
 c
-         TolQuot = aTol(1) / rTol(1)
-         rTol2   = 0.5d0 * rTol(1)
-c
          do i = 1, n
-            Scal(i) = abs ( y(i) ) + TolQuot
+            Scal(i) = rTol(1) * abs ( y(i) ) + aTol(1)
+c           Scal(i) = max (  abs ( y(i) ), 1.0d0 )
          end do
 c
       else
 c
          do i = 1, n
-c
-            TolQu(i) = aTol(i) / rTol(i)
-            Scal(i)  = abs ( y(i) ) + TolQu(i)
-c
+            Scal(i)  = rTol(i) * abs ( y(i) ) + aTol(i)
+c           Scal(i) = max (  abs ( y(i) ), 1.0d0 )
          end do
 c
       end if
@@ -1893,8 +1888,10 @@ c
       else
          Mean_rTol = dnrm2 ( n, rTol, 1 ) / sqrt ( dble ( n ) )
       end if
+ccEhrig
+      if ( Mean_rTol .lt. 1.0d-12 ) Mean_rTol = 1.0d-12
 c
-      eph = ro * Mean_rTol
+      eph = ro
 c
       aj(1) = dble ( nj(1) ) + sqrt ( dble ( n ) )
 c
@@ -1909,7 +1906,7 @@ c
          aj(j) = aj(j-1) + dble ( nj(j) ) - one
 c
          do i = 2, j-1
-            al(j-1,i-1) = eph **
+            al(j-1,i-1) = ( eph * Mean_rTol ) **
      2     ( ( aj(i) - aj(j) ) / ( ( aj(j) - aj(1) ) * dble ( i ) ) )
          end do
 c
@@ -2082,7 +2079,6 @@ c
 c     Compute f(y(0)) - B(y(0)) * y'(0) and check nz.
 c
 c-----------------------------------------------------------------------
-c
       FcnInfo = 0
 c
       call Fcn ( n, nz, t, y, dz, b0, ir, ic, FcnInfo )
@@ -2421,7 +2417,6 @@ c
 c
   160 continue
 c
-cTD
       if ( n_Dense .eq. 1 .or. Iopt(32) . eq. 1 )
      2   call dcopy ( n, y, 1, Dense, 1 )
 c
@@ -2607,13 +2602,15 @@ c
 c
                do i = 1, n
 c
-                  if ( Iopt(11) .eq. 1 ) rTol2 = 0.5d0 * rTol(i)
-c
-                  abs_del = abs ( del(i) ) - rTol2
+c                 if ( Iopt(11) .eq. 1 ) rTol2 = 0.5d0 * rTol(i)
+ccccEhrig
+c                 abs_del = abs ( del(i) ) - rTol2
+                  abs_del = abs ( del(i) ) - 0.5d0
 c
                   if ( abs_del .gt. Small ) then
 c
-                     del_quot = ( Temp3(i) + rTol2 ) / abs_del
+c                    del_quot = ( Temp3(i) + rTol2 ) / abs_del
+                     del_quot = ( Temp3(i) + 0.5d0 ) / abs_del
 c
                      if ( del_quot .lt. ex2 ) then
 c
@@ -2685,7 +2682,6 @@ c
             Temp1(i) = Scal(i) * del(i)
          end do
 c
-cTD
          if ( n_Dense .eq. 1 .or. Iopt(32) .eq. 1 ) then
 c
             if ( j .eq. 1 ) then
@@ -2767,7 +2763,7 @@ c
             CIV_Convergence = .false.
 c
             if ( Iopt(11) .eq. 0 ) then
-c
+ccccEhrig
                do i = 1, n
                   if ( abs ( del(i) ) .gt. rTol(1) ) go to 170
                end do
@@ -2878,7 +2874,7 @@ c
 cTD
                if ( Iopt(31) .eq. 0 ) then
 c
-                  do i = 1, n
+                  do i = 1, nz
 c
                      Temp3(i) = Temp3(i)
      2                    + Scal(i) * Temp2(i) / ( g * Scal(i) )
@@ -2941,7 +2937,7 @@ c-----------------------------------------------------------------------
 cTD
                if ( Iopt(31) .eq. 0 ) then
 c
-                  do i = 1, n
+                  do i = 1, nz
 c
                      if ( Full_or_Band .eq. 0 ) then
                         irh = i
@@ -3151,23 +3147,30 @@ c
                do i = 1, n
                   del(i) = del(i) + Temp1(i)
                end do
+ccccEhrig
+c              if ( Iopt(11) .eq. 0 ) then
 c
-               if ( Iopt(11) .eq. 0 ) then
+c                 tmp = 1.0d-1 * rTol(1)
 c
-                  tmp = 1.0d-1 * rTol(1)
+c                 do i = 1, n
+c                    if ( abs ( Temp1(i) ) .gt. tmp ) go to 200
+c                 end do
 c
-                  do i = 1, n
-                     if ( abs ( Temp1(i) ) .gt. tmp ) go to 200
-                  end do
+c              else
 c
-               else
+c                 do i = 1, n
+c                    if ( abs ( Temp1(i) ) .gt. 1.0d-1 * rTol(i) )
+c    2                  go to 200
+c                 end do
 c
-                  do i = 1, n
-                     if ( abs ( Temp1(i) ) .gt. 1.0d-1 * rTol(i) )
-     2                  go to 200
-                  end do
+c              end if
 c
-               end if
+               tmp = 1.0d-2
+c
+               do i = 1, n
+                  if ( abs ( Temp1(i) ) .gt. tmp ) go to 200
+               end do
+
 c
 c-----------------------------------------------------------------------
 c
@@ -3351,7 +3354,7 @@ c
                CIV_Convergence = .false.
 c
                if ( Iopt(11) .eq. 0 ) then
-c
+ccccccEhrig
                   do i = 1, n
                      if ( abs ( del(i) ) .gt. rTol(1) ) go to 220
                   end do
@@ -3557,26 +3560,24 @@ c
                   do i = 1, n
 c
                      fc = max ( fc, abs ( del(i) )
-     2                              / ( abs ( yk(i) ) + TolQuot ) )
+     2                         / ( rTol(1) * abs ( yk(i) ) + aTol(1) ) )
+c    2                         / max ( abs ( yk(i) ), 1.0d0 ) )
 c
                   end do
-c
-                  if ( fc .gt. rTol(1) ) Convergence = .false.
 c
                else
 c
                   do i = 1, n
 c
-                     tmp =   abs ( del(i) )
-     2                     / ( abs ( yk(i) ) + TolQu(i) )
-c
-                     fc = max ( fc, tmp )
-c
-                     if ( tmp .gt. rTol(i) ) Convergence = .false.
+                     fc = max ( fc, abs ( del(i) )
+     2                         / ( rTol(i) * abs ( yk(i) ) + aTol(i) ) )
+c    2                         / max ( abs ( yk(i) ), 1.0d0 ) )
 c
                   end do
 c
                end if
+c
+               if ( fc .gt. one ) Convergence = .false.
 c
             end if
 c
@@ -3765,13 +3766,15 @@ c
          if ( Iopt(11) .eq. 0 ) then
 c
             do i = 1, n
-               Scal(i) = abs ( y(i) ) + TolQuot
+               Scal(i) = rTol(1) * abs ( y(i) ) + aTol(1)
+c              Scal(i) = max ( abs ( y(i) ), 1.0d0 )
             end do
 c
          else
 c
             do i = 1, n
-               Scal(i) = abs ( y(i) ) + TolQu(i)
+               Scal(i) = rTol(i) * abs ( y(i) ) + aTol(i)
+c              Scal(i) = max ( abs ( y(i) ), 1.0d0 )
             end do
 c
          end if
@@ -4098,13 +4101,15 @@ c
          if ( Iopt(11) .eq. 0 ) then
 c
             do i = 1, n
-               Scal(i) = abs ( y(i) ) + TolQuot
+               Scal(i) = rTol(1) * abs ( y(i) ) + aTol(1)
+c              Scal(i) = max ( abs ( y(i) ), 1.0d0 )
             end do
 c
          else
 c
             do i = 1, n
-               Scal(i) = abs ( y(i) ) + TolQu(i)
+               Scal(i) = rTol(i) * abs ( y(i) ) + aTol(i)
+c              Scal(i) = max ( abs ( y(i) ), 1.0d0 )
             end do
 c
          end if
@@ -4391,8 +4396,7 @@ c
      2         d18.9, 5x, '***' )
  9070 format ( ' *** should be greater 0', 43x, '***' )
  9080 format ( ' *** LIMEX error, wrong input for rTol(', i5, ') :',
-     2         d18.9, ', ***', /, ' *** should be greater 0.0d0', 39x,
-     3         '***' )
+     2         d18.9, ', ***' )
  9090 format ( ' *** LIMEX error, wrong input for aTol(', i5, ') :',
      2         d18.9, ', ***' )
  9100 format ( ' *** LIMEX error, non positive comp. y(', i5, ') :',
