@@ -16,11 +16,12 @@ namespace PARKIN
 
     struct TrajData
     {
-        Real                t;
+        Real                 t;
         std::vector<Real>   y;
+        std::vector<Real>   dy;
 
         TrajData() :
-            t(0.0), y()
+            t(0.0), y(), dy()
         { }
     };
 

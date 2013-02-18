@@ -199,7 +199,7 @@ LIMEX_A::initOpt()
 int
 LIMEX_A::integrate()
 {
-    int           maxEqns = (int) MAX_NO_EQNS;
+    /// int           maxEqns = (int) MAX_NO_EQNS; // see below: now cubic Hermite!
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
     double        t[1], z[_n]; //, yEval[_n];
@@ -239,19 +239,29 @@ LIMEX_A::integrate()
 
     //
 
+    // 18.02.13: td
+    //           Introduction of cubic Hermite interpolation scheme, according to formula
+    //                yEval = yL * H0 + dyL * H1 + yR * H2 + dyR * H3  (symmetric!)
+    //
+    _trajectory.appendHerm( *t, _n, z, _dy0 );
+
     while ( (_ifail[0] == 0) && (*t < T) )
     {
         /* limdherm_dd_( */
-        limdherm_(
+        /* limdherm_( */
+        limd_(
                     &_n,
                     _fcn, _jac,
                     t, &T,
                     z, _dy0,
                     &_rtol, &_atol, &_h,
                     _iOpt, _rOpt, _iPos,
-                    _ifail,
-                    &_kOrder, _Dense, &_t1, &_t2
+                    _ifail
+              );
+        /*
+                    , &_kOrder, _Dense, &_t1, &_t2
                  );
+        */
 
 /*
         // possibly very dangerous: cleaning up for numerical errors...
@@ -274,7 +284,8 @@ LIMEX_A::integrate()
                  _solution[j].push_back( *ztmp++ );
             }
 
-            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            // _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            _trajectory.appendHerm( *t, _n, z, _dy0 );
         }
 
 /*
@@ -348,7 +359,7 @@ LIMEX_A::integrate()
     } // end while limdherm_
 
     //
-    // Evaluate and save the _data at measuremet points
+    // Evaluate and save the _data at measurement points
     //
     for (GridIterConst it = dBeg; it != dEnd; ++it)
     {
@@ -376,7 +387,7 @@ LIMEX_A::integrate( unsigned n, double* yIni,
 {
     if ( n != (unsigned)_n ) return -99;
 
-    int           maxEqns = (int) MAX_NO_EQNS;
+    /// int           maxEqns = (int) MAX_NO_EQNS;  // see below: now cubic Hermite!
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
     double        t[1], z[_n]; // , yEval[_n];
@@ -390,6 +401,8 @@ LIMEX_A::integrate( unsigned n, double* yIni,
             z[j] = _y0[j];
             _dy0[j] = 0.0;
         }
+
+        _trajectory.appendHerm( tLeft + 2*EPMACH, _n, z, _dy0 );
     }
     else
     {
@@ -446,19 +459,28 @@ LIMEX_A::integrate( unsigned n, double* yIni,
 
     //
 
+    // 18.02.13: td
+    //           Introduction of cubic Hermite interpolation scheme, according to formula
+    //                yEval = yL * H0 + dyL * H1 + yR * H2 + dyR * H3  (symmetric!)
+    //
+    /// _trajectory.append( *t, _n, z, _dy0 );
+
     while ( (_ifail[0] == 0) && (*t < T) )
     {
         /* limdherm_dd_( */
-        limdherm_(
+        /* limdherm_( */
+        limd_(
                     &_n,
                     _fcn, _jac,
                     t, &T,
                     z, _dy0,
                     &_rtol, &_atol, &_h,
                     _iOpt, _rOpt, _iPos,
-                    _ifail,
-                    &_kOrder, _Dense, &_t1, &_t2
+                    _ifail);
+        /*
+                    , &_kOrder, _Dense, &_t1, &_t2
                  );
+        */
 
 //std::cerr << "*** Intermediate values for LIMEX_A::integrate(a,b), following a single step:" << std::endl;
 //    for (long j = 0; j < _n; ++j)
@@ -491,7 +513,8 @@ LIMEX_A::integrate( unsigned n, double* yIni,
                 _solution[j].push_back( *ztmp++ );
             }
 
-            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            // _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            _trajectory.appendHerm( *t, _n, z, _dy0 );
         }
 
 /*
@@ -633,7 +656,7 @@ int
 LIMEX_A::integrateSensitivitySystem(unsigned nnDAE)
 {
     int           nDAE[1];
-    int           maxEqns = (int) MAX_NO_EQNS;
+    /// int           maxEqns = (int) MAX_NO_EQNS;
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
     double        rTol[_n], aTol[_n];
@@ -679,6 +702,14 @@ LIMEX_A::integrateSensitivitySystem(unsigned nnDAE)
 
     //
 
+    // 18.02.13: td
+    //           Introduction of cubic Hermite interpolation scheme, according to formula
+    //                yEval = yL * H0 + dyL * H1 + yR * H2 + dyR * H3  (symmetric!)
+    //
+    _trajectory.appendHerm( *t, _n, z, _dy0 );
+
+    //
+
     while ( (_ifail[0] == 0) && (*t < T) )
     {
         /* slimdherm_dd_( */
@@ -715,7 +746,8 @@ LIMEX_A::integrateSensitivitySystem(unsigned nnDAE)
                  _solution[j].push_back( *ztmp++ );
             }
 
-            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            // _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            _trajectory.appendHerm( *t, _n, z, _dy0 );
         }
 
     } // end while slimdherm_
@@ -751,7 +783,7 @@ LIMEX_A::integrateSensitivitySystem(
     if ( n != (unsigned)_n ) return -99;
 
     int           nDAE[1];
-    int           maxEqns = (int) MAX_NO_EQNS;
+    /// int           maxEqns = (int) MAX_NO_EQNS;
     GridIterConst dBeg = _datPoints.begin();
     GridIterConst dEnd = _datPoints.end();
     double        rTol[_n], aTol[_n];
@@ -769,6 +801,8 @@ LIMEX_A::integrateSensitivitySystem(
             rTol[j] = (j < (long)nnDAE) ? _rtol : 1.0e-3;
             aTol[j] = (j < (long)nnDAE) ? _atol : 1.0e-3;
         }
+
+        _trajectory.appendHerm( tLeft + 2*EPMACH, _n, z, _dy0 );
     }
     else
     {
@@ -803,6 +837,14 @@ LIMEX_A::integrateSensitivitySystem(
 
     _iOpt[16] = 0;      // integration for t > T internally forbidden
     _iOpt[31] = 1;      // switch on interpolation (for single step mode), only available in LIMDHERM !!!
+
+    //
+
+    // 18.02.13: td
+    //           Introduction of cubic Hermite interpolation scheme, according to formula
+    //                yEval = yL * H0 + dyL * H1 + yR * H2 + dyR * H3  (symmetric!)
+    //
+    /// _trajectory.append( *t, _n, z, _dy0 );
 
     //
 
@@ -844,7 +886,8 @@ LIMEX_A::integrateSensitivitySystem(
                 _solution[j].push_back( *ztmp++ );
             }
 
-            _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            // _trajectory.append( *t, _n, z, _kOrder, maxEqns, _Dense, _t1, _t2 );
+            _trajectory.appendHerm( *t, _n, z, _dy0 );
         }
     } // end while slimdherm_
 

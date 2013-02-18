@@ -9,7 +9,8 @@
 
 #include "FirstOrderODESystem.h"
 #include "ODESolver.h"
-#include "LIMEXTrajectory.h"
+/// #include "LIMEXTrajectory.h"
+#include "CubicHermiteTrajectory.h"
 
 ///
 
@@ -110,7 +111,8 @@ namespace PARKIN
             Grid        _datPoints;
             Trajectory  _data;
 
-            LIMEXTrajectory _trajectory;
+            /// LIMEXTrajectory      _trajectory;
+            CubicHermiteTrajectory  _trajectory;
     };
 
     ///

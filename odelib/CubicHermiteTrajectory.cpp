@@ -1,36 +1,43 @@
-// Copyright (C) 2010 - 2011
+// Copyright (C) 2010 - 2013
 // ZIB - Zuse Institute Berlin, Germany
 //
-// first added : 2011-08-24 td
+// first added : 2013-02-18 td
 // last changed:
 //
 
-#include "LIMEXTrajectory.h"
+#include "CubicHermiteTrajectory.h"
 
 using namespace PARKIN;
 
 //----------------------------------------------------------------------------
-LIMEXTrajectory::LIMEXTrajectory(int n) :
+CubicHermiteTrajectory::CubicHermiteTrajectory(int n) :
     ODETrajectory(),
-    _iLow(0), _iHigh(0), _hermite()
+    _iLow(0), _iHigh(0)
 {
     _n = n;
 }
 //----------------------------------------------------------------------------
-LIMEXTrajectory::~LIMEXTrajectory()
+CubicHermiteTrajectory::~CubicHermiteTrajectory()
 {
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 void
-LIMEXTrajectory::clear()
+CubicHermiteTrajectory::clear()
 {
     _trajectory.clear();
-    _hermite.clear();
 }
 //----------------------------------------------------------------------------
 void
-LIMEXTrajectory::insert(double t, int n, double* y)
+CubicHermiteTrajectory::insert(double t, int n, double* y)
+{
+  double dy[n];
+
+  insertHerm(t,n,y,dy);
+}
+//----------------------------------------------------------------------------
+void
+CubicHermiteTrajectory::insertHerm(double t, int n, double* y, double* dy)
 {
     if ( n != _n ) return;
 
@@ -38,16 +45,17 @@ LIMEXTrajectory::insert(double t, int n, double* y)
 
     data.t = t;
     data.y.clear();
+    data.dy.clear();
     for (int j = 0; j < n; ++j)
     {
         data.y.push_back( *y++ );
+        data.dy.push_back( *dy++ );
     }
 
     if ( _trajectory.empty() )
     {
         _iLow = _iHigh = 0;
         _trajectory.push_back( data );
-        _hermite.push_back( LIMEXHermiteData() );
 
         return;
     }
@@ -80,53 +88,36 @@ LIMEXTrajectory::insert(double t, int n, double* y)
     }
 
     std::vector<TrajData>::iterator    itTra = _trajectory.begin();
-    std::vector<LIMEXHermiteData>::iterator itHer = _hermite.begin();
 
     if ( 0 < _iHigh )
     {
         itTra += _iHigh;
-        itHer += _iHigh;
     }
 
     _trajectory.insert(itTra , data);
-    _hermite.insert(itHer , LIMEXHermiteData());
 }
 //----------------------------------------------------------------------------
 void
-LIMEXTrajectory::append(double t, int n, double* y,
-                        int k, int N, double coeff[], double t1, double t2)
+CubicHermiteTrajectory::appendHerm(double t, int n, double* y, double* dy)
 {
     if ( n != _n ) return;
 
-    TrajData         dataTra;
-    LIMEXHermiteData dataHer;
+    TrajData  dataTra;
 
     dataTra.t = t;
     dataTra.y.clear();
+    dataTra.dy.clear();
     for (int i = 0; i < n; ++i)
     {
         dataTra.y.push_back( *y++ );
-    }
-
-    dataHer.t1 = t1;
-    dataHer.t2 = t2;
-    dataHer.kOrder = k;
-    dataHer.nDim = n;
-    dataHer.coeff.clear();
-    for (int j = 0; j < k+2; ++j)
-    {
-        for (int i = 0; i < n; ++i)
-        {
-            dataHer.coeff.push_back( coeff[N*j + i] );
-        }
+        dataTra.dy.push_back( *dy++ );
     }
 
     _trajectory.push_back( dataTra );
-    _hermite.push_back( dataHer );
 }
 //----------------------------------------------------------------------------
 std::vector<Real>
-LIMEXTrajectory::eval(double t)
+CubicHermiteTrajectory::eval(double t)
 {
     if ( _trajectory.empty() )
     {
@@ -165,70 +156,47 @@ LIMEXTrajectory::eval(double t)
         }
     }
 
-    return evalHermite(t, _hermite[_iHigh]);
+    if ( _iHigh <= 0 )
+    {
+        return std::vector<Real>(_n);
+    }
+
+    return evalHermite(t, _trajectory[_iHigh-1],
+                           _trajectory[_iHigh]);
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 std::vector<Real>
-LIMEXTrajectory::evalHermite(double t, LIMEXHermiteData const& herm)
+CubicHermiteTrajectory::evalHermite(double t,
+                                    TrajData const& trajLeft,
+                                    TrajData const& trajRight)
 {
-    unsigned          n = herm.nDim;
-    unsigned          k = herm.kOrder;
-    double            tFrac = (t - herm.t1) / (herm.t2 - herm.t1);
-    double            tmp = tFrac - 1.0;
+    unsigned          n        = _n;
+
+    double            tFrac    = (t - trajLeft.t) /
+                                   (trajRight.t - trajLeft.t);
+    double            tFrac2   = tFrac * tFrac;
+    double            tFrac_1  = tFrac - 1.0;
+    double            tFrac_12 = tFrac_1 * tFrac_1;
+
+    double            Herm0 = (2*tFrac + 1.0) * tFrac_12;
+    double            Herm1 = tFrac * tFrac_12;
+    double            Herm2 = - tFrac2 * (2*tFrac - 3.0);
+    double            Herm3 = tFrac2 * tFrac_1;
+
     std::vector<Real> yEval(n);
 
-    // -----------------------------------------------------------------------
-    //
-    //    Evaluate  the Hermite  interpolation polynomials  by the  Horner
-    //    scheme.
-    //
-    // -----------------------------------------------------------------------
-
-    for (unsigned i = 0; i < n; ++i)
+    for (unsigned j = 0; j < n; ++j)
     {
-        yEval[i] = herm.coeff[n*(k+1) + i];
-    }
+        double tmp;
 
-    for (unsigned j = 0; j < k; ++j)
-    {
-        for (unsigned i = 0; i < n; ++i)
-        {
-            yEval[i] *= tmp;
-            yEval[i] += herm.coeff[n*(k-j) + i];
-        }
-    }
+        tmp  =  trajLeft.y[j]*Herm0 +  trajLeft.dy[j]*Herm1;
+        tmp += trajRight.y[j]*Herm2 + trajRight.dy[j]*Herm3;
 
-    for (unsigned i = 0; i < n; ++i)
-    {
-        yEval[i] *= tFrac;
-        yEval[i] += herm.coeff[i];
+        yEval[j] = tmp;
     }
 
     return yEval;
 }
 //----------------------------------------------------------------------------
 
-/*
-    c
-    c-----------------------------------------------------------------------
-    c
-    c     Evaluate  the Hermite  interpolation polynomials  by the  Horner
-    c     scheme.
-    c
-    c-----------------------------------------------------------------------
-    c
-          tmp = tFac - one
-    c
-          call dcopy ( n, Dense(1,k+2), 1, y_Interp, 1 )
-    c
-          do j = 1, k
-             do i = 1, n
-                y_Interp(i) = Dense(i,k+2-j) + tmp * y_Interp(i)
-             end do
-          end do
-    c
-          do i = 1, n
-             y_Interp(i) = Dense(i,1) + tFac * y_Interp(i)
-          end do
-*/
