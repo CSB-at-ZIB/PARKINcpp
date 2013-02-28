@@ -322,6 +322,8 @@
 		<Unit filename="nonlin/UserFunc.h" />
 		<Unit filename="nonlin/YeOldeParkinCore.cpp" />
 		<Unit filename="nonlin/YeOldeParkinCore.h" />
+		<Unit filename="odelib/CubicHermiteTrajectory.cpp" />
+		<Unit filename="odelib/CubicHermiteTrajectory.h" />
 		<Unit filename="odelib/DOP853.cpp" />
 		<Unit filename="odelib/DOP853.h" />
 		<Unit filename="odelib/FirstOrderODESystem.h" />
@@ -329,6 +331,7 @@
 		<Unit filename="odelib/LIMEXTrajectory.h" />
 		<Unit filename="odelib/LIMEX_A.cpp" />
 		<Unit filename="odelib/LIMEX_A.h" />
+		<Unit filename="odelib/METAN_A.h" />
 		<Unit filename="odelib/ODESolver.h" />
 		<Unit filename="odelib/ODETrajectory.h" />
 		<Unit filename="swig/linalg.i">

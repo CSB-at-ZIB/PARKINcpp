@@ -16,7 +16,6 @@
 #include "linalg/Vector.h"
 //$$$ #include "odelib/DOP853.h"
 #include "odelib/LIMEX_A.h"
-#include "odelib/LIMEXTrajectory.h"
 #include "Expression.h"
 #include "BioRHS.h"
 

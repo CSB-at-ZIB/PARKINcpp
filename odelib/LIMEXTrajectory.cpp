@@ -93,8 +93,15 @@ LIMEXTrajectory::insert(double t, int n, double* y)
 }
 //----------------------------------------------------------------------------
 void
-LIMEXTrajectory::append(double t, int n, double* y,
-                        int k, int N, double coeff[], double t1, double t2)
+LIMEXTrajectory::insertHerm(double t, int n, double* y)
+{
+    insert(t, n, y);
+}
+//----------------------------------------------------------------------------
+void
+LIMEXTrajectory::appendHerm(double t, int n, double* y,
+                             int k, int N, double coeff[],
+                             double t1, double t2)
 {
     if ( n != _n ) return;
 

@@ -39,9 +39,10 @@ namespace PARKIN
 
             //
 
-            void append(double t, int n, double* y,
-                        int k, int N, double coeff[],
-                        double t1, double t2);
+            void insertHerm(double t, int n, double* y);
+            void appendHerm(double t, int n, double* y,
+                            int k, int N, double coeff[],
+                            double t1, double t2);
 
         private:
             std::vector<Real> evalHermite(double t, LIMEXHermiteData const& herm);

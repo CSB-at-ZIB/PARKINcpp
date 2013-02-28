@@ -9,8 +9,9 @@
 
 #include "FirstOrderODESystem.h"
 #include "ODESolver.h"
+#include "ODETrajectory.h"
 /// #include "LIMEXTrajectory.h"
-#include "CubicHermiteTrajectory.h"
+/// #include "CubicHermiteTrajectory.h"
 
 ///
 
@@ -48,7 +49,7 @@ namespace PARKIN
 
             int integrateSensitivitySystem(unsigned nDAE);
             int integrateSensitivitySystem(unsigned nDAE, unsigned n, double* yIni,
-                                        double tLeft, double tRight);
+                                            double tLeft, double tRight);
 
             int integrateWithoutInterpolation();
             int integrateWithoutInterpolation(unsigned n, double* yIni,
@@ -74,19 +75,32 @@ namespace PARKIN
                                 int         bandwidth = 0
                              );
 
-            Grid&           getSolutionGridPoints()   { return _solPoints; }
-            Trajectory&     getSolutionTrajectory()   { return _solution; }
-            Grid&           getDataGridPoints()       { return _datPoints; }
-            Trajectory&     getDataTrajectory()       { return _data; }
+            Grid&           getSolutionGridPoints()         { return _solPoints; }
+            Trajectory&     getSolutionTrajectory()         { return _solution; }
+            Grid&           getDataGridPoints()             { return _datPoints; }
+            Trajectory&     getDataTrajectory()             { return _data; }
 
-            ODETrajectory*  getRawTrajectory()        { return _trajectory.clone(); }
+            ODETrajectory*  getRawTrajectory()              { return _trajectory->clone(); }
 
-            int             getSuccessiveCallFlag()   { return _iOpt[15]; }
-            void            resetSuccessiveCallFlag() { _iOpt[15] = -1; }
+            int             getSuccessiveCallFlag()         { return _iOpt[15]; }
+            void            resetSuccessiveCallFlag()       { _iOpt[15] = -1; }
+
+            int             getInterpolationFlag()          { return _iOpt[31]; }
+            void            setInterpolationFlag(int j=1);
 
         private:
             void initOpt();
             void computeAndSaveLimexTrajectory(double* from, double to, double* y = 0);
+
+            int integrateWithLIMEXInterp();
+            int integrateWithLIMEXInterp(unsigned n, double* yIni, double tLeft, double tRight);
+            int integrateWithCubicInterp();
+            int integrateWithCubicInterp(unsigned n, double* yIni, double tLeft, double tRight);
+
+            int integrateSensLIMEX(unsigned nnDAE);
+            int integrateSensLIMEX(unsigned nnDAE, unsigned n, double* yIni, double tLeft, double tRight);
+            int integrateSensCubic(unsigned nnDAE);
+            int integrateSensCubic(unsigned nnDAE, unsigned n, double* yIni, double tLeft, double tRight);
 
             int     _n;         // size of differential algebraic system
             Fcn     _fcn;       // external function computing f(t,y) and B
@@ -111,8 +125,9 @@ namespace PARKIN
             Grid        _datPoints;
             Trajectory  _data;
 
-            /// LIMEXTrajectory      _trajectory;
-            CubicHermiteTrajectory  _trajectory;
+            /// LIMEXTrajectory             _trajectory;
+            /// CubicHermiteTrajectory      _trajectory;
+            ODETrajectory*              _trajectory;
     };
 
     ///
