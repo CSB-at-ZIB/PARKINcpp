@@ -9,8 +9,8 @@
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\Debug\PARKINcpp" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="bin/Debug/PARKINcpp" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="4" />
@@ -19,8 +19,9 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\PARKINcpp" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option platforms="Windows;" />
+				<Option output="bin/Release/PARKINcpp" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -31,17 +32,19 @@
 				</Linker>
 			</Target>
 			<Target title="SharedLib">
-				<Option output="bin\SharedLib\_parkin.pyd" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="swig\" />
-				<Option object_output="obj\SharedLib" />
+				<Option platforms="Windows;" />
+				<Option output="bin/SharedLib/_parkin.pyd" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="swig/" />
+				<Option object_output="obj/SharedLib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option parameters="D:\workspace\PARKINcpp\swig\testbioparkin_aux.py" />
-				<Option host_application="C:\python27\python.exe" />
+				<Option host_application="C:/python27/python.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add directory="C:\Python27\include" />
+					<Add directory="C:/Python27/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -49,7 +52,34 @@
 					<Add option="-static-libstdc++" />
 					<Add library="m" />
 					<Add library="python27" />
-					<Add directory="C:\Python27\libs" />
+					<Add directory="C:/Python27/libs" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="xcopy .\bin\SharedLib\_parkin.pyd .\link2BioPARKIN\parkincpp /Y" />
+					<Add after="xcopy .\swig\parkin.py .\link2BioPARKIN\parkincpp /Y" />
+				</ExtraCommands>
+			</Target>
+			<Target title="SharedCppLib">
+				<Option platforms="Windows;" />
+				<Option output="bin/SharedCppLib/libPARKINcpp.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/SharedCppLib" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option parameters="D:\workspace\PARKINcpp\swig\testbioparkin_aux.py" />
+				<Option host_application="C:/python27/python.exe" />
+				<Option run_host_application_in_terminal="0" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add directory="C:/Python27/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+					<Add option="-static-libstdc++" />
+					<Add library="m" />
+					<Add library="python27" />
+					<Add directory="C:/Python27/libs" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="xcopy .\bin\SharedLib\_parkin.pyd .\link2BioPARKIN\parkincpp /Y" />
@@ -60,7 +90,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
-			<Add directory="C:\MinGW\bin" />
+			<Add directory="C:/MinGW/bin" />
 		</Compiler>
 		<Linker>
 			<Add library="pthread" />
@@ -70,130 +100,145 @@
 			<Add library="user32" />
 			<Add library="imm32" />
 			<Add library="gfortran" />
-			<Add directory="C:\MinGW\bin" />
+			<Add directory="C:/MinGW/bin" />
 		</Linker>
-		<Unit filename="addpkg\LIMEX4_3A\HERMINE.f" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMD.f" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMDHERM.f" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3A.f" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3A.h" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3_Auxiliaries.f" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3_Dense.f" />
-		<Unit filename="addpkg\LIMEX4_3A\LIMEX4_3_Size_Definitions.h" />
-		<Unit filename="addpkg\Ode\dop853b.c">
+		<Unit filename="addpkg/LIMEX4_3A/HERMINE.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMD.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMDHERM.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3A.h" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Auxiliaries.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Dense.f" />
+		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Size_Definitions.h" />
+		<Unit filename="addpkg/LIMEX4_3A/sLIMDHERM.f" />
+		<Unit filename="addpkg/Ode/dop853b.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="addpkg\Ode\dop853b.h" />
-		<Unit filename="addpkg\Ode\sum.c">
+		<Unit filename="addpkg/Ode/dop853b.h" />
+		<Unit filename="addpkg/Ode/sum.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="addpkg\Ode\sum.h" />
-		<Unit filename="addpkg\dlib\all\source.cpp" />
-		<Unit filename="common\Constants.h" />
-		<Unit filename="common\PARKINLog.cpp" />
-		<Unit filename="common\PARKINLog.h" />
-		<Unit filename="common\Types.h" />
-		<Unit filename="linalg\GenericDecomp.h" />
-		<Unit filename="linalg\GenericMatrixImpl.h" />
-		<Unit filename="linalg\GenericQRPseudoInv.h" />
-		<Unit filename="linalg\Matrix.cpp" />
-		<Unit filename="linalg\Matrix.h" />
-		<Unit filename="linalg\QRCholesky.cpp" />
-		<Unit filename="linalg\QRCholesky.h" />
-		<Unit filename="linalg\QRDecomp.cpp" />
-		<Unit filename="linalg\QRDecomp.h" />
-		<Unit filename="linalg\QRMoorePenrose.cpp" />
-		<Unit filename="linalg\QRMoorePenrose.h" />
-		<Unit filename="linalg\QRPetersWilkinson.cpp" />
-		<Unit filename="linalg\QRPetersWilkinson.h" />
-		<Unit filename="linalg\QRconDecomp.cpp" />
-		<Unit filename="linalg\QRconDecomp.h" />
-		<Unit filename="linalg\Vector.cpp" />
-		<Unit filename="linalg\Vector.h" />
-		<Unit filename="linalg\dlibMatrixImpl.h" />
-		<Unit filename="nonlin\GaussNewton.cpp" />
-		<Unit filename="nonlin\GaussNewton.h" />
-		<Unit filename="nonlin\UserFunc.cpp" />
-		<Unit filename="nonlin\UserFunc.h" />
-		<Unit filename="nonlin\YeOldeParkinCore.cpp" />
-		<Unit filename="nonlin\YeOldeParkinCore.h" />
-		<Unit filename="odelib\DOP853.cpp" />
-		<Unit filename="odelib\DOP853.h" />
-		<Unit filename="odelib\LIMEXTrajectory.cpp" />
-		<Unit filename="odelib\LIMEXTrajectory.h" />
-		<Unit filename="odelib\LIMEX_A.cpp" />
-		<Unit filename="odelib\LIMEX_A.h" />
-		<Unit filename="odelib\ODESolver.h" />
-		<Unit filename="odelib\ODETrajectory.h" />
-		<Unit filename="swig\linalg.i">
-			<Option compile="1" />
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\nonlin.i">
-			<Option compile="1" />
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\odelib.i">
-			<Option compile="1" />
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\parkin.i">
-			<Option compile="1" />
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="swig\system.i">
-			<Option compile="1" />
-			<Option target="SharedLib" />
-		</Unit>
-		<Unit filename="system\BioPAR.cpp" />
-		<Unit filename="system\BioPAR.h" />
-		<Unit filename="system\BioProcessor.cpp" />
-		<Unit filename="system\BioProcessor.h" />
-		<Unit filename="system\BioRHS.cpp" />
-		<Unit filename="system\BioRHS.h" />
-		<Unit filename="system\BioSystem.cpp" />
-		<Unit filename="system\BioSystem.h" />
-		<Unit filename="system\ExprNode.cpp" />
-		<Unit filename="system\ExprNode.h" />
-		<Unit filename="system\Expression.cpp" />
-		<Unit filename="system\Expression.h" />
-		<Unit filename="tstprg\main.cpp">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\parkin.h">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testcases.h">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testlinalg.cpp">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testnonlin.cpp">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testparkin_aux.cpp">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testpfizer_simple.cpp" />
-		<Unit filename="tstprg\testsystem.cpp">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testsystem_aux.cpp">
-			<Option target="Release" />
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="tstprg\testsystem_aux1.cpp">
+		<Unit filename="addpkg/Ode/sum.h" />
+		<Unit filename="addpkg/dlib/all/source.cpp" />
+		<Unit filename="addpkg/gnuplot_cpp/example.cc">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="tstprg\testsystem_aux2.cpp">
+		<Unit filename="addpkg/gnuplot_cpp/gnuplot_i.hpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="common/Constants.h" />
+		<Unit filename="common/PARKINLog.cpp" />
+		<Unit filename="common/PARKINLog.h" />
+		<Unit filename="common/Types.h" />
+		<Unit filename="linalg/GenericDecomp.h" />
+		<Unit filename="linalg/GenericMatrixImpl.h" />
+		<Unit filename="linalg/GenericQRPseudoInv.h" />
+		<Unit filename="linalg/Matrix.cpp" />
+		<Unit filename="linalg/Matrix.h" />
+		<Unit filename="linalg/QRCholesky.cpp" />
+		<Unit filename="linalg/QRCholesky.h" />
+		<Unit filename="linalg/QRDecomp.cpp" />
+		<Unit filename="linalg/QRDecomp.h" />
+		<Unit filename="linalg/QRMoorePenrose.cpp" />
+		<Unit filename="linalg/QRMoorePenrose.h" />
+		<Unit filename="linalg/QRPetersWilkinson.cpp" />
+		<Unit filename="linalg/QRPetersWilkinson.h" />
+		<Unit filename="linalg/QRconDecomp.cpp" />
+		<Unit filename="linalg/QRconDecomp.h" />
+		<Unit filename="linalg/Vector.cpp" />
+		<Unit filename="linalg/Vector.h" />
+		<Unit filename="linalg/dlibMatrixImpl.h" />
+		<Unit filename="nonlin/GaussNewton.cpp" />
+		<Unit filename="nonlin/GaussNewton.h" />
+		<Unit filename="nonlin/UserFunc.cpp" />
+		<Unit filename="nonlin/UserFunc.h" />
+		<Unit filename="nonlin/YeOldeParkinCore.cpp" />
+		<Unit filename="nonlin/YeOldeParkinCore.h" />
+		<Unit filename="odelib/CubicHermiteTrajectory.cpp" />
+		<Unit filename="odelib/CubicHermiteTrajectory.h" />
+		<Unit filename="odelib/DOP853.cpp" />
+		<Unit filename="odelib/DOP853.h" />
+		<Unit filename="odelib/FirstOrderODESystem.h" />
+		<Unit filename="odelib/LIMEXTrajectory.cpp" />
+		<Unit filename="odelib/LIMEXTrajectory.h" />
+		<Unit filename="odelib/LIMEX_A.cpp" />
+		<Unit filename="odelib/LIMEX_A.h" />
+		<Unit filename="odelib/METAN_A.h" />
+		<Unit filename="odelib/ODESolver.h" />
+		<Unit filename="odelib/ODETrajectory.h" />
+		<Unit filename="swig/linalg.i">
+			<Option compile="1" />
+			<Option target="SharedLib" />
+		</Unit>
+		<Unit filename="swig/nonlin.i">
+			<Option compile="1" />
+			<Option target="SharedLib" />
+		</Unit>
+		<Unit filename="swig/odelib.i">
+			<Option compile="1" />
+			<Option target="SharedLib" />
+		</Unit>
+		<Unit filename="swig/parkin.i">
+			<Option compile="1" />
+			<Option target="SharedLib" />
+		</Unit>
+		<Unit filename="swig/system.i">
+			<Option compile="1" />
+			<Option target="SharedLib" />
+		</Unit>
+		<Unit filename="system/BioPAR.cpp" />
+		<Unit filename="system/BioPAR.h" />
+		<Unit filename="system/BioProcessor.cpp" />
+		<Unit filename="system/BioProcessor.h" />
+		<Unit filename="system/BioRHS.cpp" />
+		<Unit filename="system/BioRHS.h" />
+		<Unit filename="system/BioSystem.cpp" />
+		<Unit filename="system/BioSystem.h" />
+		<Unit filename="system/ExprNode.cpp" />
+		<Unit filename="system/ExprNode.h" />
+		<Unit filename="system/Expression.cpp" />
+		<Unit filename="system/Expression.h" />
+		<Unit filename="tstprg/main.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/parkin.h">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testcases.h">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testlinalg.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testnonlin.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testparkin_aux.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testpfizer_simple.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="tstprg/testsystem.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testsystem_aux.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="tstprg/testsystem_aux1.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="tstprg/testsystem_aux2.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Extensions>
