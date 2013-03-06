@@ -75,10 +75,6 @@
 				<Linker>
 					<Add option="-s" />
 				</Linker>
-				<ExtraCommands>
-					<Add after="xcopy .\bin\SharedLib\_parkin.pyd .\link2BioPARKIN\parkincpp /Y" />
-					<Add after="xcopy .\swig\parkin.py .\link2BioPARKIN\parkincpp /Y" />
-				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
