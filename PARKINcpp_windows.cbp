@@ -71,15 +71,9 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add directory="C:/Python27/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-static-libgcc" />
-					<Add option="-static-libstdc++" />
-					<Add library="m" />
-					<Add library="python27" />
-					<Add directory="C:/Python27/libs" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="xcopy .\bin\SharedLib\_parkin.pyd .\link2BioPARKIN\parkincpp /Y" />
