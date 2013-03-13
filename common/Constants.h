@@ -14,8 +14,8 @@
 #include <addpkg/dlib/logger.h>
 
 
-const int  PARKINCPP_VERSION = 2010766;
-const char PARKINCPP_DOTTED_VERSION[] = "2.0.7b ("  __DATE__ " " __TIME__ ")";
+const int  PARKINCPP_VERSION = 2000900; // <=> 02 00 09 00
+const char PARKINCPP_DOTTED_VERSION[] = "2.0.9 ("  __DATE__ " " __TIME__ ")\0";
 
 
 // pi ~ 3.1415926535 8979323846 2643383279 5028841971 7

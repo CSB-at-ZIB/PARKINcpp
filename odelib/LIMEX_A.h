@@ -34,7 +34,17 @@ namespace PARKIN
                                         FirstOrderODESystem& ode,
                                         double              t0,
                                         Grid const&         y0,
-                                        double              tEnd
+                                        double              tEnd,
+                                        int                  bandwidth = 0
+                                       );
+
+            virtual void setODESystem(
+                                        FirstOrderODESystem& ode,
+                                        double              t0,
+                                        Grid const&         y0,
+                                        Grid const&         refGrid,
+                                        double              tEnd,
+                                        int                 bandwidth = 0
                                        );
 
 
@@ -42,28 +52,26 @@ namespace PARKIN
             virtual int integrate(unsigned n, double* yIni,
                                   double tLeft, double tRight);
 
+            virtual int integrateSensitivitySystem(unsigned nDAE);
+            virtual int integrateSensitivitySystem(unsigned nDAE,
+                                                    unsigned n, double* yIni,
+                                                    double tLeft, double tRight);
+
             virtual Grid&       getAdaptiveGridPoints();
             virtual Trajectory& getAdaptiveSolution();
 
+            virtual Grid&           getSolutionGridPoints()     { return _solPoints; }
+            virtual Trajectory&     getSolutionTrajectory()     { return _solution; }
+            virtual Grid&           getDataGridPoints()         { return _datPoints; }
+            virtual Trajectory&     getDataTrajectory()         { return _data; }
+
             ///
 
-            int integrateSensitivitySystem(unsigned nDAE);
-            int integrateSensitivitySystem(unsigned nDAE, unsigned n, double* yIni,
-                                            double tLeft, double tRight);
+            ODETrajectory*  getRawTrajectory() { return _trajectory->clone(); }
 
             int integrateWithoutInterpolation();
             int integrateWithoutInterpolation(unsigned n, double* yIni,
                                               double tLeft, double tRight);
-
-            void setODESystem(
-                                FirstOrderODESystem& ode,
-                                double              t0,
-                                Grid const&         y0,
-                                Grid const&         refGrid,
-                                double              tEnd,
-                                int                 bandwidth = 0
-                             );
-
 
             void setODESystem(
                                 Fcn         fcn,
@@ -75,16 +83,10 @@ namespace PARKIN
                                 int         bandwidth = 0
                              );
 
-            Grid&           getSolutionGridPoints()         { return _solPoints; }
-            Trajectory&     getSolutionTrajectory()         { return _solution; }
-            Grid&           getDataGridPoints()             { return _datPoints; }
-            Trajectory&     getDataTrajectory()             { return _data; }
-
-            ODETrajectory*  getRawTrajectory()              { return _trajectory->clone(); }
-
             int             getSuccessiveCallFlag()         { return _iOpt[15]; }
             void            resetSuccessiveCallFlag()       { _iOpt[15] = -1; }
 
+        private:
             int             getInterpolationFlag()          { return _iOpt[31]; }
             void            setInterpolationFlag(int j=1);
 

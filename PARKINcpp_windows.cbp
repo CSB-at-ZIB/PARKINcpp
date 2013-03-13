@@ -185,6 +185,10 @@
 		<Unit filename="system/BioRHS.h" />
 		<Unit filename="system/BioSystem.cpp" />
 		<Unit filename="system/BioSystem.h" />
+		<Unit filename="system/BioSystemODE.cpp" />
+		<Unit filename="system/BioSystemODE.h" />
+		<Unit filename="system/BioSystemVAR.cpp" />
+		<Unit filename="system/BioSystemVAR.h" />
 		<Unit filename="system/ExprNode.cpp" />
 		<Unit filename="system/ExprNode.h" />
 		<Unit filename="system/Expression.cpp" />

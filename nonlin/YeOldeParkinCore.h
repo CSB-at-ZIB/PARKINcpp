@@ -21,12 +21,12 @@ namespace PARKIN
     struct YeOldeParkinWk
     {
         Real        eps, fc, zscal, xstep, cond;
-        Real        fcmin;
+        Real        fcmin, kappa;
         unsigned    iter, itmax;
 
         YeOldeParkinWk() :
             eps(0.0), fc(0.0), zscal(-1.0), xstep(0.0), cond(0.0),
-            fcmin(1.0e-2),
+            fcmin(1.0e-2), kappa(0.0),
             iter(0), itmax(50)
         { }
     };

@@ -2622,7 +2622,7 @@ GaussNewton::compute_statistics(
 
     printl( _lumon, dlib::LINFO,
             "\n\n\n     %s\n\n\n",
-            "Assuimng the classical linear model:"
+            "Assuming the classical linear model:"
           );
 
     res = ymodel.row(1,_mfit) - y.row(1,_mfit);

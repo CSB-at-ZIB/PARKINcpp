@@ -11,6 +11,7 @@
 #include <vector>
 // #include <sstream>
 
+#include "FirstOrderODESystem.h"
 #include "ODESolver.h"
 
 extern "C"
@@ -28,9 +29,33 @@ namespace PARKIN
             DOP853();
             virtual ~DOP853();
 
+            virtual void setODESystem(
+                                            FirstOrderODESystem& ode,
+                                            double              t0,
+                                            Grid const&         y0,
+                                            double              tEnd,
+                                            int                  bandwidth = 0
+                                       );
+
+            virtual void setODESystem(
+                                            FirstOrderODESystem& ode,
+                                            double              t0,
+                                            Grid const&         y0,
+                                            Grid const&         refGrid,
+                                            double              tEnd,
+                                            int                 bandwidth = 0
+                                        );
+
+
             virtual int         integrate();
             virtual int         integrate(unsigned n, double* yIni,
-                                          double xLeft, double Right);
+                                            double tLeft, double tRight);
+
+            virtual int         integrateSensitivitySystem(unsigned nDAE);
+            virtual int         integrateSensitivitySystem(unsigned nDAE,
+                                                            unsigned n, double* yIni,
+                                                            double tLeft, double tRight);
+
             virtual Grid&       getAdaptiveGridPoints();
             virtual Trajectory& getAdaptiveSolution();
 
@@ -42,12 +67,14 @@ namespace PARKIN
             ///     ...
             /// }
 
+
             void setODESystem(
                                 FcnEqDiff       fcn,
-                                double          x0,
+                                double          t0,
                                 Grid const&     y0,
                                 Grid const&     refGrid,
-                                double          xend
+                                double          tEnd,
+                                int              bandwidth = 0
                               ); // , SolTrait solout);
 
             Grid&        getSolutionGridPoints() { return _solPoints; }
@@ -58,10 +85,10 @@ namespace PARKIN
         private:
             unsigned    _n;             // dimension of the system
             FcnEqDiff   _fcn;           // function computing the values of f(x,y)
-            double      _x0;            // initial x-value
+            double      _t0;            // initial x-value
             double*     _y0;            // initial values for y
             double*     _y;             // values for y (work space for integrator)
-            double      _xend;          // final x-value (the difference (xend - x) may be positive or negative)
+            double      _tEnd;          // final x-value (the difference (xend - x) may be positive or negative)
             int         _itol;          // switch for _rtol/_atol: scalar (itol==0), vector (itol==1)
 
             SolTrait    _solout;        // call-back function providing the numerical solution during integration
@@ -97,11 +124,15 @@ namespace PARKIN
             typedef ODESolver::GridIterConst GridIterConst;
 
         public:
-            static void solout(long nr, double xold, double x, double* y, unsigned n, int* irtrn);
+            static void xfcn(unsigned n, double t, double *y, double *f, double *cd);
 
+            static void solout(long nr, double tOld, double t, double* y, unsigned n, int* irtrn);
+
+            static void setODE(FirstOrderODESystem& ode) { _ode = &ode; }
             static void setObj(DOP853& obj) { _obj = &obj; }
 
         private:
+            static FirstOrderODESystem* _ode;
             static DOP853* _obj;
     };
 

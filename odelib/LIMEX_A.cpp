@@ -27,7 +27,7 @@ LIMEXWrapper::xfcn( int* n, int* nz, double* t, double* y, double* dy,
 
     //
 
-    *n = _ode -> getSystemDimension();
+    //*n = _ode -> getSystemDimension();
 
     _ode -> computeDerivatives( *t, y, dy, info );
 
@@ -64,16 +64,18 @@ LIMEXWrapper::xjac( int* n, double* t, double* y, double* dy,
 
     //
 
-    *n = _ode -> getSystemDimension();
+    //*n = _ode -> getSystemDimension();
 
-    double Jac[(*n) * (*n)];
+    //double Jac[(*n) * (*n)];
 
-    _ode -> computeJacobian( *t, y, dy, Jac, info );
+    _ode -> computeJacobian( *t, y, dy,
+                             J, ldJ, full_or_band, info );
 
+/*
     if ( *info < 0 ) { return; }
-
+*/
     //
-
+/*
     if ( *full_or_band != 0 )
     {
         for (int k = 0; k < *n; ++k)
@@ -98,7 +100,7 @@ LIMEXWrapper::xjac( int* n, double* t, double* y, double* dy,
             }
         }
     }
-
+*/
 }
 //----------------------------------------------------------------------------
 
@@ -116,7 +118,8 @@ LIMEX_A::LIMEX_A() :
     _iOpt(), _rOpt(), _iPos(0),
     _ifail(),
     _kOrder(0), _Dense(), _t1(0.0), _t2(0.0),
-    _trajectory( new LIMEXTrajectory(0) )
+    /// _trajectory( new LIMEXTrajectory(0) )
+    _trajectory( new CubicHermiteTrajectory(0) )
 {
     initOpt();
 }
@@ -178,7 +181,7 @@ LIMEX_A::initOpt()
 
     _iOpt[30] = -1;         // !!! Only available in LIMD !!!
                             // Type of left-hand side B: 0 B=id, 1 B=const., 2 variable B
-    _iOpt[31] =  1;         // !!! Only available in LIMDHERM !!!
+    _iOpt[31] = -1;         // !!! Only available in LIMDHERM !!!
                             // Interpolation mode: 0 no addition output, 1 give additional output (switched on)
 
     ///
@@ -1592,12 +1595,13 @@ LIMEX_A::setODESystem(
                      FirstOrderODESystem& ode,
                      double              t0,
                      Grid const&         y0,
-                     double              tEnd
-                    )
+                     double              tEnd,
+                     int                  bandwidth
+                     )
 {
     Grid no_refGrid;
 
-    setODESystem( ode, t0, y0, no_refGrid, tEnd );
+    setODESystem( ode, t0, y0, no_refGrid, tEnd, bandwidth );
 }
 //----------------------------------------------------------------------------
 void
@@ -1661,11 +1665,18 @@ LIMEX_A::setODESystem(
         ++j;
     }
 
+    //
+
+    setInterpolationFlag( _cubintflag );
+
     _solPoints.clear();
     _solution.clear();
 
     _trajectory->clear();
     _trajectory->setDim(_n);
+
+
+    /// _iOpt[31] = 1; /// _cubintflag;
 
     _iOpt[30] = 1;      // choose B = const. for LIMEX integration
                         // 0: B = id, 1: B = const., 2: B = var.
@@ -1691,30 +1702,27 @@ LIMEX_A::setODESystem(
 
     _iOpt[0] = _debugflag;
 
-
     return;
 }
 //----------------------------------------------------------------------------
 void
 LIMEX_A::setInterpolationFlag(int j)
 {
-    delete _trajectory;
-
-    if ( j <= 0 )
+    if ( j != _iOpt[31] )
     {
-        _trajectory = new CubicHermiteTrajectory(_n);
+        delete _trajectory;
+
+        if ( j <= 0 )
+        {
+            _trajectory = new CubicHermiteTrajectory(_n);
+        }
+        else
+        {
+            _trajectory = new LIMEXTrajectory(_n);
+        }
+
+        _iOpt[31] = j;
     }
-    else
-    {
-        _trajectory = new LIMEXTrajectory(_n);
-    }
-
-    _trajectory->clear();
-
-    _solPoints.clear();
-    _solution.clear();
-
-    _iOpt[31] = j;
 
     return;
 }

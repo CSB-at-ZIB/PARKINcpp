@@ -360,6 +360,7 @@ L91:
 
 L92:
     --_iter;
+    _wk.iter = _iter;
     printl( _luerr, dlib::LINFO,
             "\n\n %s\n %3d  %s\n\n\n",
             "USER-PRESCRIBED TERMINATION AFTER",
@@ -611,7 +612,7 @@ int YeOldeParkinCore::prepare_GN_method()
     _fca    = _fc;
     _ic     = 0;
     _iranka = _irank;
-    _iter   = 0;
+    _iter   = _wk.iter = 0;
     _div    = 0;
     _sfc1   = 0.0;
     _tmin   = 1.0;
@@ -891,7 +892,7 @@ int YeOldeParkinCore::solve_linear_system()
 	// - naturally scaled L-infinity norm -
 	//
 	if ( _tmin <= _epsu ) ++_konv;
-	if ( _iter > 0 ) _skap = std::sqrt( _sumxa / _sfc1 );
+	if ( _iter > 0 ) _skap = _wk.kappa = std::sqrt( _sumxa / _sfc1 );
 	if ( _konv > 1 ) return 8;
 
 	if ( _iter != 0 )
@@ -939,7 +940,7 @@ int YeOldeParkinCore::control_steplength_output()
         {
             std::sprintf( line, "%s %4d", line, (unsigned)_pivot(k));
         }
-        printl( _lumon, dlib::LVERB, "    %s\n", line );
+        printl( _lumon, dlib::LVERB, "   %s\n", line );
     }
 
     printl( _lumon, dlib::LVERB,
@@ -959,6 +960,7 @@ int YeOldeParkinCore::control_steplength_output()
           );
 
     ++_iter;
+    _wk.iter = _iter;
 
 	return 0;
 }
@@ -1202,6 +1204,7 @@ int YeOldeParkinCore::reduce_damping_factor()
 	// C-------------------
 
     --_iter;
+    _wk.iter = _iter;
 
 	return 621;
 }

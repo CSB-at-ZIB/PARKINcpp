@@ -116,6 +116,12 @@ namespace PARKIN
             Expression::Param
             getIdentificationResults();
 
+            int
+            getNIter();
+
+            Real
+            getKappa();
+
             //
 
         protected:
@@ -159,6 +165,9 @@ namespace PARKIN
             YeOldeParkinWk              _parkinWk;
 
             Vector                      _idResult;
+
+            int                         _niter;
+            Real                        _kappa;
     };
 
 }

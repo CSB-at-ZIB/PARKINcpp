@@ -9,12 +9,72 @@
 
 using namespace PARKIN;
 
-DOP853* DOP853Wrapper::_obj = 0;
+//----------------------------------------------------------------------------
+FirstOrderODESystem*    DOP853Wrapper::_ode = 0;
+DOP853*                 DOP853Wrapper::_obj = 0;
+//----------------------------------------------------------------------------
+extern "C"
+void
+DOP853Wrapper::xfcn(unsigned n, double t, double* y, double* f,
+                    double* cd)
+{
+}
+//----------------------------------------------------------------------------
+extern "C"
+void
+DOP853Wrapper::solout(
+                      long      nr,
+                      double    tOld,
+                      double    t,
+                      double*   y,
+                      unsigned  n,
+                      int*      irtrn
+                     )
+{
+    // std::stringstream       s;
+    double*                 yy = y;
+    ODESolver::Grid         dpt = _obj -> getDataGridPoints();
+    ODESolver::Trajectory&  dat = _obj -> getDataTrajectory();
+    ODESolver::Grid&        tpt = _obj -> getSolutionGridPoints();
+    ODESolver::Trajectory&  sol = _obj -> getSolutionTrajectory();
+    GridIterConst           beg = std::lower_bound( dpt.begin(), dpt.end(), tOld);
+    GridIterConst           end = std::upper_bound( dpt.begin(), dpt.end(), t);
 
+    for (GridIterConst it = beg; it != end; ++it)
+    {
+        double xx = (double) *it;
+
+        if ( (tOld < xx) && (xx < t) )
+        {
+            for (unsigned j = 0; j < n; ++j)
+            {
+                // s << j;
+                dat[j].push_back( contd8(j,xx) );
+            }
+        }
+        else if ( xx == t )
+        {
+            for (unsigned j = 0; j < n; ++j)
+            {
+                // s << j;
+                dat[j].push_back( *(yy++) );
+            }
+        }
+    }
+
+    if ( tpt.empty() || (tpt.back() == tOld) )
+    {
+        tpt.push_back(t);
+        for (unsigned j = 0; j < n; ++j) sol[j].push_back( *(y++) );
+    }
+
+    *irtrn = 0;
+}
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 DOP853::DOP853() :
     ODESolver(),
-    _n(0), _fcn(0), _x0(0.0), _y0(0), _y(0), _xend(0.0),
+    _n(0), _fcn(0), _t0(0.0), _y0(0), _y(0), _tEnd(0.0),
     _itol(0),
 
     _solout(0), _iout(0), _fileout(0),
@@ -43,7 +103,7 @@ DOP853::integrate()
     DOP853Wrapper::setObj(*this);
 
     return dop853(
-                    _n, _fcn, _x0, _y, _xend,
+                    _n, _fcn, _t0, _y, _tEnd,
                     &_rtol, &_atol, _itol,
                     _solout, _iout, _fileout,
                     _uround, _safe, _fac1, _fac2, _beta,
@@ -56,7 +116,7 @@ DOP853::integrate()
 //----------------------------------------------------------------------------
 int
 DOP853::integrate(unsigned n, double* yIni,
-                  double xLeft, double xRight)
+                  double tLeft, double tRight)
 {
     if (_n != n) return -99;
 
@@ -69,7 +129,7 @@ DOP853::integrate(unsigned n, double* yIni,
     DOP853Wrapper::setObj(*this);
 
     return dop853(
-                    _n, _fcn, xLeft, yIni, xRight,
+                    _n, _fcn, tLeft, yIni, tRight,
                     &_rtol, &_atol, _itol,
                     _solout, _iout, _fileout,
                     _uround, _safe, _fac1, _fac2, _beta,
@@ -78,6 +138,22 @@ DOP853::integrate(unsigned n, double* yIni,
                     _nrdens, _icont, _licont,
                     _cd
                  );
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+int
+DOP853::integrateSensitivitySystem(unsigned nDAE)
+{
+    return 0;
+}
+//----------------------------------------------------------------------------
+int
+DOP853::integrateSensitivitySystem(unsigned nDAE,
+                                    unsigned n, double* yIni,
+                                    double tLeft, double tRight
+                                    )
+{
+    return 0;
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -96,11 +172,45 @@ DOP853::getAdaptiveSolution()
 //----------------------------------------------------------------------------
 void
 DOP853::setODESystem(
+                        FirstOrderODESystem&   ode,
+                        double                 t0,
+                        Grid const&            y0,
+                        double                 tEnd,
+                        int                    bandwidth
+                    )
+{
+    Grid no_refGrid;
+
+    setODESystem( ode, t0, y0, no_refGrid, tEnd, bandwidth );
+}
+//----------------------------------------------------------------------------
+void
+DOP853::setODESystem(
+                        FirstOrderODESystem& ode,
+                        double              t0,
+                        Grid const&         y0,
+                        Grid const&         refGrid,
+                        double              tEnd,
+                        int                 bandwidth
+                    )
+{
+    setODESystem(
+                    DOP853Wrapper::xfcn,
+                    t0, y0, refGrid, tEnd,
+                    bandwidth
+                );
+
+    DOP853Wrapper::setODE(ode);
+}
+//----------------------------------------------------------------------------
+void
+DOP853::setODESystem(
                      FcnEqDiff      fcn,
-                     double         x0,
+                     double         t0,
                      Grid const&    y0,
                      Grid const&    refGrid,
-                     double         xend
+                     double         tEnd,
+                     int             bandwidth
                     )
 {
     long j = 0;
@@ -111,8 +221,8 @@ DOP853::setODESystem(
         delete[] _y;  _y  = new double[_n];
     }
     _fcn  = fcn;
-    _x0   = x0;
-    _xend = xend;
+    _t0   = t0;
+    _tEnd = tEnd;
 
     for (GridIterConst it = y0.begin(); it != y0.end(); ++it) _y0[j++] = *it;
 
@@ -127,57 +237,5 @@ DOP853::setODESystem(
     _solout    = DOP853Wrapper::solout;
     _iout      = 2;
     _nrdens    = _n;
-}
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
-extern "C"
-void
-DOP853Wrapper::solout(
-                      long      nr,
-                      double    xold,
-                      double    x,
-                      double*   y,
-                      unsigned  n,
-                      int*      irtrn
-                     )
-{
-    // std::stringstream       s;
-    double*                 yy = y;
-    ODESolver::Grid         dpt = _obj->getDataGridPoints();
-    ODESolver::Trajectory&  dat = _obj->getDataTrajectory();
-    ODESolver::Grid&        xpt = _obj->getSolutionGridPoints();
-    ODESolver::Trajectory&  sol = _obj->getSolutionTrajectory();
-    GridIterConst           beg = std::lower_bound( dpt.begin(), dpt.end(), xold);
-    GridIterConst           end = std::upper_bound( dpt.begin(), dpt.end(), x);
-
-    for (GridIterConst it = beg; it != end; ++it)
-    {
-        double xx = (double) *it;
-
-        if ( (xold < xx) && (xx < x) )
-        {
-            for (unsigned j = 0; j < n; ++j)
-            {
-                // s << j;
-                dat[j].push_back( contd8(j,xx) );
-            }
-        }
-        else if ( xx == x )
-        {
-            for (unsigned j = 0; j < n; ++j)
-            {
-                // s << j;
-                dat[j].push_back( *(yy++) );
-            }
-        }
-    }
-
-    if ( xpt.empty() || (xpt.back() == xold) )
-    {
-        xpt.push_back(x);
-        for (unsigned j = 0; j < n; ++j) sol[j].push_back( *(y++) );
-    }
-
-    *irtrn = 0;
 }
 //----------------------------------------------------------------------------

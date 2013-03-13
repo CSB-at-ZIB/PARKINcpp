@@ -20,8 +20,9 @@ namespace PARKIN
                                                int* info
                                              ) { *info = -987; }
             virtual void computeJacobian( Real const t,
-                                            Real* y, Real* dy, Real* J,
-                                            int* info
+                                            Real* y, Real* dy,
+                                            Real* J, int* ldJ,
+                                            int* full_or_band, int* info
                                           ) { *info = -987; }
             virtual void computeMassMatrix( Real const t, Real* y,
                                               Real* B, int* ir, int* ic

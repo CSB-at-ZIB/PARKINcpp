@@ -14,8 +14,10 @@
 
 #include "linalg/Matrix.h"
 #include "linalg/Vector.h"
-//$$$ #include "odelib/DOP853.h"
-#include "odelib/LIMEX_A.h"
+
+#include "odelib/ODESolver.h"
+#include "odelib/ODETrajectory.h"
+#include "odelib/FirstOrderODESystem.h"
 #include "Expression.h"
 #include "BioRHS.h"
 
@@ -27,6 +29,7 @@ namespace PARKIN
 
     class BioSystem
     {
+
         public:
 
             typedef BioRHS::Species                         Species;
@@ -62,6 +65,9 @@ namespace PARKIN
             void
             setSolverDebugFlag(int flag);
 
+            void
+            setSolverInterpolationFlag(int cubint);
+
             ///
 
             Real
@@ -75,6 +81,12 @@ namespace PARKIN
 
             void
             setSolverATol(Real tol);
+
+            Real
+            getSystemTol() const;
+
+            void
+            setSystemTol(Real tol);
 
             //
 
@@ -323,14 +335,18 @@ namespace PARKIN
             Matrix                          _jac;           // Jacobian (sensitivity matrix) as stagged blocks of
                                                             // solutions to the variational equation
 
+            FirstOrderODESystem*            _systemOde;
+            FirstOrderODESystem*            _variationalOde;
             ODESolver*                      _odeSolver;
             int                             _odeErrorFlag;
 
             long                            _totmeasData;
             ODESolver::Grid                 _tInterval;
             // double                          _tStart, _tEnd;
+            Real                            _systemTol;
     };
 
+    ///
     ///
     ///
     ///

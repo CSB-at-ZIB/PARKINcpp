@@ -20,7 +20,8 @@ BioProcessor::BioProcessor(BioSystem* biosys, std::string const& method) :
     _sensiMat(), _sensiDcmp(),
     _nlscon(), _nlsconWk(),
     _parkin(), _parkinWk(),
-    _idResult()
+    _idResult(),
+    _niter(-1), _kappa(0.0)
 {
     setLogStream( /* std::clog */ );
 
@@ -50,7 +51,8 @@ BioProcessor::BioProcessor(BioProcessor const& other) :
     _sensiMat(other._sensiMat), _sensiDcmp(other._sensiDcmp),
     _nlscon(), _nlsconWk(),
     _parkin(), _parkinWk(),
-    _idResult(other._idResult)
+    _idResult(other._idResult),
+    _niter(other._niter), _kappa(other._kappa)
 {
     setLogStream( /* std::clog */ );
 }
@@ -762,9 +764,8 @@ std::cerr << fscal.t() << std::endl;
     if ( _method == "parkin" )
     {
         _parkinWk.itmax = _iopt.itmax;
-        // _parkinWk.cond = 1.0 / (xtol * 1.0e-1); // ( _biosys->getSolverRTol() );
-        _parkinWk.cond = 1.0 / (xtol * 1.0e+1); // ( _biosys->getSolverRTol() );
-
+        // _parkinWk.cond = 1.0 / (xtol * 1.0e+1); // ( _biosys->getSolverRTol() );
+        _parkinWk.cond = 1.0 / ( _biosys->getSystemTol() );
 
         _parkin.setLogStream( *_logstream );
 
@@ -780,6 +781,8 @@ std::cerr << fscal.t() << std::endl;
         rc = _parkin.run();
 
         // _parkinWk = _parkin.getWk();
+        _niter = _parkin.getWk().iter;
+        _kappa = _parkin.getWk().kappa;
         _idResult = _parkin.getSolution();
     }
     else if ( _method == "nlscon" )
@@ -815,8 +818,13 @@ std::cerr << fscal.t() << std::endl;
         // _nlsconWk.xlb = _xlb;
         // _nlsconWk.xub = _xub;
         _nlsconWk.nitmax = _iopt.itmax;
-        _nlsconWk.cond   = 1.0 / (xtol * 1.0); // ( _biosys->getSolverRTol() );
-        _nlsconWk.fcmin  = 1.0e-4;
+        // _nlsconWk.cond    = 1.0 / (xtol * 1.0e+1);
+        //_nlsconWk.fcstart = 1.0e-1;
+        //_nlsconWk.fcmin   = 1.0e-2;
+
+        _nlsconWk.cond = 1.0 / ( _biosys->getSystemTol() );
+        // _nlsconWk.cond   = 1.0 / ( _biosys->getSolverRTol() );
+        // _nlsconWk.fcmin  = 1.0e-4;
 
 
         _nlscon.setLogStream( *_logstream );
@@ -858,13 +866,14 @@ std::cerr << fscal.t() << std::endl;
 
 
         std::vector<Vector> piter = _nlscon.getSolutionIter();
-        GaussNewtonWk       wk = _nlscon.getWk();
+        _niter = _nlscon.getWk().niter;
+        _kappa = _nlscon.getWk().skap;
 
         *_logstream << std::endl;
         *_logstream << "         ------------------------------------------" << std::endl;
         *_logstream << "         NLSCON: Inverse Problem Solution Iteration" << std::endl;
         *_logstream << "         ------------------------------------------" << std::endl;
-        for (long j = 0; j <= wk.niter; ++j)
+        for (long j = 0; j <= _niter; ++j)
         {
             *_logstream << "it = " << j << "\n" << piter[j].t();
         }
@@ -900,6 +909,18 @@ BioProcessor::getIdentificationResults()
     }
 
     return par;
+}
+//---------------------------------------------------------------------------
+int
+BioProcessor::getNIter()
+{
+    return _niter;
+}
+//---------------------------------------------------------------------------
+Real
+BioProcessor::getKappa()
+{
+    return _kappa;
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
