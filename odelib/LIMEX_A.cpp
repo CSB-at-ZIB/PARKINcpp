@@ -110,7 +110,7 @@ LIMEXWrapper::xjac( int* n, double* t, double* y, double* dy,
 
 //----------------------------------------------------------------------------
 LIMEX_A::LIMEX_A() :
-    ODESolver(),
+    ODESolver(ODE_SOLVER_LIMEX_A),
     _n(0), _fcn(LIMEXWrapper::xfcn), _jac(LIMEXWrapper::xjac),
     _t0(0.0), _T(0.0),
     _y0(0), _dy0(0),
@@ -118,9 +118,10 @@ LIMEX_A::LIMEX_A() :
     _iOpt(), _rOpt(), _iPos(0),
     _ifail(),
     _kOrder(0), _Dense(), _t1(0.0), _t2(0.0),
-    /// _trajectory( new LIMEXTrajectory(0) )
-    _trajectory( new CubicHermiteTrajectory(0) )
+    /// _trajectory( new CubicHermiteTrajectory(0) )
+    _trajectory( new LIMEXTrajectory(0) )
 {
+    //_trajectory = new CubicHermiteTrajectory(0);
     initOpt();
 }
 //----------------------------------------------------------------------------
@@ -315,8 +316,9 @@ LIMEX_A::integrateWithLIMEXInterp()
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                  _solution[j].push_back( *ztmp++ );
             }
@@ -375,8 +377,9 @@ LIMEX_A::integrateWithLIMEXInterp()
                           );
 
                 ztmp = yEval;
-                ztmp++;
-                for (long j = 0; j < (_n - 1); ++j)
+                /// ztmp++;
+                /// for (long j = 0; j < (_n - 1); ++j)
+                for (long j = 0; j < _n; ++j)
                 {
                     _data[j].push_back( *ztmp++ );
                 }
@@ -384,8 +387,9 @@ LIMEX_A::integrateWithLIMEXInterp()
             else if ( tEval == _t2 )
             {
                 ztmp = z;
-                ztmp++;
-                for (long j = 0; j < (_n - 1); ++j)
+                /// ztmp++;
+                /// for (long j = 0; j < (_n - 1); ++j)
+                for (long j = 0; j < _n; ++j)
                 {
                     _data[j].push_back( *ztmp++ );  // a simple append is sufficient here presumingly
                 }
@@ -406,9 +410,13 @@ LIMEX_A::integrateWithLIMEXInterp()
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j].push_back( yEval[j+1] );
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j].push_back( yEval[j+1] );
+                 _data[j].push_back( yEval[j] );
             }
         }
     }
@@ -513,8 +521,9 @@ LIMEX_A::integrateWithLIMEXInterp( unsigned n, double* yIni,
 //std::cerr << "*** Next adaptive time point: " << *t << std::endl;
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                 _solution[j].push_back( *ztmp++ );
             }
@@ -579,8 +588,9 @@ LIMEX_A::integrateWithLIMEXInterp( unsigned n, double* yIni,
 
 //std::cerr << "***    ";
                 ztmp = yEval;
-                ztmp++;
-                for (long j = 0; j < (_n - 1); ++j)
+                /// ztmp++;
+                /// for (long j = 0; j < (_n - 1); ++j)
+                for (long j = 0; j < _n; ++j)
                 {
 //std::cerr << *ztmp << ", ";
                     _data[j][long(it-dBeg)] = *ztmp++;  // see comment right below
@@ -593,12 +603,14 @@ LIMEX_A::integrateWithLIMEXInterp( unsigned n, double* yIni,
 //std::cerr << "*** Right boundary time = " << _t2 << " ( #" << long(it-dBeg) << " )" << std::endl;
 //std::cerr << "***    ";
                 ztmp = z;
-                ztmp++;
-                for (long j = 0; j < (_n - 1); ++j)
+                /// ztmp++;
+                /// for (long j = 0; j < (_n - 1); ++j)
+                for (long j = 0; j < _n; ++j)
                 {
 //std::cerr << *ztmp << ", ";
                     _data[j][long(it-dBeg)] = *ztmp++;  // allowing overwriting of data points!
-                    // _data[j].push_back( z[j+1] );      // a simple append eventually produces double data points...
+                    /// // _data[j].push_back( z[j+1] );      // a simple append eventually produces double data points...
+                    // _data[j].push_back( z[j] );      // a simple append eventually produces double data points...
                 }
 //std::cerr << std::endl;
 
@@ -633,9 +645,13 @@ LIMEX_A::integrateWithLIMEXInterp( unsigned n, double* yIni,
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j][long(it-dBeg)] = yEval[j+1];
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j][long(it-dBeg)] = yEval[j+1];
+                _data[j][long(it-dBeg)] = yEval[j];
             }
         }
     }
@@ -713,8 +729,9 @@ LIMEX_A::integrateWithCubicInterp()
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                  _solution[j].push_back( *ztmp++ );
             }
@@ -735,9 +752,13 @@ LIMEX_A::integrateWithCubicInterp()
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j].push_back( yEval[j+1] );
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j].push_back( yEval[j+1] );
+                _data[j].push_back( yEval[j] );
             }
         }
     }
@@ -818,8 +839,9 @@ LIMEX_A::integrateWithCubicInterp( unsigned n, double* yIni,
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                 _solution[j].push_back( *ztmp++ );
             }
@@ -844,9 +866,13 @@ LIMEX_A::integrateWithCubicInterp( unsigned n, double* yIni,
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j][long(it-dBeg)] = yEval[j+1];
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j][long(it-dBeg)] = yEval[j+1];
+                _data[j][long(it-dBeg)] = yEval[j];
             }
         }
     }
@@ -991,8 +1017,9 @@ LIMEX_A::integrateSensLIMEX(unsigned nnDAE)
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                  _solution[j].push_back( *ztmp++ );
             }
@@ -1014,9 +1041,13 @@ LIMEX_A::integrateSensLIMEX(unsigned nnDAE)
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j].push_back( yEval[j+1] );
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j].push_back( yEval[j+1] );
+                _data[j].push_back( yEval[j] );
             }
         }
     }
@@ -1101,8 +1132,9 @@ LIMEX_A::integrateSensLIMEX(
 //std::cerr << "*** Next adaptive time point: " << *t << std::endl;
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                 _solution[j].push_back( *ztmp++ );
             }
@@ -1137,9 +1169,13 @@ LIMEX_A::integrateSensLIMEX(
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j][long(it-dBeg)] = yEval[j+1];
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j][long(it-dBeg)] = yEval[j+1];
+                _data[j][long(it-dBeg)] = yEval[j];
             }
         }
     }
@@ -1230,8 +1266,9 @@ LIMEX_A::integrateSensCubic(unsigned nnDAE)
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                  _solution[j].push_back( *ztmp++ );
             }
@@ -1252,9 +1289,13 @@ LIMEX_A::integrateSensCubic(unsigned nnDAE)
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j].push_back( yEval[j+1] );
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j].push_back( yEval[j+1] );
+                _data[j].push_back( yEval[j] );
             }
         }
     }
@@ -1346,8 +1387,9 @@ LIMEX_A::integrateSensCubic(
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++;  // skipping first component (the time variable)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++;  // skipping first component (the time variable)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                 _solution[j].push_back( *ztmp++ );
             }
@@ -1371,9 +1413,13 @@ LIMEX_A::integrateSensCubic(
 
         if ( yEval.size() == (unsigned) _n )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j][long(it-dBeg)] = yEval[j+1];
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j][long(it-dBeg)] = yEval[j+1];
+                _data[j][long(it-dBeg)] = yEval[j];
             }
         }
     }
@@ -1427,8 +1473,9 @@ LIMEX_A::computeAndSaveLimexTrajectory(double* t, double T, double* y)
         {
             _solPoints.push_back( *t );
             ztmp = z;
-            ztmp++; // skipping first component (time variable!)
-            for (long j = 0; j < (_n - 1); ++j)
+            /// ztmp++; // skipping first component (time variable!)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            for (long j = 0; j < _n; ++j)
             {
                 _solution[j].push_back( *ztmp++ );
             }
@@ -1481,9 +1528,13 @@ LIMEX_A::integrateWithoutInterpolation()
 
         computeAndSaveLimexTrajectory( &t, T, z );
 
-        for (long j = 0; j < (_n - 1); ++j)
+        /// for (long j = 0; j < (_n - 1); ++j)
+        /// {
+        ///     _data[j].push_back( z[j+1] );
+        /// }
+        for (long j = 0; j < _n; ++j)
         {
-            _data[j].push_back( z[j+1] );
+            _data[j].push_back( z[j] );
         }
     }
 
@@ -1551,10 +1602,15 @@ LIMEX_A::integrateWithoutInterpolation( unsigned n, double* yIni,
 
         // if ( t != tRight )
         {
-            for (long j = 0; j < (_n - 1); ++j)
+            /// for (long j = 0; j < (_n - 1); ++j)
+            /// {
+            ///     _data[j][long(it-dBeg)] = yIni[j+1];  // allowing overwriting of data points!
+            ///     // _data[j].push_back( yIni[j+1] );   // a simple append eventually produces double data points...
+            /// }
+            for (long j = 0; j < _n; ++j)
             {
-                _data[j][long(it-dBeg)] = yIni[j+1];  // allowing overwriting of data points!
-                // _data[j].push_back( yIni[j+1] );   // a simple append eventually produces double data points...
+                _data[j][long(it-dBeg)] = yIni[j];  // allowing overwriting of data points!
+                // _data[j].push_back( yIni[j] );   // a simple append eventually produces double data points...
             }
         }
     }

@@ -27,7 +27,12 @@ namespace PARKIN
     {
         public:
             DOP853();
+            // DOP853(ODESolver const& other) :
+            //             ODESolver(other)
+            // { _solverId = ODE_SOLVER_DOP853; }
             virtual ~DOP853();
+
+            virtual DOP853* clone() { return new DOP853(*this); }
 
             virtual void setODESystem(
                                             FirstOrderODESystem& ode,
@@ -59,6 +64,13 @@ namespace PARKIN
             virtual Grid&       getAdaptiveGridPoints();
             virtual Trajectory& getAdaptiveSolution();
 
+            virtual Grid&        getSolutionGridPoints() { return _solPoints; }
+            virtual Trajectory&  getSolutionTrajectory() { return _solution; }
+            virtual Grid&        getDataGridPoints()     { return _datPoints; }
+            virtual Trajectory&  getDataTrajectory()     { return _data; }
+            virtual ODETrajectory* getRawTrajectory()    { return 0; }
+
+
             /// void    fcn (unsigned n, double x, double* y, double* f, double* cd);
             /// void solout (long nr, double xold, double x, double* y, unsigned n, int* irtrn);
             /// {
@@ -66,7 +78,6 @@ namespace PARKIN
             ///
             ///     ...
             /// }
-
 
             void setODESystem(
                                 FcnEqDiff       fcn,
@@ -76,11 +87,6 @@ namespace PARKIN
                                 double          tEnd,
                                 int              bandwidth = 0
                               ); // , SolTrait solout);
-
-            Grid&        getSolutionGridPoints() { return _solPoints; }
-            Trajectory&  getSolutionTrajectory() { return _solution; }
-            Grid&        getDataGridPoints()     { return _datPoints; }
-            Trajectory&  getDataTrajectory()     { return _data; }
 
         private:
             unsigned    _n;             // dimension of the system
@@ -135,7 +141,6 @@ namespace PARKIN
             static FirstOrderODESystem* _ode;
             static DOP853* _obj;
     };
-
 
 }
 #endif // __DOP853_H

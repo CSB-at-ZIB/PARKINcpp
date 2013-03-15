@@ -11,12 +11,13 @@
 #include "BioSystemVAR.h"
 #include "linalg/QRconDecomp.h"
 #include "odelib/LIMEX_A.h"
+#include "odelib/DOP853.h"
 
 using namespace PARKIN;
-
-BioSystem*  BioSystemWrapper::_obj = 0;
-BioRHS      BioSystemWrapper::_ode = BioRHS();
-
+// / *
+// BioSystem*  BioSystemWrapper::_obj = 0;
+// BioRHS      BioSystemWrapper::_ode = BioRHS();
+// * /
 //---------------------------------------------------------------------------
 /// c'tor
 BioSystem::BioSystem( Real tStart, Real tEnd ) :
@@ -151,7 +152,9 @@ BioSystem::~BioSystem()
 
          //$$$ _odeSolver = new DOP853();
          _odeSolver = new LIMEX_A();
+         //_odeSolver = s._odeSolver->clone();
          _odeSolver->setDebugFlag( s._odeSolver->getDebugFlag() );
+         _odeSolver->setInterpolationFlag( s._odeSolver->getInterpolationFlag() );
          _odeSolver->setRTol( s._odeSolver->getRTol() );
          _odeSolver->setATol( s._odeSolver->getATol() );
          _odeErrorFlag = 0;
@@ -203,6 +206,48 @@ void
 BioSystem::setSolverInterpolationFlag(int cubint)
 {
     _odeSolver -> setInterpolationFlag(cubint);
+}
+//---------------------------------------------------------------------------
+ODESolverId
+BioSystem::getSolverId() const
+{
+    return _odeSolver -> getId();
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::setSolver(ODESolverId solverid)
+{
+    ODESolver* newSolver = 0;
+
+    switch( solverid )
+    {
+        case ODE_SOLVER_DOP853:
+                // newSolver = new DOP853( *_odeSolver );
+                newSolver = new DOP853();
+                break;
+
+        case ODE_SOLVER_DEFAULT:
+        case ODE_SOLVER_LIMEX_A:
+                // newSolver = new LIMEX_A( *_odeSolver );
+                newSolver = new LIMEX_A();
+                break;
+
+        default:
+                break;
+    }
+
+    if ( newSolver != 0 )
+    {
+        newSolver -> setRTol( _odeSolver -> getRTol() );
+        newSolver -> setATol( _odeSolver -> getATol() );
+        newSolver -> setDebugFlag( _odeSolver -> getDebugFlag() );
+        newSolver -> setInterpolationFlag( _odeSolver -> getInterpolationFlag() );
+
+        delete _odeSolver;
+
+        _odeSolver = newSolver;
+        _odeErrorFlag = 0;
+    }
 }
 //---------------------------------------------------------------------------
 Real
@@ -636,14 +681,26 @@ ODETrajectory*
 BioSystem::getEvaluationTrajectories()
 {
     //$$$ return dynamic_cast<DOP853*>(_odeSolver)->getRawTrajectory();
-    return dynamic_cast<LIMEX_A*>(_odeSolver)->getRawTrajectory();
+    //if ( _odeSolver->getId() == ODE_SOLVER_LIMEX_A )
+    //{
+    //    return dynamic_cast<LIMEX_A*>(_odeSolver)->getRawTrajectory();
+    //}
+    return _odeSolver -> getRawTrajectory();
+    //return 0;
 }
 //---------------------------------------------------------------------------
-ODESolver::Trajectory const&
+ODESolver::Trajectory
 BioSystem::getOdeTrajectory() const
 {
+    ODESolver::Trajectory& tra = _odeSolver -> getSolutionTrajectory();
+    ODESolver::Trajectory ret;
     //$$$ return dynamic_cast<DOP853*>(_odeSolver)->getSolutionTrajectory();
-    return _odeSolver -> getSolutionTrajectory();
+    // return _odeSolver -> getSolutionTrajectory();
+    for (long j = 1; j < (long)tra.size(); ++j)
+    {
+        ret[j-1] = tra[j];
+    }
+    return ret;
 }
 //---------------------------------------------------------------------------
 Vector
@@ -651,9 +708,9 @@ BioSystem::getOdeTrajectory(long j) const
 {
     //$$$ ODESolver::Trajectory& tra = dynamic_cast<DOP853*>(_odeSolver) ->
     //$$$                                                getSolutionTrajectory();
-    ODESolver::Trajectory& tra = _odeSolver -> getSolutionTrajectory();
+    ODESolver::Trajectory& tra = (_odeSolver -> getSolutionTrajectory());
 
-    if ( (0 <= j) && (j < (long)tra.size()) ) return Vector( tra[j] );
+    if ( (0 <= j) && (j < (long)tra.size()-1) ) return Vector( tra[j+1] );
 
     return Vector();
 }
@@ -810,7 +867,10 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
         // _iniCond[j-1].f( _sysPar, n, y );
         _iniCond[j-1].f( y, n, y );
 
-        dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
+        if ( _odeSolver->getId() == ODE_SOLVER_LIMEX_A )
+        {
+            dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
+        }
 
         //$$$ std::cerr << "\n*** dop853: rc = ";
         // std::cerr << "\n*** BioSystem::computeModel: limex_a: rc = ";
@@ -851,7 +911,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     _linftyModel.clear();
     _synData.clear();
 
-    k = 0;
+    k = 1;  // starting from k = 1, since k = 0 is the (dummy) time variable!
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
         _linftyModel[*it] = std::fabs( sim[k++][0] );
@@ -861,7 +921,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
     {
         if ( tp > 0 )
         {
-            k = 0;
+            k = 1; // starting from k = 1, see above comment!
             for (StrIterConst it = sBeg; it != sEnd; ++it)
             {
                 Real tmp = std::fabs( sim[k++][tp] );
@@ -873,7 +933,7 @@ BioSystem::computeModel(Expression::Param const& var, std::string mode)
             }
         }
 
-        k = 0;
+        k = 1;
         _synData.push_back( MeasurementPoint() );
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
@@ -1055,7 +1115,10 @@ BioSystem::computeJacobian(Expression::Param const& var,
             }
         */
 
-        dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
+        if ( _odeSolver->getId() == ODE_SOLVER_LIMEX_A )
+        {
+            dynamic_cast<LIMEX_A*>(_odeSolver) -> resetSuccessiveCallFlag();
+        }
 
         //$$$ std::cerr << "*** dop853: rc = " <<
         // std::cerr << "\n*** BioSystem::computeJacobian() : limex_a: rc = " <<
@@ -1111,8 +1174,10 @@ BioSystem::computeJacobian(Expression::Param const& var,
     _synData.clear();
     _jacobian.clear();
 
-    n--; // from here on, the time variable is gone since "sim" contains only species
-    k = 0;
+    /// n--; // from here on, the time variable is gone since "sim" contains only species
+    /// 15.03.13 td: *** NO!  ODESolver is now dull again: ***
+    ///              _No_ knowledge about the system(s) it shall integrate!!!
+    k = 1;
     for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
     {
         _linftyModel[*itSpe] = std::fabs( sim[k++][0] );
@@ -1122,7 +1187,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
     {
         if ( tp > 0 )
         {
-            k = 0;
+            k = 1;
             for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
             {
                 Real tmp = std::fabs( sim[k++][tp] );
@@ -1134,7 +1199,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
             }
         }
 
-        k = 0;
+        k = 1;
         _synData.push_back( MeasurementPoint() );
 
         for (StrIterConst itSpe = sBeg; itSpe != sEnd; ++itSpe)
@@ -1151,6 +1216,8 @@ BioSystem::computeJacobian(Expression::Param const& var,
 
         // now skip to the results of the variational equations (k = n+qq is correct here!)
         // 13.09.12 td: !! see comment below !!  (Now k = n is correct.  Really!)
+        // 15.03.13 td: The comments from Sep 13th are still in place,
+        //              and correct as it seems ...
         k = n; // + qq;
         _jacobian.push_back( MeasurementPoint() );
 
@@ -1180,7 +1247,7 @@ BioSystem::computeJacobian(Expression::Param const& var,
         }
     }
 
-    if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = n*T; }
+    if ( mode == "adaptive" ) { _measData = _synData; _totmeasData = (n-1)*T; }
 
     j = 0;
     jacobian.zeros(_totmeasData, qq);
@@ -1323,7 +1390,7 @@ BioSystem::getSensitivityMatrix()
 ///
 ///
 ///
-
+/*
 //---------------------------------------------------------------------------
 //$$$ extern "C"
 //$$$ void
@@ -1351,13 +1418,13 @@ BioSystemWrapper::fcnODE(
 //    const double                one = 1.0;
     // Expression::Param&          sys  = _obj->getSysPar();
     // BioRHS                      ode  = _obj->getODE();
-    /*
-    BioRHS::Species const&      spec = _ode.getSpecies();
-    StrIterConst                sBeg = spec.begin();
-    StrIterConst                sEnd = spec.end();
-    */
+    // / *
+    // BioRHS::Species const&      spec = _ode.getSpecies();
+    // StrIterConst                sBeg = spec.begin();
+    // StrIterConst                sEnd = spec.end();
+    // * /
 
-    //*nz = *n;
+    // *nz = *n;
     y[0] = *t;
     // sys["odeTime"] = *t;
     // for (StrIterConst it = sBeg; it != sEnd; ++it) sys[*it] = *y++;
@@ -1522,12 +1589,12 @@ BioSystemWrapper::fcnVar(
 //    *dydyu++ = y(j);
 //}
 //
-// /*
+// / *
 //std::cerr << std::endl;
 //std::cerr << "### BioSystemWrapper::fcnVar() ###" << std::endl;
 //std::cerr << "   Z = " << std::endl;
 //std::cerr << Z.t() << std::endl;
-// */
+// * /
 //
 //for (long k = 1; k <= qq; ++k)
 //{
@@ -1597,15 +1664,15 @@ BioSystemWrapper::jacVar(
     }
     else // if ( ((long)(*mu) == n) && ((long)(*ml) == n) )
     {
-/*
-std::cerr << std::endl;
-std::cerr << "##### BioSystemWrapper::jacVar() #####" << std::endl;
-std::cerr << "  *ldJu = " << *ldJu << std::endl;
-std::cerr << "    *mu = " << *mu << std::endl;
-std::cerr << "    *ml = " << *ml << std::endl;
-std::cerr << "      n = " << n << std::endl;
-std::cerr << std::endl;
-*/
+// / *
+//std::cerr << std::endl;
+//std::cerr << "##### BioSystemWrapper::jacVar() #####" << std::endl;
+//std::cerr << "  *ldJu = " << *ldJu << std::endl;
+//std::cerr << "    *mu = " << *mu << std::endl;
+//std::cerr << "    *ml = " << *ml << std::endl;
+//std::cerr << "      n = " << n << std::endl;
+//std::cerr << std::endl;
+// * /
         // long  nn = 2*n + 1L;
         long  q1 = (long)(*nq) / n;    // q1 := q + 1; loop below counts til m < q1 !
 
@@ -1625,37 +1692,37 @@ std::cerr << std::endl;
             }
         }
     }
-/*
-    else
-    {
-        // long q1 = (long)(*nq) / n;
-
-        for (long k = 1; k <= *nq; ++k)
-        {
-            long upp = std::max(          1L, k - (long)(*mu) );
-            long low = std::min( (long)(*nq), k + (long)(*ml) );
-            long off = (long)(*mu) + 1 - k;
-
-            long  q = 1 + (k-1) % n;
-            long  m = 1 + (k-1) / n;
-            long mm = m + n;
-            long jj = 0;
-
-            // for (long jj = 1, j = upp; j <= low; ++j)
-            for (long j = upp; j <= low; ++j)
-            {
-                double tmp = 0.0;
-                // long m = (k-1) / n;
-
-                // if ( (m*n < j) && (j <= (m+1)*n) ) tmp = Fz( jj++, 1 + (k-1)%n );
-                if ( (m <= j) && (j <= mm) ) tmp = Fz( ++jj, q );
-
-                Ju[ (*ldJu)*(k-1) + (j-1+off) ] = tmp;
-                                                    //  Ju(j+off, k) = tmp
-            }
-        }
-    }
-*/
+// / *
+//    else
+//    {
+//        // long q1 = (long)(*nq) / n;
+//
+//        for (long k = 1; k <= *nq; ++k)
+//        {
+//            long upp = std::max(          1L, k - (long)(*mu) );
+//            long low = std::min( (long)(*nq), k + (long)(*ml) );
+//            long off = (long)(*mu) + 1 - k;
+//
+//            long  q = 1 + (k-1) % n;
+//            long  m = 1 + (k-1) / n;
+//            long mm = m + n;
+//            long jj = 0;
+//
+//            // for (long jj = 1, j = upp; j <= low; ++j)
+//            for (long j = upp; j <= low; ++j)
+//            {
+//                double tmp = 0.0;
+//                // long m = (k-1) / n;
+//
+//                // if ( (m*n < j) && (j <= (m+1)*n) ) tmp = Fz( jj++, 1 + (k-1)%n );
+//                if ( (m <= j) && (j <= mm) ) tmp = Fz( ++jj, q );
+//
+//                Ju[ (*ldJu)*(k-1) + (j-1+off) ] = tmp;
+//                                                    //  Ju(j+off, k) = tmp
+//            }
+//        }
+//    }
+// * /
 
     *info = 0;
 }
@@ -1701,3 +1768,4 @@ std::cerr << std::endl;
 //    *irtrn = 0;
 //}
 //---------------------------------------------------------------------------
+*/

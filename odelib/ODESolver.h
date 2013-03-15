@@ -13,9 +13,20 @@
 #include "common/Constants.h"
 #include "common/Types.h"
 #include "FirstOrderODESystem.h"
+#include "ODETrajectory.h"
 
 namespace PARKIN
 {
+    ///
+
+    enum ODESolverId
+    {
+        ODE_SOLVER_DEFAULT =  0 ,
+        ODE_SOLVER_LIMEX_A =  1 ,
+        ODE_SOLVER_DOP853  =  2
+    };
+
+    ///
 
     class ODESolver
     {
@@ -23,6 +34,7 @@ namespace PARKIN
             typedef std::vector< Real >                         Grid;
             typedef std::map< unsigned, std::vector<Real> >     Trajectory;
             typedef Grid::const_iterator                        GridIterConst;
+
 
             virtual void setODESystem(
                                             FirstOrderODESystem& ode,
@@ -43,6 +55,8 @@ namespace PARKIN
 
             virtual ~ODESolver() { }
 
+            virtual ODESolver*      clone()                          = 0;
+
             virtual int             integrate()                      = 0;
             virtual int             integrate(unsigned n, double* yIni,
                                                 double xLeft, double xRight) = 0;
@@ -56,7 +70,7 @@ namespace PARKIN
             virtual Trajectory&     getSolutionTrajectory()           = 0;
             virtual Grid&           getDataGridPoints()               = 0;
             virtual Trajectory&     getDataTrajectory()               = 0;
-            // virtual ODETrajectory*  getRawTrajectory()                = 0;
+            virtual ODETrajectory*  getRawTrajectory()                = 0;
 
             ///
 
@@ -67,6 +81,8 @@ namespace PARKIN
             int     getInterpolationFlag() { return _cubintflag; }
 
             ///
+            ODESolverId getId() { return _solverId; }
+            ///
 
             void setRTol(Real rtol) { _rtol = rtol; }
             void setATol(Real atol) { _atol = atol; }
@@ -75,14 +91,21 @@ namespace PARKIN
             Real getATol() { return _atol; }
 
         protected:
-            ODESolver() : _debugflag(0), _cubintflag(-1), _atol(10*EPMACH), _rtol(1.0e-12) { }
+            explicit ODESolver(ODESolverId solverId) :
+                                        _solverId(solverId),
+                                        _debugflag(0),
+                                        _cubintflag(-1),
+                                        _atol(10*EPMACH),
+                                        _rtol(1.0e-12)
+            { }
 
             // The following precision setting seems to work only semi-stable:
             // ODESolver() : _atol(EPMACH), _rtol(1.0e-9) { }
 
-            int     _debugflag;
-            int     _cubintflag;
-            Real    _atol, _rtol;
+            ODESolverId _solverId;
+            int         _debugflag;
+            int         _cubintflag;
+            Real        _atol, _rtol;
     };
 
 }

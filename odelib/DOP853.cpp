@@ -18,6 +18,11 @@ void
 DOP853Wrapper::xfcn(unsigned n, double t, double* y, double* f,
                     double* cd)
 {
+    int info;
+
+    if ( _ode == 0 ) { return; }
+
+    _ode -> computeDerivatives( t, y, f, &info );
 }
 //----------------------------------------------------------------------------
 extern "C"
@@ -73,7 +78,7 @@ DOP853Wrapper::solout(
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 DOP853::DOP853() :
-    ODESolver(),
+    ODESolver(ODE_SOLVER_DOP853),
     _n(0), _fcn(0), _t0(0.0), _y0(0), _y(0), _tEnd(0.0),
     _itol(0),
 
@@ -93,6 +98,8 @@ DOP853::~DOP853()
 int
 DOP853::integrate()
 {
+    int rc = 0;
+
     _nrdens = _n;
     for (unsigned j = 0; j < _n; ++j) _y[j] = _y0[j];
 
@@ -102,7 +109,7 @@ DOP853::integrate()
 
     DOP853Wrapper::setObj(*this);
 
-    return dop853(
+    rc = dop853(
                     _n, _fcn, _t0, _y, _tEnd,
                     &_rtol, &_atol, _itol,
                     _solout, _iout, _fileout,
@@ -112,12 +119,16 @@ DOP853::integrate()
                     _nrdens, _icont, _licont,
                     _cd
                  );
+
+    return (rc == 1) ? 0 : rc;
 }
 //----------------------------------------------------------------------------
 int
 DOP853::integrate(unsigned n, double* yIni,
                   double tLeft, double tRight)
 {
+    int rc = 0;
+
     if (_n != n) return -99;
 
     _nrdens = _n;
@@ -128,7 +139,7 @@ DOP853::integrate(unsigned n, double* yIni,
 
     DOP853Wrapper::setObj(*this);
 
-    return dop853(
+    rc = dop853(
                     _n, _fcn, tLeft, yIni, tRight,
                     &_rtol, &_atol, _itol,
                     _solout, _iout, _fileout,
@@ -138,22 +149,77 @@ DOP853::integrate(unsigned n, double* yIni,
                     _nrdens, _icont, _licont,
                     _cd
                  );
+
+    return (rc == 1) ? 0 : rc;
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 int
 DOP853::integrateSensitivitySystem(unsigned nDAE)
 {
-    return 0;
+    int rc = 0;
+/*
+std::cerr << std::endl;
+std::cerr << "*** DOP853::integrateSensitivitySystem() called ***";
+std::cerr << std::endl;
+*/
+    _nrdens = _n;
+    for (unsigned j = 0; j < _n; ++j) _y[j] = _y0[j];
+
+    _solPoints.clear();
+    _solution.clear();
+    _data.clear();
+
+    DOP853Wrapper::setObj(*this);
+
+    rc = dop853(
+                    _n, _fcn, _t0, _y, _tEnd,
+                    &_rtol, &_atol, _itol,
+                    _solout, _iout, _fileout,
+                    _uround, _safe, _fac1, _fac2, _beta,
+                    _hmax, _h,
+                    _nmax, _meth, _nstiff,
+                    _nrdens, _icont, _licont,
+                    _cd
+                 );
+
+    return (rc == 1) ? 0 : rc;
 }
 //----------------------------------------------------------------------------
 int
 DOP853::integrateSensitivitySystem(unsigned nDAE,
                                     unsigned n, double* yIni,
                                     double tLeft, double tRight
-                                    )
+                                  )
 {
-    return 0;
+    int rc = 0;
+/*
+std::cerr << std::endl;
+std::cerr << "*** DOP853::integrateSensitivitySystem( n, yIni, ... ) called ***";
+std::cerr << std::endl;
+*/
+    if (_n != n) return -99;
+
+    _nrdens = _n;
+
+    _solPoints.clear();
+    _solution.clear();
+    // _data.clear();
+
+    DOP853Wrapper::setObj(*this);
+
+    rc = dop853(
+                    _n, _fcn, tLeft, yIni, tRight,
+                    &_rtol, &_atol, _itol,
+                    _solout, _iout, _fileout,
+                    _uround, _safe, _fac1, _fac2, _beta,
+                    _hmax, _h,
+                    _nmax, _meth, _nstiff,
+                    _nrdens, _icont, _licont,
+                    _cd
+                 );
+
+    return (rc == 1) ? 0 : rc;
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

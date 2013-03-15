@@ -9,7 +9,7 @@
 
 #include "FirstOrderODESystem.h"
 #include "ODESolver.h"
-#include "ODETrajectory.h"
+/// #include "ODETrajectory.h"
 /// #include "LIMEXTrajectory.h"
 /// #include "CubicHermiteTrajectory.h"
 
@@ -28,7 +28,13 @@ namespace PARKIN
     {
         public:
             LIMEX_A();
+            // LIMEX_A(ODESolver const& other) :
+            //        ODESolver(other),
+            //        _trajectory(0)
+            // { _solverId = ODE_SOLVER_LIMEX_A; }
             virtual ~LIMEX_A();
+
+            virtual LIMEX_A* clone() { return new LIMEX_A(*this); }
 
             virtual void setODESystem(
                                         FirstOrderODESystem& ode,
@@ -64,10 +70,9 @@ namespace PARKIN
             virtual Trajectory&     getSolutionTrajectory()     { return _solution; }
             virtual Grid&           getDataGridPoints()         { return _datPoints; }
             virtual Trajectory&     getDataTrajectory()         { return _data; }
+            virtual ODETrajectory*  getRawTrajectory()  { return _trajectory->clone(); }
 
             ///
-
-            ODETrajectory*  getRawTrajectory() { return _trajectory->clone(); }
 
             int integrateWithoutInterpolation();
             int integrateWithoutInterpolation(unsigned n, double* yIni,

@@ -70,11 +70,21 @@ namespace PARKIN
 
             ///
 
+            ODESolverId
+            getSolverId() const;
+
+            void
+            setSolver(ODESolverId solverid);
+
+            ///
+
             Real
             getSolverRTol() const;
 
             void
             setSolverRTol(Real tol);
+
+            //
 
             Real
             getSolverATol() const;
@@ -82,13 +92,15 @@ namespace PARKIN
             void
             setSolverATol(Real tol);
 
+            //
+
             Real
             getSystemTol() const;
 
             void
             setSystemTol(Real tol);
 
-            //
+            ///
 
             Expression::Param&
             getSysPar();
@@ -235,7 +247,7 @@ namespace PARKIN
             ODETrajectory*
             getEvaluationTrajectories();
 
-            ODESolver::Trajectory const&
+            ODESolver::Trajectory
             getOdeTrajectory() const;
 
             Vector
@@ -350,7 +362,7 @@ namespace PARKIN
     ///
     ///
     ///
-
+/*
     class BioSystemWrapper
     {
             typedef BioSystem::StrIterConst StrIterConst;
@@ -385,6 +397,6 @@ namespace PARKIN
             static BioSystem*   _obj;
             static BioRHS       _ode;
     };
-
+*/
 }
 #endif // __BIO_SYSTEM_H
