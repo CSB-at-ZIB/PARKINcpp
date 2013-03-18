@@ -1,0 +1,12 @@
+# Travis-CI Build for PARKINcpp 
+# see travis-ci.org for details
+
+before_install:
+  - sudo apt-get install gfortran liblapack-dev swig
+
+# Run the Build script
+script:
+ - mkdir build
+ - cd build
+ - cmake -G "Unix Makefiles" ..
+ - make 
