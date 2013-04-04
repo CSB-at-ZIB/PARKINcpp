@@ -23,7 +23,8 @@ namespace PARKIN
     {
         ODE_SOLVER_DEFAULT =  0 ,
         ODE_SOLVER_LIMEX_A =  1 ,
-        ODE_SOLVER_DOP853  =  2
+        ODE_SOLVER_DOP853  =  2 ,
+        ODE_SOLVER_METAN_A =  3
     };
 
     ///

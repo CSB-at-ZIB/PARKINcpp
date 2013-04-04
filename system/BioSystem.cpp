@@ -12,6 +12,7 @@
 #include "linalg/QRconDecomp.h"
 #include "odelib/LIMEX_A.h"
 #include "odelib/DOP853.h"
+#include "odelib/METAN_A.h"
 
 using namespace PARKIN;
 // / *
@@ -221,6 +222,11 @@ BioSystem::setSolver(ODESolverId solverid)
 
     switch( solverid )
     {
+        case ODE_SOLVER_METAN_A:
+                // newSolver = new DOP853( *_odeSolver );
+                newSolver = new METAN_A();
+                break;
+
         case ODE_SOLVER_DOP853:
                 // newSolver = new DOP853( *_odeSolver );
                 newSolver = new DOP853();

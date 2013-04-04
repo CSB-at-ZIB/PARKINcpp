@@ -1,0 +1,45 @@
+      SUBROUTINE METAN1 (N,FCN,T,Y,TEND,TOL,HMAX,H,KFLAG,SOUT)
+C
+C* Begin Prologue METAN1
+C
+C  ---------------------------------------------------------------------
+C
+C* Title
+C
+C    Integrator for stiff systems of autonomous ordinary differential
+C    equations.
+C
+C* Written by        P. Deuflhard, U. Nowak, U. Poehle
+C* Purpose           Solution of systems of initial value problems
+C* Method            Semi-implicit mid-point rule with
+C                    h**2-extrapolation
+C* Category          i1a2a. - System of stiff first order differential
+C                             equations
+C* Keywords          extrapolation, ODE, mid-point rule, stiff
+C* Version           1.1 , July 1989
+C* Latest Change     February 1991
+C* Library           CodeLib
+C* Code              Fortran 77
+C                    Double Precision
+C* Environment       Standard version for FORTRAN77 environments on
+C                    PCs, workstations, and hosts
+C* Copyright     (c) Konrad-Zuse-Zentrum fuer Informationstechnik
+C                    Berlin (ZIB)
+C                    Takustrasse 7, D-14195 Berlin-Dahlem
+C                    phone : + 49/30/84185-0
+C                    fax   : + 49/30/84185-125
+C* Contact           Uwe Poehle
+C                    ZIB, Scientific Software Group
+C                    phone : + 49/30/84185-241
+C                    fax   : + 49/30/84185-107
+C                    e-mail: poehle@zib.de
+C
+C  ---------------------------------------------------------------------
+
+The distribution contains the following files:
+
+  metan1.f         the solver
+  linalg_metan1.f  linear algebraic routines (linpack)
+  makefile         makefile for compilation
+  readme           this file
+  zibconst.f       machine dependant constants

@@ -7,8 +7,8 @@
 #ifndef __DOP853_H
 #define __DOP853_H
 
-#include <cstdio>
-#include <vector>
+//#include <cstdio>
+//#include <vector>
 // #include <sstream>
 
 #include "FirstOrderODESystem.h"
@@ -52,23 +52,23 @@ namespace PARKIN
                                         );
 
 
-            virtual int         integrate();
-            virtual int         integrate(unsigned n, double* yIni,
-                                            double tLeft, double tRight);
+            virtual int integrate();
+            virtual int integrate(unsigned n, double* yIni,
+                                    double tLeft, double tRight);
 
-            virtual int         integrateSensitivitySystem(unsigned nDAE);
-            virtual int         integrateSensitivitySystem(unsigned nDAE,
-                                                            unsigned n, double* yIni,
-                                                            double tLeft, double tRight);
+            virtual int integrateSensitivitySystem(unsigned nDAE);
+            virtual int integrateSensitivitySystem(unsigned nDAE,
+                                                    unsigned n, double* yIni,
+                                                    double tLeft, double tRight);
 
-            virtual Grid&       getAdaptiveGridPoints();
-            virtual Trajectory& getAdaptiveSolution();
+            virtual Grid&           getAdaptiveGridPoints();
+            virtual Trajectory&     getAdaptiveSolution();
 
-            virtual Grid&        getSolutionGridPoints() { return _solPoints; }
-            virtual Trajectory&  getSolutionTrajectory() { return _solution; }
-            virtual Grid&        getDataGridPoints()     { return _datPoints; }
-            virtual Trajectory&  getDataTrajectory()     { return _data; }
-            virtual ODETrajectory* getRawTrajectory()    { return 0; }
+            virtual Grid&           getSolutionGridPoints() { return _solPoints; }
+            virtual Trajectory&     getSolutionTrajectory() { return _solution; }
+            virtual Grid&           getDataGridPoints()     { return _datPoints; }
+            virtual Trajectory&     getDataTrajectory()     { return _data; }
+            virtual ODETrajectory*  getRawTrajectory()      { return 0; }
 
 
             /// void    fcn (unsigned n, double x, double* y, double* f, double* cd);

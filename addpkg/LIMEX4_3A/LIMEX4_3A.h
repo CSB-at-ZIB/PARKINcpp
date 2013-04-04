@@ -1067,22 +1067,22 @@ c
 #define MAX_ROW_TAB 7
 
 
-typedef void (*Fcn)(int* n, int* nz,
-                    double* t, double* y, double* dy,
-                    double* B, int* ir, int* ic,
-                    int* info);
+typedef void (*FcnLimex)(int* n, int* nz,
+                           double* t, double* y, double* dy,
+                           double* B, int* ir, int* ic,
+                           int* info);
 
-typedef void (*Jac)(int* n,
-                    double* t, double* y, double* dy,
-                    double* J, int* ldJ, int* ml, int* mu,
-                    int* full_or_band, int* info);
+typedef void (*JacLimex)(int* n,
+                           double* t, double* y, double* dy,
+                           double* J, int* ldJ, int* ml, int* mu,
+                           int* full_or_band, int* info);
 
 // original LIMEX API
 /*
 extern void limex_(
             int*      n,
-            Fcn       fcn,
-            Jac       jac,
+            FcnLimex       fcn,
+            JacLimex       jac,
             double*   t0,
             double*   T,
             double*   y0,
@@ -1102,8 +1102,8 @@ extern void limex_(
 //                      2 = B may be variable (as in original API)
 extern void limd_(
             int*      n,
-            Fcn       fcn,
-            Jac       jac,
+            FcnLimex       fcn,
+            JacLimex       jac,
             double*   t0,
             double*   T,
             double*   y0,
@@ -1121,8 +1121,8 @@ extern void limd_(
 //       tolerance, NOT the scaled "scali := erri/rTol = |yi| + qTol" !!!
 extern void limdherm_dd_(
             int*      n,
-            Fcn       fcn,
-            Jac       jac,
+            FcnLimex       fcn,
+            JacLimex       jac,
             double*   t0,
             double*   T,
             double*   y0,
@@ -1143,8 +1143,8 @@ extern void limdherm_dd_(
 // extenteded API (as above) with extrapolation entry if iOpt(32)==1
 extern void limdherm_(
             int*      n,
-            Fcn       fcn,
-            Jac       jac,
+            FcnLimex       fcn,
+            JacLimex       jac,
             double*   t0,
             double*   T,
             double*   y0,
@@ -1167,8 +1167,8 @@ extern void limdherm_(
 extern void slimdherm_(
             int*      nDAE,
             int*      n,
-            Fcn       fcn,
-            Jac       jac,
+            FcnLimex       fcn,
+            JacLimex       jac,
             double*   t0,
             double*   T,
             double*   y0,

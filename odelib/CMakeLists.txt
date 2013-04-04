@@ -4,6 +4,8 @@ add_library(odelib
             DOP853.cpp
             LIMEXTrajectory.cpp
             LIMEX_A.cpp
-            CubicHermiteTrajectory)
+            METAN_A.cpp
+            LinearTrajectory.cpp
+            CubicHermiteTrajectory.cpp)
             
-TARGET_LINK_LIBRARIES(odelib common LIMEX4_3A Ode dlib)
+TARGET_LINK_LIBRARIES(odelib common METAN1_A LIMEX4_3A Ode dlib)

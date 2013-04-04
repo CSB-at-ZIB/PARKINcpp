@@ -1681,8 +1681,8 @@ LIMEX_A::setODESystem(
 //----------------------------------------------------------------------------
 void
 LIMEX_A::setODESystem(
-                     Fcn            fcn,
-                     Jac            jac,
+                     FcnLimex        fcn,
+                     JacLimex        jac,
                      double         t0,
                      Grid const&    y0,
                      Grid const&    refGrid,

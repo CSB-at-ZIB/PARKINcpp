@@ -174,6 +174,10 @@
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Dense.f" />
 		<Unit filename="addpkg/LIMEX4_3A/LIMEX4_3_Size_Definitions.h" />
 		<Unit filename="addpkg/LIMEX4_3A/sLIMDHERM.f" />
+		<Unit filename="addpkg/METAN1_A/METAN1_A.h" />
+		<Unit filename="addpkg/METAN1_A/linalg_metan1.f" />
+		<Unit filename="addpkg/METAN1_A/metan1.f" />
+		<Unit filename="addpkg/METAN1_A/zibconst.f" />
 		<Unit filename="addpkg/Ode/dop853b.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -329,6 +333,9 @@
 		<Unit filename="odelib/LIMEXTrajectory.h" />
 		<Unit filename="odelib/LIMEX_A.cpp" />
 		<Unit filename="odelib/LIMEX_A.h" />
+		<Unit filename="odelib/LinearTrajectory.cpp" />
+		<Unit filename="odelib/LinearTrajectory.h" />
+		<Unit filename="odelib/METAN_A.cpp" />
 		<Unit filename="odelib/METAN_A.h" />
 		<Unit filename="odelib/ODESolver.h" />
 		<Unit filename="odelib/ODETrajectory.h" />

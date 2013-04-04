@@ -79,10 +79,10 @@ DOP853Wrapper::solout(
 //----------------------------------------------------------------------------
 DOP853::DOP853() :
     ODESolver(ODE_SOLVER_DOP853),
-    _n(0), _fcn(0), _t0(0.0), _y0(0), _y(0), _tEnd(0.0),
-    _itol(0),
+    _n(0), _fcn(DOP853Wrapper::xfcn),
+    _t0(0.0), _y0(0), _y(0), _tEnd(0.0), _itol(0),
 
-    _solout(0), _iout(0), _fileout(0),
+    _solout(DOP853Wrapper::solout), _iout(0), _fileout(0),
 
     _uround(0.0), _safe(0.9), _fac1(0.333), _fac2(6.0), _beta(0.0),
     _hmax(0.0), _h(0.0), _nmax(100000), _meth(1), _nstiff(1000),

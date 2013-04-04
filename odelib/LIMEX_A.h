@@ -79,8 +79,8 @@ namespace PARKIN
                                               double tLeft, double tRight);
 
             void setODESystem(
-                                Fcn         fcn,
-                                Jac         jac,
+                                FcnLimex     fcn,
+                                JacLimex     jac,
                                 double      t0,
                                 Grid const& y0,
                                 Grid const& refGrid,
@@ -109,23 +109,23 @@ namespace PARKIN
             int integrateSensCubic(unsigned nnDAE);
             int integrateSensCubic(unsigned nnDAE, unsigned n, double* yIni, double tLeft, double tRight);
 
-            int     _n;         // size of differential algebraic system
-            Fcn     _fcn;       // external function computing f(t,y) and B
-            Jac     _jac;       // external function computing residual f - B * y'
-            double  _t0;        // starting point of integration
-            double  _T;         // end point of integration
-            double* _y0;        // initial values of solution at t0
-            double* _dy0;       // initial derivative of solution at t0; if unknown set to zero
-            double  _h;         // initial stepsize guess
-            int     _iOpt[32];  // input integer option field
-            double  _rOpt[5];   // input real value option field (integration control parameter)
-            int*    _iPos;      // field of length n: check/garantee positive solution component, if corresponding entry is set to 1
-            int     _ifail[3];  // return error indication(s)
-            int     _kOrder;            // output of current integration order (in single step mode)
+            int       _n;         // size of differential algebraic system
+            FcnLimex  _fcn;       // external function computing f(t,y) and B
+            JacLimex  _jac;       // external function computing residual f - B * y'
+            double   _t0;        // starting point of integration
+            double   _T;         // end point of integration
+            double*  _y0;        // initial values of solution at t0
+            double*  _dy0;       // initial derivative of solution at t0; if unknown set to zero
+            double   _h;         // initial stepsize guess
+            int      _iOpt[32];  // input integer option field
+            double   _rOpt[5];   // input real value option field (integration control parameter)
+            int*     _iPos;      // field of length n: check/garantee positive solution component, if corresponding entry is set to 1
+            int      _ifail[3];  // return error indication(s)
+            int      _kOrder;            // output of current integration order (in single step mode)
                                         // output of Hermite interpolation tableau (max. size in FORTRAN size definition file...)
-            double  _Dense[MAX_NO_EQNS*(2+MAX_ROW_TAB*(MAX_ROW_TAB+1)/2)];
-            double  _t1;                // output start of current subinterval in single step mode
-            double  _t2;                // output end of current subinterval in single step mode
+            double   _Dense[MAX_NO_EQNS*(2+MAX_ROW_TAB*(MAX_ROW_TAB+1)/2)];
+            double   _t1;                // output start of current subinterval in single step mode
+            double   _t2;                // output end of current subinterval in single step mode
 
             Grid        _solPoints;
             Trajectory  _solution;
