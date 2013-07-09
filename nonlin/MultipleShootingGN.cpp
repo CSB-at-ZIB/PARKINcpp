@@ -6,6 +6,7 @@
 //
 
 #include "MultipleShootingGN.h"
+#include "odelib/LIMEX_A.h"
 
 using namespace PARKIN;
 
@@ -120,10 +121,36 @@ MultipleShootingGN::getIOpt()
 
 //---------------------------------------------------------------------------
 int
-MultipleShootingGN::initialise(Vector const& tnodes, Matrix const& X,
-                               Real const period,
-                               Real const rtol, IOpt const& iopt)
+MultipleShootingGN::initialise(
+                                 Vector const&  tnodes,
+                                 Matrix const&  X,
+                                 Real const     period,
+                                 Real const     rtol,
+                                 IOpt const&    iopt
+                              )
 {
+    bool    qsucc = false;
+    bool    qrank1 = iopt.qrank1;
+    bool    qfcstr = false;
+    int     jacgen = iopt.jacgen;
+    int     rscal = iopt.rscal;
+
+    _n = X.nr();
+    _m = X.nc();
+
+    _period = period;
+
+    _tolmin = 10.0*_n*EPMACH;
+    _rtol = rtol;
+    _ierr = 0;
+
+    setIOpt(iopt);
+
+    ///
+
+    _tnodes = tnodes;
+    _X = X;
+
     return 0;
 }
 //---------------------------------------------------------------------------

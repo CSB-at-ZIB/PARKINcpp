@@ -156,7 +156,7 @@ typedef void (*FcnMetan)(int* n,
                            int* ifail);
 
 typedef void (*SoutMetan)(int* n,
-                            double* tOld, double* t, double* y);
+                            double* tOld, double* t, double* y, double* dy);
 
 // original METAN API
 

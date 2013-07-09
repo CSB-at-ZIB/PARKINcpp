@@ -106,7 +106,7 @@ namespace PARKIN
         public:
             static void xfcn(int* n, double* t, double* y, double* dy, int* ifail);
 
-            static void xsout(int* n, double* tOld, double* t, double* y);
+            static void xsout(int* n, double* tOld, double* t, double* y, double* dy);
 
             static void setODE(FirstOrderODESystem& ode) { _ode = &ode; }
             static void setObj(METAN_A& obj) { _obj = &obj; }

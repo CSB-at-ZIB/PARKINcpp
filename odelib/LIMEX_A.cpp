@@ -183,7 +183,7 @@ LIMEX_A::initOpt()
     _iOpt[30] = -1;         // !!! Only available in LIMD !!!
                             // Type of left-hand side B: 0 B=id, 1 B=const., 2 variable B
     _iOpt[31] = -1;         // !!! Only available in LIMDHERM !!!
-                            // Interpolation mode: 0 no addition output, 1 give additional output (switched on)
+                            // Interpolation mode: 0 no additional output, 1 give additional output (switched on)
 
     ///
 

@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "METAN_A.h"
+#include "CubicHermiteTrajectory.h"
 #include "LinearTrajectory.h"
 
 using namespace PARKIN;
@@ -32,7 +33,8 @@ METANWrapper::xsout(
                       int*      n,
                       double*   tOld,
                       double*   t,
-                      double*   y
+                      double*   y,
+                      double*   dy
                    )
 {
     // std::stringstream       s;
@@ -43,7 +45,8 @@ METANWrapper::xsout(
 
     if ( tpt.empty() || (tpt.back() == *tOld) )
     {
-        dynamic_cast<LinearTrajectory*>(tra) -> appendLin(*t,*n,y);
+        dynamic_cast<CubicHermiteTrajectory*>(tra) -> appendHerm(*t,*n,y,dy);
+        /// dynamic_cast<LinearTrajectory*>(tra) -> appendLin(*t,*n,y);
 
         tpt.push_back(*t);
         for (int j = 0; j < *n; ++j)
@@ -62,7 +65,8 @@ METAN_A::METAN_A() :
     _hMax(0.0), _h(0.0), _kFlag(4),
     _sout(METANWrapper::xsout)
 {
-    _trajectory = new LinearTrajectory(0);
+    _trajectory = new CubicHermiteTrajectory(0);
+    /// _trajectory = new LinearTrajectory(0);
 }
 //----------------------------------------------------------------------------
 METAN_A::~METAN_A()

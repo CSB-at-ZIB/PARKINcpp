@@ -315,10 +315,10 @@
 		<Unit filename="nonlin/GaussNewton.cpp" />
 		<Unit filename="nonlin/GaussNewton.h" />
 		<Unit filename="nonlin/MultipleShootingGN.cpp">
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="SharedCppLibDebug" />
 		</Unit>
 		<Unit filename="nonlin/MultipleShootingGN.h">
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="SharedCppLibDebug" />
 		</Unit>
 		<Unit filename="nonlin/UserFunc.cpp" />
 		<Unit filename="nonlin/UserFunc.h" />

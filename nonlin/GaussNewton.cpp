@@ -325,12 +325,18 @@ GaussNewton::initialise(
     if ( wk.xlb.nr() != (long)_n )
     {
         _wk.xlb.zeros(_n);
-        for (long j = 1; j <= (long)_n; ++j) _wk.xlb(j) = x(j) - 0.1*std::max( 1.0, std::fabs(x(j)) );
+        for (long j = 1; j <= (long)_n; ++j)
+        {
+                _wk.xlb(j) = x(j) - 0.1*std::max( 1.0, std::fabs(x(j)) );
+        }
     }
     if ( wk.xub.nr() != (long)_n )
     {
         _wk.xub.zeros(_n);
-        for (long j = 1; j <= (long)_n; ++j) _wk.xub(j) = x(j) + 0.1*std::max( 1.0, std::fabs(x(j)) );
+        for (long j = 1; j <= (long)_n; ++j)
+        {
+                _wk.xub(j) = x(j) + 0.1*std::max( 1.0, std::fabs(x(j)) );
+        }
     }
 
 
@@ -343,6 +349,7 @@ GaussNewton::initialise(
     // }
 
     if ( !qsucc )
+    {
         printl( _lumon, dlib::LINFO,
                 "\n    %s\n    %s\n    %s\n    %s\n\n",
                 "********* NLSCON : Gauß-Newton *********",
@@ -350,9 +357,10 @@ GaussNewton::initialise(
                 "* least-squares problems               *",
                 "****************************************"
               );
+    }
 
     check_init();
-    if ( _ierr != 0 ) return _ierr;
+    if ( _ierr != 0 ) { return _ierr; }
 
     if ( !qsucc )
     {
@@ -368,8 +376,8 @@ GaussNewton::initialise(
     _maxmn = std::max(_m, _n);
     // minmn = std::min(_m,_n);
 
-    if ( rscal == 0 )  _iopt.rscal = 1;
-    if ( jacgen == 0 ) _iopt.jacgen = 2;
+    if ( rscal == 0 )  { _iopt.rscal  = 1; }
+    if ( jacgen == 0 ) { _iopt.jacgen = 2; }
 
 
     if ( !qsucc )

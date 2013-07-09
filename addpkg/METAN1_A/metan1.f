@@ -17,7 +17,7 @@ C* Category          i1a2a. - System of stiff first order differential
 C                             equations
 C* Keywords          extrapolation, ODE, mid-point rule, stiff
 C* Version           1.1 , July 1989
-C* Latest Change     February 1991
+C* Latest Change     April 2013
 C* Library           CodeLib
 C* Code              Fortran 77
 C                    Double Precision
@@ -103,13 +103,14 @@ C                       Y(N)   Values at T
 C                       DY(N)  Derivatives at T
 C                       IFAIL  Error return code
 C
-C    SOUT          EXT  Subroutine SOUT(N,TOLD,T,Y)
+C    SOUT          EXT  Subroutine SOUT(N,TOLD,T,Y,DY)
 C                       Callback for intermediate solution points
 C                       Only called if KFLAG = 4
 C                       N      Number of first-order ODEs
 C                       TOLD   Position before
 C                       T      Actual intermediate position
 C                       Y(N)   Values at T
+C                       DY(N)  Derivatives at T
 C
 C
 C* Parameters: (* marks transient parameters)
@@ -447,10 +448,12 @@ C---2. Basic integration step
 C     DO WHILE (T .NE. TEND)
          IF (QPRMON) WRITE(LOUT, 12001) NSTEP,NFCN,T,KFIN,KOPT
          IF (QPRSOL) WRITE(LOUT, 12002) NSTEP,NFCN,T,H,(Y(I),I=1,N)
-         IF (QPROUT) CALL SOUT(N,TOLD,T,Y)
+cTD      IF (QPROUT) CALL SOUT(N,TOLD,T,Y)
          JRED = 0
          CALL  FCN (N, T, Y, DZ, IFAIL)
          NFCN = NFCN + 1
+C
+         IF (QPROUT) CALL SOUT(N,TOLD,T,Y,DZ)
 C
 C---2.2  Generate Jacobian
          IF (QJACNW) THEN
@@ -950,7 +953,11 @@ C        Solution Exit
          H = HRTRN
          IF (QPRMON) WRITE(LOUT, 12001) NSTEP,NFCN,T,KFIN,KOPT
          IF (QPRSOL) WRITE(LOUT, 12002) NSTEP,NFCN,T,H,(Y(I),I=1,N)
-         IF (QPROUT) CALL SOUT(N,TOLD,T,Y)
+C
+         CALL  FCN (N, T, Y, DZ, IFAIL)
+         NFCN = NFCN + 1
+C
+         IF (QPROUT) CALL SOUT(N,TOLD,T,Y,DZ)
       ENDIF
       RETURN
 C

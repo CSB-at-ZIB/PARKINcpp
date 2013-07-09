@@ -16,7 +16,8 @@
 #include "linalg/QRconDecomp.h"
 
 #include "odelib/FirstOrderODESystem.h"
-#include "odelib/LIMEX_A.h"
+#include "odelib/ODESolver.h"
+//#include "odelib/LIMEX_A.h"
 
 #include "UserFunc.h"  // for decl Iopt()
 
@@ -100,8 +101,8 @@ namespace PARKIN
             // working variables for one salvo (i.e. run)
             unsigned                _m, _n;
             Vector                  _tnodes;
-            Real                    _period, _dp, _dpq, _dpqa, _perioda, _periodw;
-            Real                    _ptg;
+            Real                    _period, _dp, _dpq, _dpqa;
+            Real                    _perioda, _periodw, _ptg;
             Vector                  _qu;
             Matrix                  _X, _XU, _DX, _DXQ, _DXQA, _XA, _XW;
             Matrix                  _HH, _HHA, _FP, _FPA, _XTG, _BG;
