@@ -63,21 +63,48 @@ OBJDIR_SHAREDLIBDEBUG = obj/SharedLibDebug
 DEP_SHAREDLIBDEBUG = 
 OUT_SHAREDLIBDEBUG = bin/SharedLibDebug/swig/_parkin.so
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_DEBUG)/addpkg/Ode/dop853b.o $(OBJDIR_DEBUG)/addpkg/Ode/sum.o $(OBJDIR_DEBUG)/addpkg/dlib/all/source.o $(OBJDIR_DEBUG)/common/PARKINLog.o $(OBJDIR_DEBUG)/linalg/Matrix.o $(OBJDIR_DEBUG)/linalg/QRCholesky.o $(OBJDIR_DEBUG)/linalg/QRDecomp.o $(OBJDIR_DEBUG)/linalg/QRMoorePenrose.o $(OBJDIR_DEBUG)/linalg/QRPetersWilkinson.o $(OBJDIR_DEBUG)/linalg/QRconDecomp.o $(OBJDIR_DEBUG)/linalg/Vector.o $(OBJDIR_DEBUG)/nonlin/GaussNewton.o $(OBJDIR_DEBUG)/nonlin/UserFunc.o $(OBJDIR_DEBUG)/nonlin/YeOldeParkinCore.o $(OBJDIR_DEBUG)/odelib/DOP853.o $(OBJDIR_DEBUG)/odelib/LIMEXTrajectory.o $(OBJDIR_DEBUG)/odelib/LIMEX_A.o $(OBJDIR_DEBUG)/system/BioPAR.o $(OBJDIR_DEBUG)/system/BioProcessor.o $(OBJDIR_DEBUG)/system/BioRHS.o $(OBJDIR_DEBUG)/system/BioSystem.o $(OBJDIR_DEBUG)/system/ExprNode.o $(OBJDIR_DEBUG)/system/Expression.o $(OBJDIR_DEBUG)/tstprg/main.o $(OBJDIR_DEBUG)/tstprg/testlinalg.o $(OBJDIR_DEBUG)/tstprg/testnonlin.o $(OBJDIR_DEBUG)/tstprg/testparkin_aux.o $(OBJDIR_DEBUG)/tstprg/testpfizer_simple.o $(OBJDIR_DEBUG)/tstprg/testsystem.o $(OBJDIR_DEBUG)/tstprg/testsystem_aux.o
+INC_SHAREDCPPLIB =  $(INC)
+CFLAGS_SHAREDCPPLIB =  $(CFLAGS) -O3 -fPIC
+RESINC_SHAREDCPPLIB =  $(RESINC)
+RCFLAGS_SHAREDCPPLIB =  $(RCFLAGS)
+LIBDIR_SHAREDCPPLIB =  $(LIBDIR)
+LIB_SHAREDCPPLIB = $(LIB)
+LDFLAGS_SHAREDCPPLIB =  $(LDFLAGS) -s
+OBJDIR_SHAREDCPPLIB = obj/SharedCppLib
+DEP_SHAREDCPPLIB = 
+OUT_SHAREDCPPLIB = bin/SharedCppLib/libPARKINcpp.so
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_RELEASE)/addpkg/Ode/dop853b.o $(OBJDIR_RELEASE)/addpkg/Ode/sum.o $(OBJDIR_RELEASE)/addpkg/dlib/all/source.o $(OBJDIR_RELEASE)/common/PARKINLog.o $(OBJDIR_RELEASE)/linalg/Matrix.o $(OBJDIR_RELEASE)/linalg/QRCholesky.o $(OBJDIR_RELEASE)/linalg/QRDecomp.o $(OBJDIR_RELEASE)/linalg/QRMoorePenrose.o $(OBJDIR_RELEASE)/linalg/QRPetersWilkinson.o $(OBJDIR_RELEASE)/linalg/QRconDecomp.o $(OBJDIR_RELEASE)/linalg/Vector.o $(OBJDIR_RELEASE)/nonlin/GaussNewton.o $(OBJDIR_RELEASE)/nonlin/UserFunc.o $(OBJDIR_RELEASE)/nonlin/YeOldeParkinCore.o $(OBJDIR_RELEASE)/odelib/DOP853.o $(OBJDIR_RELEASE)/odelib/LIMEXTrajectory.o $(OBJDIR_RELEASE)/odelib/LIMEX_A.o $(OBJDIR_RELEASE)/system/BioPAR.o $(OBJDIR_RELEASE)/system/BioProcessor.o $(OBJDIR_RELEASE)/system/BioRHS.o $(OBJDIR_RELEASE)/system/BioSystem.o $(OBJDIR_RELEASE)/system/ExprNode.o $(OBJDIR_RELEASE)/system/Expression.o $(OBJDIR_RELEASE)/tstprg/main.o $(OBJDIR_RELEASE)/tstprg/testlinalg.o $(OBJDIR_RELEASE)/tstprg/testnonlin.o $(OBJDIR_RELEASE)/tstprg/testparkin_aux.o $(OBJDIR_RELEASE)/tstprg/testpfizer_simple.o $(OBJDIR_RELEASE)/tstprg/testsystem.o $(OBJDIR_RELEASE)/tstprg/testsystem_aux.o
+INC_SHAREDCPPLIBDEBUG =  $(INC)
+CFLAGS_SHAREDCPPLIBDEBUG =  $(CFLAGS) -g -fPIC
+RESINC_SHAREDCPPLIBDEBUG =  $(RESINC)
+RCFLAGS_SHAREDCPPLIBDEBUG =  $(RCFLAGS)
+LIBDIR_SHAREDCPPLIBDEBUG =  $(LIBDIR)
+LIB_SHAREDCPPLIBDEBUG = $(LIB)
+LDFLAGS_SHAREDCPPLIBDEBUG =  $(LDFLAGS)
+OBJDIR_SHAREDCPPLIBDEBUG = obj/SharedCppLibDebug
+DEP_SHAREDCPPLIBDEBUG = 
+OUT_SHAREDCPPLIBDEBUG = bin/SharedCppLibDebug/libPARKINcpp.so
 
-OBJ_SHAREDLIB = $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_SHAREDLIB)/addpkg/Ode/dop853b.o $(OBJDIR_SHAREDLIB)/addpkg/Ode/sum.o $(OBJDIR_SHAREDLIB)/addpkg/dlib/all/source.o $(OBJDIR_SHAREDLIB)/common/PARKINLog.o $(OBJDIR_SHAREDLIB)/linalg/Matrix.o $(OBJDIR_SHAREDLIB)/linalg/QRCholesky.o $(OBJDIR_SHAREDLIB)/linalg/QRDecomp.o $(OBJDIR_SHAREDLIB)/linalg/QRMoorePenrose.o $(OBJDIR_SHAREDLIB)/linalg/QRPetersWilkinson.o $(OBJDIR_SHAREDLIB)/linalg/QRconDecomp.o $(OBJDIR_SHAREDLIB)/linalg/Vector.o $(OBJDIR_SHAREDLIB)/nonlin/GaussNewton.o $(OBJDIR_SHAREDLIB)/nonlin/UserFunc.o $(OBJDIR_SHAREDLIB)/nonlin/YeOldeParkinCore.o $(OBJDIR_SHAREDLIB)/odelib/DOP853.o $(OBJDIR_SHAREDLIB)/odelib/LIMEXTrajectory.o $(OBJDIR_SHAREDLIB)/odelib/LIMEX_A.o $(OBJDIR_SHAREDLIB)/swig/linalg.o $(OBJDIR_SHAREDLIB)/swig/nonlin.o $(OBJDIR_SHAREDLIB)/swig/odelib.o $(OBJDIR_SHAREDLIB)/swig/parkin.o $(OBJDIR_SHAREDLIB)/swig/system.o $(OBJDIR_SHAREDLIB)/system/BioPAR.o $(OBJDIR_SHAREDLIB)/system/BioProcessor.o $(OBJDIR_SHAREDLIB)/system/BioRHS.o $(OBJDIR_SHAREDLIB)/system/BioSystem.o $(OBJDIR_SHAREDLIB)/system/ExprNode.o $(OBJDIR_SHAREDLIB)/system/Expression.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_DEBUG)/addpkg/METAN1_A/linalg_metan1.o $(OBJDIR_DEBUG)/addpkg/METAN1_A/metan1.o $(OBJDIR_DEBUG)/addpkg/METAN1_A/zibconst.o $(OBJDIR_DEBUG)/addpkg/Ode/dop853b.o $(OBJDIR_DEBUG)/addpkg/Ode/sum.o $(OBJDIR_DEBUG)/addpkg/dlib/all/source.o $(OBJDIR_DEBUG)/common/PARKINLog.o $(OBJDIR_DEBUG)/linalg/Matrix.o $(OBJDIR_DEBUG)/linalg/QRCholesky.o $(OBJDIR_DEBUG)/linalg/QRDecomp.o $(OBJDIR_DEBUG)/linalg/QRMoorePenrose.o $(OBJDIR_DEBUG)/linalg/QRPetersWilkinson.o $(OBJDIR_DEBUG)/linalg/QRconDecomp.o $(OBJDIR_DEBUG)/linalg/Vector.o $(OBJDIR_DEBUG)/nonlin/GaussNewton.o $(OBJDIR_DEBUG)/nonlin/MultipleShootingGN.o $(OBJDIR_DEBUG)/nonlin/UserFunc.o $(OBJDIR_DEBUG)/nonlin/YeOldeParkinCore.o $(OBJDIR_DEBUG)/odelib/CubicHermiteTrajectory.o $(OBJDIR_DEBUG)/odelib/DOP853.o $(OBJDIR_DEBUG)/odelib/LIMEXTrajectory.o $(OBJDIR_DEBUG)/odelib/LIMEX_A.o $(OBJDIR_DEBUG)/odelib/LinearTrajectory.o $(OBJDIR_DEBUG)/odelib/METAN_A.o $(OBJDIR_DEBUG)/system/BioPAR.o $(OBJDIR_DEBUG)/system/BioProcessor.o $(OBJDIR_DEBUG)/system/BioRHS.o $(OBJDIR_DEBUG)/system/BioSystem.o $(OBJDIR_DEBUG)/system/BioSystemODE.o $(OBJDIR_DEBUG)/system/BioSystemVAR.o $(OBJDIR_DEBUG)/system/ExprNode.o $(OBJDIR_DEBUG)/system/Expression.o $(OBJDIR_DEBUG)/system/Parser.o $(OBJDIR_DEBUG)/tstprg/main.o $(OBJDIR_DEBUG)/tstprg/testfoerster_react_c.o $(OBJDIR_DEBUG)/tstprg/testlinalg.o $(OBJDIR_DEBUG)/tstprg/testmshoot.o $(OBJDIR_DEBUG)/tstprg/testnonlin.o $(OBJDIR_DEBUG)/tstprg/testparkin_aux.o $(OBJDIR_DEBUG)/tstprg/testpfizer_simple.o $(OBJDIR_DEBUG)/tstprg/testsystem.o $(OBJDIR_DEBUG)/tstprg/testsystem_aux.o
 
-OBJ_SHAREDLIBDEBUG = $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode/dop853b.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode/sum.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/dlib/all/source.o $(OBJDIR_SHAREDLIBDEBUG)/common/PARKINLog.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/Matrix.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRCholesky.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRDecomp.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRMoorePenrose.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRPetersWilkinson.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRconDecomp.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/Vector.o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/GaussNewton.o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/UserFunc.o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/YeOldeParkinCore.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/DOP853.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEXTrajectory.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEX_A.o $(OBJDIR_SHAREDLIBDEBUG)/swig/linalg.o $(OBJDIR_SHAREDLIBDEBUG)/swig/nonlin.o $(OBJDIR_SHAREDLIBDEBUG)/swig/odelib.o $(OBJDIR_SHAREDLIBDEBUG)/swig/parkin.o $(OBJDIR_SHAREDLIBDEBUG)/swig/system.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioPAR.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioProcessor.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioRHS.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystem.o $(OBJDIR_SHAREDLIBDEBUG)/system/ExprNode.o $(OBJDIR_SHAREDLIBDEBUG)/system/Expression.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_RELEASE)/addpkg/METAN1_A/linalg_metan1.o $(OBJDIR_RELEASE)/addpkg/METAN1_A/metan1.o $(OBJDIR_RELEASE)/addpkg/METAN1_A/zibconst.o $(OBJDIR_RELEASE)/addpkg/Ode/dop853b.o $(OBJDIR_RELEASE)/addpkg/Ode/sum.o $(OBJDIR_RELEASE)/addpkg/dlib/all/source.o $(OBJDIR_RELEASE)/common/PARKINLog.o $(OBJDIR_RELEASE)/linalg/Matrix.o $(OBJDIR_RELEASE)/linalg/QRCholesky.o $(OBJDIR_RELEASE)/linalg/QRDecomp.o $(OBJDIR_RELEASE)/linalg/QRMoorePenrose.o $(OBJDIR_RELEASE)/linalg/QRPetersWilkinson.o $(OBJDIR_RELEASE)/linalg/QRconDecomp.o $(OBJDIR_RELEASE)/linalg/Vector.o $(OBJDIR_RELEASE)/nonlin/GaussNewton.o $(OBJDIR_RELEASE)/nonlin/MultipleShootingGN.o $(OBJDIR_RELEASE)/nonlin/UserFunc.o $(OBJDIR_RELEASE)/nonlin/YeOldeParkinCore.o $(OBJDIR_RELEASE)/odelib/CubicHermiteTrajectory.o $(OBJDIR_RELEASE)/odelib/DOP853.o $(OBJDIR_RELEASE)/odelib/LIMEXTrajectory.o $(OBJDIR_RELEASE)/odelib/LIMEX_A.o $(OBJDIR_RELEASE)/odelib/LinearTrajectory.o $(OBJDIR_RELEASE)/odelib/METAN_A.o $(OBJDIR_RELEASE)/system/BioPAR.o $(OBJDIR_RELEASE)/system/BioProcessor.o $(OBJDIR_RELEASE)/system/BioRHS.o $(OBJDIR_RELEASE)/system/BioSystem.o $(OBJDIR_RELEASE)/system/BioSystemODE.o $(OBJDIR_RELEASE)/system/BioSystemVAR.o $(OBJDIR_RELEASE)/system/ExprNode.o $(OBJDIR_RELEASE)/system/Expression.o $(OBJDIR_RELEASE)/system/Parser.o $(OBJDIR_RELEASE)/tstprg/main.o $(OBJDIR_RELEASE)/tstprg/testfoerster_react_c.o $(OBJDIR_RELEASE)/tstprg/testlinalg.o $(OBJDIR_RELEASE)/tstprg/testmshoot.o $(OBJDIR_RELEASE)/tstprg/testnonlin.o $(OBJDIR_RELEASE)/tstprg/testparkin_aux.o $(OBJDIR_RELEASE)/tstprg/testpfizer_simple.o $(OBJDIR_RELEASE)/tstprg/testsystem.o $(OBJDIR_RELEASE)/tstprg/testsystem_aux.o
 
-all: Debug Release SharedLib SharedLibDebug
+OBJ_SHAREDLIB = $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/linalg_metan1.o $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/metan1.o $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/zibconst.o $(OBJDIR_SHAREDLIB)/addpkg/Ode/dop853b.o $(OBJDIR_SHAREDLIB)/addpkg/Ode/sum.o $(OBJDIR_SHAREDLIB)/addpkg/dlib/all/source.o $(OBJDIR_SHAREDLIB)/common/PARKINLog.o $(OBJDIR_SHAREDLIB)/linalg/Matrix.o $(OBJDIR_SHAREDLIB)/linalg/QRCholesky.o $(OBJDIR_SHAREDLIB)/linalg/QRDecomp.o $(OBJDIR_SHAREDLIB)/linalg/QRMoorePenrose.o $(OBJDIR_SHAREDLIB)/linalg/QRPetersWilkinson.o $(OBJDIR_SHAREDLIB)/linalg/QRconDecomp.o $(OBJDIR_SHAREDLIB)/linalg/Vector.o $(OBJDIR_SHAREDLIB)/nonlin/GaussNewton.o $(OBJDIR_SHAREDLIB)/nonlin/UserFunc.o $(OBJDIR_SHAREDLIB)/nonlin/YeOldeParkinCore.o $(OBJDIR_SHAREDLIB)/odelib/CubicHermiteTrajectory.o $(OBJDIR_SHAREDLIB)/odelib/DOP853.o $(OBJDIR_SHAREDLIB)/odelib/LIMEXTrajectory.o $(OBJDIR_SHAREDLIB)/odelib/LIMEX_A.o $(OBJDIR_SHAREDLIB)/odelib/LinearTrajectory.o $(OBJDIR_SHAREDLIB)/odelib/METAN_A.o $(OBJDIR_SHAREDLIB)/swig/linalg.o $(OBJDIR_SHAREDLIB)/swig/nonlin.o $(OBJDIR_SHAREDLIB)/swig/odelib.o $(OBJDIR_SHAREDLIB)/swig/parkin.o $(OBJDIR_SHAREDLIB)/swig/system.o $(OBJDIR_SHAREDLIB)/system/BioPAR.o $(OBJDIR_SHAREDLIB)/system/BioProcessor.o $(OBJDIR_SHAREDLIB)/system/BioRHS.o $(OBJDIR_SHAREDLIB)/system/BioSystem.o $(OBJDIR_SHAREDLIB)/system/BioSystemODE.o $(OBJDIR_SHAREDLIB)/system/BioSystemVAR.o $(OBJDIR_SHAREDLIB)/system/ExprNode.o $(OBJDIR_SHAREDLIB)/system/Expression.o $(OBJDIR_SHAREDLIB)/system/Parser.o
 
-clean: clean_Debug clean_Release clean_SharedLib clean_SharedLibDebug
+OBJ_SHAREDLIBDEBUG = $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/linalg_metan1.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/metan1.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/zibconst.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode/dop853b.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode/sum.o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/dlib/all/source.o $(OBJDIR_SHAREDLIBDEBUG)/common/PARKINLog.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/Matrix.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRCholesky.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRDecomp.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRMoorePenrose.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRPetersWilkinson.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/QRconDecomp.o $(OBJDIR_SHAREDLIBDEBUG)/linalg/Vector.o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/GaussNewton.o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/UserFunc.o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/YeOldeParkinCore.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/CubicHermiteTrajectory.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/DOP853.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEXTrajectory.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEX_A.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LinearTrajectory.o $(OBJDIR_SHAREDLIBDEBUG)/odelib/METAN_A.o $(OBJDIR_SHAREDLIBDEBUG)/swig/linalg.o $(OBJDIR_SHAREDLIBDEBUG)/swig/nonlin.o $(OBJDIR_SHAREDLIBDEBUG)/swig/odelib.o $(OBJDIR_SHAREDLIBDEBUG)/swig/parkin.o $(OBJDIR_SHAREDLIBDEBUG)/swig/system.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioPAR.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioProcessor.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioRHS.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystem.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystemODE.o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystemVAR.o $(OBJDIR_SHAREDLIBDEBUG)/system/ExprNode.o $(OBJDIR_SHAREDLIBDEBUG)/system/Expression.o $(OBJDIR_SHAREDLIBDEBUG)/system/Parser.o
+
+OBJ_SHAREDCPPLIB = $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/linalg_metan1.o $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/metan1.o $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/zibconst.o $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode/dop853b.o $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode/sum.o $(OBJDIR_SHAREDCPPLIB)/addpkg/dlib/all/source.o $(OBJDIR_SHAREDCPPLIB)/common/PARKINLog.o $(OBJDIR_SHAREDCPPLIB)/linalg/Matrix.o $(OBJDIR_SHAREDCPPLIB)/linalg/QRCholesky.o $(OBJDIR_SHAREDCPPLIB)/linalg/QRDecomp.o $(OBJDIR_SHAREDCPPLIB)/linalg/QRMoorePenrose.o $(OBJDIR_SHAREDCPPLIB)/linalg/QRPetersWilkinson.o $(OBJDIR_SHAREDCPPLIB)/linalg/QRconDecomp.o $(OBJDIR_SHAREDCPPLIB)/linalg/Vector.o $(OBJDIR_SHAREDCPPLIB)/nonlin/GaussNewton.o $(OBJDIR_SHAREDCPPLIB)/nonlin/UserFunc.o $(OBJDIR_SHAREDCPPLIB)/nonlin/YeOldeParkinCore.o $(OBJDIR_SHAREDCPPLIB)/odelib/CubicHermiteTrajectory.o $(OBJDIR_SHAREDCPPLIB)/odelib/DOP853.o $(OBJDIR_SHAREDCPPLIB)/odelib/LIMEXTrajectory.o $(OBJDIR_SHAREDCPPLIB)/odelib/LIMEX_A.o $(OBJDIR_SHAREDCPPLIB)/odelib/LinearTrajectory.o $(OBJDIR_SHAREDCPPLIB)/odelib/METAN_A.o $(OBJDIR_SHAREDCPPLIB)/system/BioPAR.o $(OBJDIR_SHAREDCPPLIB)/system/BioProcessor.o $(OBJDIR_SHAREDCPPLIB)/system/BioRHS.o $(OBJDIR_SHAREDCPPLIB)/system/BioSystem.o $(OBJDIR_SHAREDCPPLIB)/system/BioSystemODE.o $(OBJDIR_SHAREDCPPLIB)/system/BioSystemVAR.o $(OBJDIR_SHAREDCPPLIB)/system/ExprNode.o $(OBJDIR_SHAREDCPPLIB)/system/Expression.o $(OBJDIR_SHAREDCPPLIB)/system/Parser.o
+
+OBJ_SHAREDCPPLIBDEBUG = $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/HERMINE.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMD.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/linalg_metan1.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/metan1.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/zibconst.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode/dop853b.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode/sum.o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/dlib/all/source.o $(OBJDIR_SHAREDCPPLIBDEBUG)/common/PARKINLog.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/Matrix.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRCholesky.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRDecomp.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRMoorePenrose.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRPetersWilkinson.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRconDecomp.o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/Vector.o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/GaussNewton.o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/MultipleShootingGN.o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/UserFunc.o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/YeOldeParkinCore.o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/CubicHermiteTrajectory.o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/DOP853.o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LIMEXTrajectory.o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LIMEX_A.o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LinearTrajectory.o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/METAN_A.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioPAR.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioProcessor.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioRHS.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystem.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystemODE.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystemVAR.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/ExprNode.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/Expression.o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/Parser.o
+
+all: Debug Release SharedLib SharedLibDebug SharedCppLib SharedCppLibDebug
+
+clean: clean_Debug clean_Release clean_SharedLib clean_SharedLibDebug clean_SharedCppLib clean_SharedCppLibDebug
 
 before_Debug: 
 	test -d bin/Debug || mkdir -p bin/Debug
 	test -d $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A || mkdir -p $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A
+	test -d $(OBJDIR_DEBUG)/addpkg/METAN1_A || mkdir -p $(OBJDIR_DEBUG)/addpkg/METAN1_A
 	test -d $(OBJDIR_DEBUG)/addpkg/Ode || mkdir -p $(OBJDIR_DEBUG)/addpkg/Ode
 	test -d $(OBJDIR_DEBUG)/addpkg/dlib/all || mkdir -p $(OBJDIR_DEBUG)/addpkg/dlib/all
 	test -d $(OBJDIR_DEBUG)/common || mkdir -p $(OBJDIR_DEBUG)/common
@@ -106,14 +133,23 @@ $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o: addpkg/LIMEX4_3A/LIMDHERM.f
 $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o: addpkg/LIMEX4_3A/LIMDHERM_DD.f
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/LIMEX4_3A/LIMDHERM_DD.f -o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o
 
-$(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o
-
 $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o: addpkg/LIMEX4_3A/LIMEX4_3A.f
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/LIMEX4_3A/LIMEX4_3A.f -o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o
 
 $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o: addpkg/LIMEX4_3A/LIMEX4_3_Dense.f
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/LIMEX4_3A/LIMEX4_3_Dense.f -o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o
+
+$(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o
+
+$(OBJDIR_DEBUG)/addpkg/METAN1_A/linalg_metan1.o: addpkg/METAN1_A/linalg_metan1.f
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/METAN1_A/linalg_metan1.f -o $(OBJDIR_DEBUG)/addpkg/METAN1_A/linalg_metan1.o
+
+$(OBJDIR_DEBUG)/addpkg/METAN1_A/metan1.o: addpkg/METAN1_A/metan1.f
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/METAN1_A/metan1.f -o $(OBJDIR_DEBUG)/addpkg/METAN1_A/metan1.o
+
+$(OBJDIR_DEBUG)/addpkg/METAN1_A/zibconst.o: addpkg/METAN1_A/zibconst.f
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/METAN1_A/zibconst.f -o $(OBJDIR_DEBUG)/addpkg/METAN1_A/zibconst.o
 
 $(OBJDIR_DEBUG)/addpkg/Ode/dop853b.o: addpkg/Ode/dop853b.c
 	$(CC) $(CFLAGS_DEBUG) $(INC_DEBUG) -c addpkg/Ode/dop853b.c -o $(OBJDIR_DEBUG)/addpkg/Ode/dop853b.o
@@ -151,11 +187,17 @@ $(OBJDIR_DEBUG)/linalg/Vector.o: linalg/Vector.cpp
 $(OBJDIR_DEBUG)/nonlin/GaussNewton.o: nonlin/GaussNewton.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c nonlin/GaussNewton.cpp -o $(OBJDIR_DEBUG)/nonlin/GaussNewton.o
 
+$(OBJDIR_DEBUG)/nonlin/MultipleShootingGN.o: nonlin/MultipleShootingGN.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c nonlin/MultipleShootingGN.cpp -o $(OBJDIR_DEBUG)/nonlin/MultipleShootingGN.o
+
 $(OBJDIR_DEBUG)/nonlin/UserFunc.o: nonlin/UserFunc.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c nonlin/UserFunc.cpp -o $(OBJDIR_DEBUG)/nonlin/UserFunc.o
 
 $(OBJDIR_DEBUG)/nonlin/YeOldeParkinCore.o: nonlin/YeOldeParkinCore.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c nonlin/YeOldeParkinCore.cpp -o $(OBJDIR_DEBUG)/nonlin/YeOldeParkinCore.o
+
+$(OBJDIR_DEBUG)/odelib/CubicHermiteTrajectory.o: odelib/CubicHermiteTrajectory.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c odelib/CubicHermiteTrajectory.cpp -o $(OBJDIR_DEBUG)/odelib/CubicHermiteTrajectory.o
 
 $(OBJDIR_DEBUG)/odelib/DOP853.o: odelib/DOP853.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c odelib/DOP853.cpp -o $(OBJDIR_DEBUG)/odelib/DOP853.o
@@ -165,6 +207,12 @@ $(OBJDIR_DEBUG)/odelib/LIMEXTrajectory.o: odelib/LIMEXTrajectory.cpp
 
 $(OBJDIR_DEBUG)/odelib/LIMEX_A.o: odelib/LIMEX_A.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c odelib/LIMEX_A.cpp -o $(OBJDIR_DEBUG)/odelib/LIMEX_A.o
+
+$(OBJDIR_DEBUG)/odelib/LinearTrajectory.o: odelib/LinearTrajectory.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c odelib/LinearTrajectory.cpp -o $(OBJDIR_DEBUG)/odelib/LinearTrajectory.o
+
+$(OBJDIR_DEBUG)/odelib/METAN_A.o: odelib/METAN_A.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c odelib/METAN_A.cpp -o $(OBJDIR_DEBUG)/odelib/METAN_A.o
 
 $(OBJDIR_DEBUG)/system/BioPAR.o: system/BioPAR.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/BioPAR.cpp -o $(OBJDIR_DEBUG)/system/BioPAR.o
@@ -178,17 +226,32 @@ $(OBJDIR_DEBUG)/system/BioRHS.o: system/BioRHS.cpp
 $(OBJDIR_DEBUG)/system/BioSystem.o: system/BioSystem.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/BioSystem.cpp -o $(OBJDIR_DEBUG)/system/BioSystem.o
 
+$(OBJDIR_DEBUG)/system/BioSystemODE.o: system/BioSystemODE.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/BioSystemODE.cpp -o $(OBJDIR_DEBUG)/system/BioSystemODE.o
+
+$(OBJDIR_DEBUG)/system/BioSystemVAR.o: system/BioSystemVAR.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/BioSystemVAR.cpp -o $(OBJDIR_DEBUG)/system/BioSystemVAR.o
+
 $(OBJDIR_DEBUG)/system/ExprNode.o: system/ExprNode.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/ExprNode.cpp -o $(OBJDIR_DEBUG)/system/ExprNode.o
 
 $(OBJDIR_DEBUG)/system/Expression.o: system/Expression.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/Expression.cpp -o $(OBJDIR_DEBUG)/system/Expression.o
 
+$(OBJDIR_DEBUG)/system/Parser.o: system/Parser.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c system/Parser.cpp -o $(OBJDIR_DEBUG)/system/Parser.o
+
 $(OBJDIR_DEBUG)/tstprg/main.o: tstprg/main.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c tstprg/main.cpp -o $(OBJDIR_DEBUG)/tstprg/main.o
 
+$(OBJDIR_DEBUG)/tstprg/testfoerster_react_c.o: tstprg/testfoerster_react_c.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c tstprg/testfoerster_react_c.cpp -o $(OBJDIR_DEBUG)/tstprg/testfoerster_react_c.o
+
 $(OBJDIR_DEBUG)/tstprg/testlinalg.o: tstprg/testlinalg.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c tstprg/testlinalg.cpp -o $(OBJDIR_DEBUG)/tstprg/testlinalg.o
+
+$(OBJDIR_DEBUG)/tstprg/testmshoot.o: tstprg/testmshoot.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c tstprg/testmshoot.cpp -o $(OBJDIR_DEBUG)/tstprg/testmshoot.o
 
 $(OBJDIR_DEBUG)/tstprg/testnonlin.o: tstprg/testnonlin.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c tstprg/testnonlin.cpp -o $(OBJDIR_DEBUG)/tstprg/testnonlin.o
@@ -209,6 +272,7 @@ clean_Debug:
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
 	rm -rf bin/Debug
 	rm -rf $(OBJDIR_DEBUG)/addpkg/LIMEX4_3A
+	rm -rf $(OBJDIR_DEBUG)/addpkg/METAN1_A
 	rm -rf $(OBJDIR_DEBUG)/addpkg/Ode
 	rm -rf $(OBJDIR_DEBUG)/addpkg/dlib/all
 	rm -rf $(OBJDIR_DEBUG)/common
@@ -221,6 +285,7 @@ clean_Debug:
 before_Release: 
 	test -d bin/Release || mkdir -p bin/Release
 	test -d $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A || mkdir -p $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A
+	test -d $(OBJDIR_RELEASE)/addpkg/METAN1_A || mkdir -p $(OBJDIR_RELEASE)/addpkg/METAN1_A
 	test -d $(OBJDIR_RELEASE)/addpkg/Ode || mkdir -p $(OBJDIR_RELEASE)/addpkg/Ode
 	test -d $(OBJDIR_RELEASE)/addpkg/dlib/all || mkdir -p $(OBJDIR_RELEASE)/addpkg/dlib/all
 	test -d $(OBJDIR_RELEASE)/common || mkdir -p $(OBJDIR_RELEASE)/common
@@ -249,14 +314,23 @@ $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM.o: addpkg/LIMEX4_3A/LIMDHERM.f
 $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM_DD.o: addpkg/LIMEX4_3A/LIMDHERM_DD.f
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/LIMEX4_3A/LIMDHERM_DD.f -o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMDHERM_DD.o
 
-$(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/sLIMDHERM.o
-
 $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3A.o: addpkg/LIMEX4_3A/LIMEX4_3A.f
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/LIMEX4_3A/LIMEX4_3A.f -o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3A.o
 
 $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o: addpkg/LIMEX4_3A/LIMEX4_3_Dense.f
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/LIMEX4_3A/LIMEX4_3_Dense.f -o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o
+
+$(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A/sLIMDHERM.o
+
+$(OBJDIR_RELEASE)/addpkg/METAN1_A/linalg_metan1.o: addpkg/METAN1_A/linalg_metan1.f
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/METAN1_A/linalg_metan1.f -o $(OBJDIR_RELEASE)/addpkg/METAN1_A/linalg_metan1.o
+
+$(OBJDIR_RELEASE)/addpkg/METAN1_A/metan1.o: addpkg/METAN1_A/metan1.f
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/METAN1_A/metan1.f -o $(OBJDIR_RELEASE)/addpkg/METAN1_A/metan1.o
+
+$(OBJDIR_RELEASE)/addpkg/METAN1_A/zibconst.o: addpkg/METAN1_A/zibconst.f
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/METAN1_A/zibconst.f -o $(OBJDIR_RELEASE)/addpkg/METAN1_A/zibconst.o
 
 $(OBJDIR_RELEASE)/addpkg/Ode/dop853b.o: addpkg/Ode/dop853b.c
 	$(CC) $(CFLAGS_RELEASE) $(INC_RELEASE) -c addpkg/Ode/dop853b.c -o $(OBJDIR_RELEASE)/addpkg/Ode/dop853b.o
@@ -294,11 +368,17 @@ $(OBJDIR_RELEASE)/linalg/Vector.o: linalg/Vector.cpp
 $(OBJDIR_RELEASE)/nonlin/GaussNewton.o: nonlin/GaussNewton.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c nonlin/GaussNewton.cpp -o $(OBJDIR_RELEASE)/nonlin/GaussNewton.o
 
+$(OBJDIR_RELEASE)/nonlin/MultipleShootingGN.o: nonlin/MultipleShootingGN.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c nonlin/MultipleShootingGN.cpp -o $(OBJDIR_RELEASE)/nonlin/MultipleShootingGN.o
+
 $(OBJDIR_RELEASE)/nonlin/UserFunc.o: nonlin/UserFunc.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c nonlin/UserFunc.cpp -o $(OBJDIR_RELEASE)/nonlin/UserFunc.o
 
 $(OBJDIR_RELEASE)/nonlin/YeOldeParkinCore.o: nonlin/YeOldeParkinCore.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c nonlin/YeOldeParkinCore.cpp -o $(OBJDIR_RELEASE)/nonlin/YeOldeParkinCore.o
+
+$(OBJDIR_RELEASE)/odelib/CubicHermiteTrajectory.o: odelib/CubicHermiteTrajectory.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c odelib/CubicHermiteTrajectory.cpp -o $(OBJDIR_RELEASE)/odelib/CubicHermiteTrajectory.o
 
 $(OBJDIR_RELEASE)/odelib/DOP853.o: odelib/DOP853.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c odelib/DOP853.cpp -o $(OBJDIR_RELEASE)/odelib/DOP853.o
@@ -308,6 +388,12 @@ $(OBJDIR_RELEASE)/odelib/LIMEXTrajectory.o: odelib/LIMEXTrajectory.cpp
 
 $(OBJDIR_RELEASE)/odelib/LIMEX_A.o: odelib/LIMEX_A.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c odelib/LIMEX_A.cpp -o $(OBJDIR_RELEASE)/odelib/LIMEX_A.o
+
+$(OBJDIR_RELEASE)/odelib/LinearTrajectory.o: odelib/LinearTrajectory.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c odelib/LinearTrajectory.cpp -o $(OBJDIR_RELEASE)/odelib/LinearTrajectory.o
+
+$(OBJDIR_RELEASE)/odelib/METAN_A.o: odelib/METAN_A.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c odelib/METAN_A.cpp -o $(OBJDIR_RELEASE)/odelib/METAN_A.o
 
 $(OBJDIR_RELEASE)/system/BioPAR.o: system/BioPAR.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/BioPAR.cpp -o $(OBJDIR_RELEASE)/system/BioPAR.o
@@ -321,17 +407,32 @@ $(OBJDIR_RELEASE)/system/BioRHS.o: system/BioRHS.cpp
 $(OBJDIR_RELEASE)/system/BioSystem.o: system/BioSystem.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/BioSystem.cpp -o $(OBJDIR_RELEASE)/system/BioSystem.o
 
+$(OBJDIR_RELEASE)/system/BioSystemODE.o: system/BioSystemODE.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/BioSystemODE.cpp -o $(OBJDIR_RELEASE)/system/BioSystemODE.o
+
+$(OBJDIR_RELEASE)/system/BioSystemVAR.o: system/BioSystemVAR.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/BioSystemVAR.cpp -o $(OBJDIR_RELEASE)/system/BioSystemVAR.o
+
 $(OBJDIR_RELEASE)/system/ExprNode.o: system/ExprNode.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/ExprNode.cpp -o $(OBJDIR_RELEASE)/system/ExprNode.o
 
 $(OBJDIR_RELEASE)/system/Expression.o: system/Expression.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/Expression.cpp -o $(OBJDIR_RELEASE)/system/Expression.o
 
+$(OBJDIR_RELEASE)/system/Parser.o: system/Parser.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c system/Parser.cpp -o $(OBJDIR_RELEASE)/system/Parser.o
+
 $(OBJDIR_RELEASE)/tstprg/main.o: tstprg/main.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c tstprg/main.cpp -o $(OBJDIR_RELEASE)/tstprg/main.o
 
+$(OBJDIR_RELEASE)/tstprg/testfoerster_react_c.o: tstprg/testfoerster_react_c.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c tstprg/testfoerster_react_c.cpp -o $(OBJDIR_RELEASE)/tstprg/testfoerster_react_c.o
+
 $(OBJDIR_RELEASE)/tstprg/testlinalg.o: tstprg/testlinalg.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c tstprg/testlinalg.cpp -o $(OBJDIR_RELEASE)/tstprg/testlinalg.o
+
+$(OBJDIR_RELEASE)/tstprg/testmshoot.o: tstprg/testmshoot.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c tstprg/testmshoot.cpp -o $(OBJDIR_RELEASE)/tstprg/testmshoot.o
 
 $(OBJDIR_RELEASE)/tstprg/testnonlin.o: tstprg/testnonlin.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c tstprg/testnonlin.cpp -o $(OBJDIR_RELEASE)/tstprg/testnonlin.o
@@ -352,6 +453,7 @@ clean_Release:
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
 	rm -rf bin/Release
 	rm -rf $(OBJDIR_RELEASE)/addpkg/LIMEX4_3A
+	rm -rf $(OBJDIR_RELEASE)/addpkg/METAN1_A
 	rm -rf $(OBJDIR_RELEASE)/addpkg/Ode
 	rm -rf $(OBJDIR_RELEASE)/addpkg/dlib/all
 	rm -rf $(OBJDIR_RELEASE)/common
@@ -365,6 +467,7 @@ before_SharedLib:
 	/bin/rm -f swig/parkin.cxx obj/SharedLib/swig/parkin.o
 	test -d bin/SharedLib/swig || mkdir -p bin/SharedLib/swig
 	test -d $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A || mkdir -p $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A
+	test -d $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A || mkdir -p $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A
 	test -d $(OBJDIR_SHAREDLIB)/addpkg/Ode || mkdir -p $(OBJDIR_SHAREDLIB)/addpkg/Ode
 	test -d $(OBJDIR_SHAREDLIB)/addpkg/dlib/all || mkdir -p $(OBJDIR_SHAREDLIB)/addpkg/dlib/all
 	test -d $(OBJDIR_SHAREDLIB)/common || mkdir -p $(OBJDIR_SHAREDLIB)/common
@@ -394,14 +497,23 @@ $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM.o: addpkg/LIMEX4_3A/LIMDHERM.f
 $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o: addpkg/LIMEX4_3A/LIMDHERM_DD.f
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/LIMEX4_3A/LIMDHERM_DD.f -o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o
 
-$(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
-	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o
-
 $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o: addpkg/LIMEX4_3A/LIMEX4_3A.f
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/LIMEX4_3A/LIMEX4_3A.f -o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o
 
 $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o: addpkg/LIMEX4_3A/LIMEX4_3_Dense.f
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/LIMEX4_3A/LIMEX4_3_Dense.f -o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o
+
+$(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o
+
+$(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/linalg_metan1.o: addpkg/METAN1_A/linalg_metan1.f
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/METAN1_A/linalg_metan1.f -o $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/linalg_metan1.o
+
+$(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/metan1.o: addpkg/METAN1_A/metan1.f
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/METAN1_A/metan1.f -o $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/metan1.o
+
+$(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/zibconst.o: addpkg/METAN1_A/zibconst.f
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/METAN1_A/zibconst.f -o $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A/zibconst.o
 
 $(OBJDIR_SHAREDLIB)/addpkg/Ode/dop853b.o: addpkg/Ode/dop853b.c
 	$(CC) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c addpkg/Ode/dop853b.c -o $(OBJDIR_SHAREDLIB)/addpkg/Ode/dop853b.o
@@ -445,6 +557,9 @@ $(OBJDIR_SHAREDLIB)/nonlin/UserFunc.o: nonlin/UserFunc.cpp
 $(OBJDIR_SHAREDLIB)/nonlin/YeOldeParkinCore.o: nonlin/YeOldeParkinCore.cpp
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c nonlin/YeOldeParkinCore.cpp -o $(OBJDIR_SHAREDLIB)/nonlin/YeOldeParkinCore.o
 
+$(OBJDIR_SHAREDLIB)/odelib/CubicHermiteTrajectory.o: odelib/CubicHermiteTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c odelib/CubicHermiteTrajectory.cpp -o $(OBJDIR_SHAREDLIB)/odelib/CubicHermiteTrajectory.o
+
 $(OBJDIR_SHAREDLIB)/odelib/DOP853.o: odelib/DOP853.cpp
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c odelib/DOP853.cpp -o $(OBJDIR_SHAREDLIB)/odelib/DOP853.o
 
@@ -453,6 +568,12 @@ $(OBJDIR_SHAREDLIB)/odelib/LIMEXTrajectory.o: odelib/LIMEXTrajectory.cpp
 
 $(OBJDIR_SHAREDLIB)/odelib/LIMEX_A.o: odelib/LIMEX_A.cpp
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c odelib/LIMEX_A.cpp -o $(OBJDIR_SHAREDLIB)/odelib/LIMEX_A.o
+
+$(OBJDIR_SHAREDLIB)/odelib/LinearTrajectory.o: odelib/LinearTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c odelib/LinearTrajectory.cpp -o $(OBJDIR_SHAREDLIB)/odelib/LinearTrajectory.o
+
+$(OBJDIR_SHAREDLIB)/odelib/METAN_A.o: odelib/METAN_A.cpp
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c odelib/METAN_A.cpp -o $(OBJDIR_SHAREDLIB)/odelib/METAN_A.o
 
 $(OBJDIR_SHAREDLIB)/swig/linalg.o: swig/linalg.i
 	$(SWIGHELPER) '$(CXX)' '$(CFLAGS_SHAREDLIB)' '$(INC_SHAREDLIB)' 'swig/linalg.i' '$(OBJDIR_SHAREDLIB)/swig/linalg.o'
@@ -481,16 +602,26 @@ $(OBJDIR_SHAREDLIB)/system/BioRHS.o: system/BioRHS.cpp
 $(OBJDIR_SHAREDLIB)/system/BioSystem.o: system/BioSystem.cpp
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c system/BioSystem.cpp -o $(OBJDIR_SHAREDLIB)/system/BioSystem.o
 
+$(OBJDIR_SHAREDLIB)/system/BioSystemODE.o: system/BioSystemODE.cpp
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c system/BioSystemODE.cpp -o $(OBJDIR_SHAREDLIB)/system/BioSystemODE.o
+
+$(OBJDIR_SHAREDLIB)/system/BioSystemVAR.o: system/BioSystemVAR.cpp
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c system/BioSystemVAR.cpp -o $(OBJDIR_SHAREDLIB)/system/BioSystemVAR.o
+
 $(OBJDIR_SHAREDLIB)/system/ExprNode.o: system/ExprNode.cpp
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c system/ExprNode.cpp -o $(OBJDIR_SHAREDLIB)/system/ExprNode.o
 
 $(OBJDIR_SHAREDLIB)/system/Expression.o: system/Expression.cpp
 	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c system/Expression.cpp -o $(OBJDIR_SHAREDLIB)/system/Expression.o
 
+$(OBJDIR_SHAREDLIB)/system/Parser.o: system/Parser.cpp
+	$(CXX) $(CFLAGS_SHAREDLIB) $(INC_SHAREDLIB) -c system/Parser.cpp -o $(OBJDIR_SHAREDLIB)/system/Parser.o
+
 clean_SharedLib: 
 	rm -f $(OBJ_SHAREDLIB) $(OUT_SHAREDLIB)
 	rm -rf bin/SharedLib/swig
 	rm -rf $(OBJDIR_SHAREDLIB)/addpkg/LIMEX4_3A
+	rm -rf $(OBJDIR_SHAREDLIB)/addpkg/METAN1_A
 	rm -rf $(OBJDIR_SHAREDLIB)/addpkg/Ode
 	rm -rf $(OBJDIR_SHAREDLIB)/addpkg/dlib/all
 	rm -rf $(OBJDIR_SHAREDLIB)/common
@@ -504,6 +635,7 @@ before_SharedLibDebug:
 	/bin/rm -f swig/parkin.cxx obj/SharedLibDebug/swig/parkin.o
 	test -d bin/SharedLibDebug/swig || mkdir -p bin/SharedLibDebug/swig
 	test -d $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A || mkdir -p $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A
+	test -d $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A || mkdir -p $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A
 	test -d $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode || mkdir -p $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode
 	test -d $(OBJDIR_SHAREDLIBDEBUG)/addpkg/dlib/all || mkdir -p $(OBJDIR_SHAREDLIBDEBUG)/addpkg/dlib/all
 	test -d $(OBJDIR_SHAREDLIBDEBUG)/common || mkdir -p $(OBJDIR_SHAREDLIBDEBUG)/common
@@ -533,14 +665,23 @@ $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o: addpkg/LIMEX4_3A/LIMDHERM.
 $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o: addpkg/LIMEX4_3A/LIMDHERM_DD.f
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/LIMEX4_3A/LIMDHERM_DD.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o
 
-$(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
-	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o
-
 $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o: addpkg/LIMEX4_3A/LIMEX4_3A.f
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/LIMEX4_3A/LIMEX4_3A.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o
 
 $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o: addpkg/LIMEX4_3A/LIMEX4_3_Dense.f
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/LIMEX4_3A/LIMEX4_3_Dense.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/linalg_metan1.o: addpkg/METAN1_A/linalg_metan1.f
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/METAN1_A/linalg_metan1.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/linalg_metan1.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/metan1.o: addpkg/METAN1_A/metan1.f
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/METAN1_A/metan1.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/metan1.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/zibconst.o: addpkg/METAN1_A/zibconst.f
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/METAN1_A/zibconst.f -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A/zibconst.o
 
 $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode/dop853b.o: addpkg/Ode/dop853b.c
 	$(CC) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c addpkg/Ode/dop853b.c -o $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode/dop853b.o
@@ -584,6 +725,9 @@ $(OBJDIR_SHAREDLIBDEBUG)/nonlin/UserFunc.o: nonlin/UserFunc.cpp
 $(OBJDIR_SHAREDLIBDEBUG)/nonlin/YeOldeParkinCore.o: nonlin/YeOldeParkinCore.cpp
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c nonlin/YeOldeParkinCore.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/nonlin/YeOldeParkinCore.o
 
+$(OBJDIR_SHAREDLIBDEBUG)/odelib/CubicHermiteTrajectory.o: odelib/CubicHermiteTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c odelib/CubicHermiteTrajectory.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/odelib/CubicHermiteTrajectory.o
+
 $(OBJDIR_SHAREDLIBDEBUG)/odelib/DOP853.o: odelib/DOP853.cpp
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c odelib/DOP853.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/odelib/DOP853.o
 
@@ -592,6 +736,12 @@ $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEXTrajectory.o: odelib/LIMEXTrajectory.cpp
 
 $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEX_A.o: odelib/LIMEX_A.cpp
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c odelib/LIMEX_A.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LIMEX_A.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/odelib/LinearTrajectory.o: odelib/LinearTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c odelib/LinearTrajectory.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/odelib/LinearTrajectory.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/odelib/METAN_A.o: odelib/METAN_A.cpp
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c odelib/METAN_A.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/odelib/METAN_A.o
 
 $(OBJDIR_SHAREDLIBDEBUG)/swig/linalg.o: swig/linalg.i
 	$(SWIGHELPER) '$(CXX)' '$(CFLAGS_SHAREDLIBDEBUG)' '$(INC_SHAREDLIBDEBUG)' 'swig/linalg.i' '$(OBJDIR_SHAREDLIBDEBUG)/swig/linalg.o'
@@ -620,16 +770,26 @@ $(OBJDIR_SHAREDLIBDEBUG)/system/BioRHS.o: system/BioRHS.cpp
 $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystem.o: system/BioSystem.cpp
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c system/BioSystem.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystem.o
 
+$(OBJDIR_SHAREDLIBDEBUG)/system/BioSystemODE.o: system/BioSystemODE.cpp
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c system/BioSystemODE.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystemODE.o
+
+$(OBJDIR_SHAREDLIBDEBUG)/system/BioSystemVAR.o: system/BioSystemVAR.cpp
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c system/BioSystemVAR.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/system/BioSystemVAR.o
+
 $(OBJDIR_SHAREDLIBDEBUG)/system/ExprNode.o: system/ExprNode.cpp
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c system/ExprNode.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/system/ExprNode.o
 
 $(OBJDIR_SHAREDLIBDEBUG)/system/Expression.o: system/Expression.cpp
 	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c system/Expression.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/system/Expression.o
 
+$(OBJDIR_SHAREDLIBDEBUG)/system/Parser.o: system/Parser.cpp
+	$(CXX) $(CFLAGS_SHAREDLIBDEBUG) $(INC_SHAREDLIBDEBUG) -c system/Parser.cpp -o $(OBJDIR_SHAREDLIBDEBUG)/system/Parser.o
+
 clean_SharedLibDebug: 
 	rm -f $(OBJ_SHAREDLIBDEBUG) $(OUT_SHAREDLIBDEBUG)
 	rm -rf bin/SharedLibDebug/swig
 	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/addpkg/LIMEX4_3A
+	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/addpkg/METAN1_A
 	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/addpkg/Ode
 	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/addpkg/dlib/all
 	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/common
@@ -639,5 +799,306 @@ clean_SharedLibDebug:
 	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/swig
 	rm -rf $(OBJDIR_SHAREDLIBDEBUG)/system
 
-.PHONY: before_Debug after_Debug clean_Debug before_Release after_Release clean_Release before_SharedLib after_SharedLib clean_SharedLib before_SharedLibDebug after_SharedLibDebug clean_SharedLibDebug
+before_SharedCppLib: 
+	test -d bin/SharedCppLib || mkdir -p bin/SharedCppLib
+	test -d $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A || mkdir -p $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A
+	test -d $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A || mkdir -p $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A
+	test -d $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode || mkdir -p $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode
+	test -d $(OBJDIR_SHAREDCPPLIB)/addpkg/dlib/all || mkdir -p $(OBJDIR_SHAREDCPPLIB)/addpkg/dlib/all
+	test -d $(OBJDIR_SHAREDCPPLIB)/common || mkdir -p $(OBJDIR_SHAREDCPPLIB)/common
+	test -d $(OBJDIR_SHAREDCPPLIB)/linalg || mkdir -p $(OBJDIR_SHAREDCPPLIB)/linalg
+	test -d $(OBJDIR_SHAREDCPPLIB)/nonlin || mkdir -p $(OBJDIR_SHAREDCPPLIB)/nonlin
+	test -d $(OBJDIR_SHAREDCPPLIB)/odelib || mkdir -p $(OBJDIR_SHAREDCPPLIB)/odelib
+	test -d $(OBJDIR_SHAREDCPPLIB)/system || mkdir -p $(OBJDIR_SHAREDCPPLIB)/system
+
+after_SharedCppLib: 
+
+SharedCppLib: before_SharedCppLib out_SharedCppLib after_SharedCppLib
+
+out_SharedCppLib: $(OBJ_SHAREDCPPLIB) $(DEP_SHAREDCPPLIB)
+	$(LD) -shared $(LDFLAGS_SHAREDCPPLIB) $(LIBDIR_SHAREDCPPLIB) $(OBJ_SHAREDCPPLIB) $(LIB_SHAREDCPPLIB) -o $(OUT_SHAREDCPPLIB)
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/HERMINE.o: addpkg/LIMEX4_3A/HERMINE.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/HERMINE.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/HERMINE.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMD.o: addpkg/LIMEX4_3A/LIMD.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/LIMD.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMD.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMDHERM.o: addpkg/LIMEX4_3A/LIMDHERM.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/LIMDHERM.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMDHERM.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o: addpkg/LIMEX4_3A/LIMDHERM_DD.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/LIMDHERM_DD.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMDHERM_DD.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o: addpkg/LIMEX4_3A/LIMEX4_3A.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/LIMEX4_3A.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMEX4_3A.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o: addpkg/LIMEX4_3A/LIMEX4_3_Dense.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/LIMEX4_3_Dense.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A/sLIMDHERM.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/linalg_metan1.o: addpkg/METAN1_A/linalg_metan1.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/METAN1_A/linalg_metan1.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/linalg_metan1.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/metan1.o: addpkg/METAN1_A/metan1.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/METAN1_A/metan1.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/metan1.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/zibconst.o: addpkg/METAN1_A/zibconst.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/METAN1_A/zibconst.f -o $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A/zibconst.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/Ode/dop853b.o: addpkg/Ode/dop853b.c
+	$(CC) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/Ode/dop853b.c -o $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode/dop853b.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/Ode/sum.o: addpkg/Ode/sum.c
+	$(CC) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/Ode/sum.c -o $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode/sum.o
+
+$(OBJDIR_SHAREDCPPLIB)/addpkg/dlib/all/source.o: addpkg/dlib/all/source.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c addpkg/dlib/all/source.cpp -o $(OBJDIR_SHAREDCPPLIB)/addpkg/dlib/all/source.o
+
+$(OBJDIR_SHAREDCPPLIB)/common/PARKINLog.o: common/PARKINLog.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c common/PARKINLog.cpp -o $(OBJDIR_SHAREDCPPLIB)/common/PARKINLog.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/Matrix.o: linalg/Matrix.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/Matrix.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/Matrix.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/QRCholesky.o: linalg/QRCholesky.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/QRCholesky.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/QRCholesky.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/QRDecomp.o: linalg/QRDecomp.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/QRDecomp.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/QRDecomp.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/QRMoorePenrose.o: linalg/QRMoorePenrose.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/QRMoorePenrose.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/QRMoorePenrose.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/QRPetersWilkinson.o: linalg/QRPetersWilkinson.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/QRPetersWilkinson.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/QRPetersWilkinson.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/QRconDecomp.o: linalg/QRconDecomp.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/QRconDecomp.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/QRconDecomp.o
+
+$(OBJDIR_SHAREDCPPLIB)/linalg/Vector.o: linalg/Vector.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c linalg/Vector.cpp -o $(OBJDIR_SHAREDCPPLIB)/linalg/Vector.o
+
+$(OBJDIR_SHAREDCPPLIB)/nonlin/GaussNewton.o: nonlin/GaussNewton.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c nonlin/GaussNewton.cpp -o $(OBJDIR_SHAREDCPPLIB)/nonlin/GaussNewton.o
+
+$(OBJDIR_SHAREDCPPLIB)/nonlin/UserFunc.o: nonlin/UserFunc.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c nonlin/UserFunc.cpp -o $(OBJDIR_SHAREDCPPLIB)/nonlin/UserFunc.o
+
+$(OBJDIR_SHAREDCPPLIB)/nonlin/YeOldeParkinCore.o: nonlin/YeOldeParkinCore.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c nonlin/YeOldeParkinCore.cpp -o $(OBJDIR_SHAREDCPPLIB)/nonlin/YeOldeParkinCore.o
+
+$(OBJDIR_SHAREDCPPLIB)/odelib/CubicHermiteTrajectory.o: odelib/CubicHermiteTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c odelib/CubicHermiteTrajectory.cpp -o $(OBJDIR_SHAREDCPPLIB)/odelib/CubicHermiteTrajectory.o
+
+$(OBJDIR_SHAREDCPPLIB)/odelib/DOP853.o: odelib/DOP853.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c odelib/DOP853.cpp -o $(OBJDIR_SHAREDCPPLIB)/odelib/DOP853.o
+
+$(OBJDIR_SHAREDCPPLIB)/odelib/LIMEXTrajectory.o: odelib/LIMEXTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c odelib/LIMEXTrajectory.cpp -o $(OBJDIR_SHAREDCPPLIB)/odelib/LIMEXTrajectory.o
+
+$(OBJDIR_SHAREDCPPLIB)/odelib/LIMEX_A.o: odelib/LIMEX_A.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c odelib/LIMEX_A.cpp -o $(OBJDIR_SHAREDCPPLIB)/odelib/LIMEX_A.o
+
+$(OBJDIR_SHAREDCPPLIB)/odelib/LinearTrajectory.o: odelib/LinearTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c odelib/LinearTrajectory.cpp -o $(OBJDIR_SHAREDCPPLIB)/odelib/LinearTrajectory.o
+
+$(OBJDIR_SHAREDCPPLIB)/odelib/METAN_A.o: odelib/METAN_A.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c odelib/METAN_A.cpp -o $(OBJDIR_SHAREDCPPLIB)/odelib/METAN_A.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/BioPAR.o: system/BioPAR.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/BioPAR.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/BioPAR.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/BioProcessor.o: system/BioProcessor.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/BioProcessor.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/BioProcessor.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/BioRHS.o: system/BioRHS.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/BioRHS.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/BioRHS.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/BioSystem.o: system/BioSystem.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/BioSystem.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/BioSystem.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/BioSystemODE.o: system/BioSystemODE.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/BioSystemODE.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/BioSystemODE.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/BioSystemVAR.o: system/BioSystemVAR.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/BioSystemVAR.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/BioSystemVAR.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/ExprNode.o: system/ExprNode.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/ExprNode.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/ExprNode.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/Expression.o: system/Expression.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/Expression.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/Expression.o
+
+$(OBJDIR_SHAREDCPPLIB)/system/Parser.o: system/Parser.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIB) $(INC_SHAREDCPPLIB) -c system/Parser.cpp -o $(OBJDIR_SHAREDCPPLIB)/system/Parser.o
+
+clean_SharedCppLib: 
+	rm -f $(OBJ_SHAREDCPPLIB) $(OUT_SHAREDCPPLIB)
+	rm -rf bin/SharedCppLib
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/addpkg/LIMEX4_3A
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/addpkg/METAN1_A
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/addpkg/Ode
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/addpkg/dlib/all
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/common
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/linalg
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/nonlin
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/odelib
+	rm -rf $(OBJDIR_SHAREDCPPLIB)/system
+
+before_SharedCppLibDebug: 
+	test -d bin/SharedCppLibDebug || mkdir -p bin/SharedCppLibDebug
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/dlib/all || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/dlib/all
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/common || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/common
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib
+	test -d $(OBJDIR_SHAREDCPPLIBDEBUG)/system || mkdir -p $(OBJDIR_SHAREDCPPLIBDEBUG)/system
+
+after_SharedCppLibDebug: 
+
+SharedCppLibDebug: before_SharedCppLibDebug out_SharedCppLibDebug after_SharedCppLibDebug
+
+out_SharedCppLibDebug: $(OBJ_SHAREDCPPLIBDEBUG) $(DEP_SHAREDCPPLIBDEBUG)
+	$(LD) -shared $(LDFLAGS_SHAREDCPPLIBDEBUG) $(LIBDIR_SHAREDCPPLIBDEBUG) $(OBJ_SHAREDCPPLIBDEBUG) $(LIB_SHAREDCPPLIBDEBUG) -o $(OUT_SHAREDCPPLIBDEBUG)
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/HERMINE.o: addpkg/LIMEX4_3A/HERMINE.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/HERMINE.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/HERMINE.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMD.o: addpkg/LIMEX4_3A/LIMD.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/LIMD.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMD.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o: addpkg/LIMEX4_3A/LIMDHERM.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/LIMDHERM.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o: addpkg/LIMEX4_3A/LIMDHERM_DD.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/LIMDHERM_DD.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMDHERM_DD.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o: addpkg/LIMEX4_3A/LIMEX4_3A.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/LIMEX4_3A.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3A.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o: addpkg/LIMEX4_3A/LIMEX4_3_Dense.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/LIMEX4_3_Dense.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/LIMEX4_3_Dense.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o: addpkg/LIMEX4_3A/sLIMDHERM.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/LIMEX4_3A/sLIMDHERM.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A/sLIMDHERM.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/linalg_metan1.o: addpkg/METAN1_A/linalg_metan1.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/METAN1_A/linalg_metan1.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/linalg_metan1.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/metan1.o: addpkg/METAN1_A/metan1.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/METAN1_A/metan1.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/metan1.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/zibconst.o: addpkg/METAN1_A/zibconst.f
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/METAN1_A/zibconst.f -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A/zibconst.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode/dop853b.o: addpkg/Ode/dop853b.c
+	$(CC) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/Ode/dop853b.c -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode/dop853b.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode/sum.o: addpkg/Ode/sum.c
+	$(CC) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/Ode/sum.c -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode/sum.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/dlib/all/source.o: addpkg/dlib/all/source.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c addpkg/dlib/all/source.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/dlib/all/source.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/common/PARKINLog.o: common/PARKINLog.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c common/PARKINLog.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/common/PARKINLog.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/Matrix.o: linalg/Matrix.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/Matrix.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/Matrix.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRCholesky.o: linalg/QRCholesky.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/QRCholesky.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRCholesky.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRDecomp.o: linalg/QRDecomp.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/QRDecomp.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRDecomp.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRMoorePenrose.o: linalg/QRMoorePenrose.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/QRMoorePenrose.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRMoorePenrose.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRPetersWilkinson.o: linalg/QRPetersWilkinson.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/QRPetersWilkinson.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRPetersWilkinson.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRconDecomp.o: linalg/QRconDecomp.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/QRconDecomp.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/QRconDecomp.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/Vector.o: linalg/Vector.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c linalg/Vector.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg/Vector.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/GaussNewton.o: nonlin/GaussNewton.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c nonlin/GaussNewton.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/GaussNewton.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/MultipleShootingGN.o: nonlin/MultipleShootingGN.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c nonlin/MultipleShootingGN.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/MultipleShootingGN.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/UserFunc.o: nonlin/UserFunc.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c nonlin/UserFunc.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/UserFunc.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/YeOldeParkinCore.o: nonlin/YeOldeParkinCore.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c nonlin/YeOldeParkinCore.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin/YeOldeParkinCore.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/CubicHermiteTrajectory.o: odelib/CubicHermiteTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c odelib/CubicHermiteTrajectory.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/CubicHermiteTrajectory.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/DOP853.o: odelib/DOP853.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c odelib/DOP853.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/DOP853.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LIMEXTrajectory.o: odelib/LIMEXTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c odelib/LIMEXTrajectory.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LIMEXTrajectory.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LIMEX_A.o: odelib/LIMEX_A.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c odelib/LIMEX_A.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LIMEX_A.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LinearTrajectory.o: odelib/LinearTrajectory.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c odelib/LinearTrajectory.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/LinearTrajectory.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/METAN_A.o: odelib/METAN_A.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c odelib/METAN_A.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib/METAN_A.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioPAR.o: system/BioPAR.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/BioPAR.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioPAR.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioProcessor.o: system/BioProcessor.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/BioProcessor.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioProcessor.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioRHS.o: system/BioRHS.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/BioRHS.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioRHS.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystem.o: system/BioSystem.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/BioSystem.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystem.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystemODE.o: system/BioSystemODE.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/BioSystemODE.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystemODE.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystemVAR.o: system/BioSystemVAR.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/BioSystemVAR.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/BioSystemVAR.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/ExprNode.o: system/ExprNode.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/ExprNode.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/ExprNode.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/Expression.o: system/Expression.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/Expression.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/Expression.o
+
+$(OBJDIR_SHAREDCPPLIBDEBUG)/system/Parser.o: system/Parser.cpp
+	$(CXX) $(CFLAGS_SHAREDCPPLIBDEBUG) $(INC_SHAREDCPPLIBDEBUG) -c system/Parser.cpp -o $(OBJDIR_SHAREDCPPLIBDEBUG)/system/Parser.o
+
+clean_SharedCppLibDebug: 
+	rm -f $(OBJ_SHAREDCPPLIBDEBUG) $(OUT_SHAREDCPPLIBDEBUG)
+	rm -rf bin/SharedCppLibDebug
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/LIMEX4_3A
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/METAN1_A
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/Ode
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/addpkg/dlib/all
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/common
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/linalg
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/nonlin
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/odelib
+	rm -rf $(OBJDIR_SHAREDCPPLIBDEBUG)/system
+
+.PHONY: before_Debug after_Debug clean_Debug before_Release after_Release clean_Release before_SharedLib after_SharedLib clean_SharedLib before_SharedLibDebug after_SharedLibDebug clean_SharedLibDebug before_SharedCppLib after_SharedCppLib clean_SharedCppLib before_SharedCppLibDebug after_SharedCppLibDebug clean_SharedCppLibDebug
 

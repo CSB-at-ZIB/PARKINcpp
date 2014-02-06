@@ -1723,7 +1723,7 @@ LIMEX_A::setODESystem(
 
     //
 
-    setInterpolationFlag( _cubintflag );
+    setLimexInterpolationFlag( _cubintflag );
 
     _solPoints.clear();
     _solution.clear();
@@ -1762,7 +1762,7 @@ LIMEX_A::setODESystem(
 }
 //----------------------------------------------------------------------------
 void
-LIMEX_A::setInterpolationFlag(int j)
+LIMEX_A::setLimexInterpolationFlag(int j)
 {
     if ( j != _iOpt[31] )
     {

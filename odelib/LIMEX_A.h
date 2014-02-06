@@ -92,8 +92,8 @@ namespace PARKIN
             void            resetSuccessiveCallFlag()       { _iOpt[15] = -1; }
 
         private:
-            int             getInterpolationFlag()          { return _iOpt[31]; }
-            void            setInterpolationFlag(int j=1);
+            int             getLimexInterpolationFlag()     { return _iOpt[31]; }
+            void            setLimexInterpolationFlag(int j=1);
 
         private:
             void initOpt();

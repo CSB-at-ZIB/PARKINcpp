@@ -107,6 +107,122 @@ MultipleShootingGN::getPeriod()
 Matrix
 MultipleShootingGN::getFloquetMultipliers()
 {
+    // bool qinit = true;
+    // bool qjcrfr = false;
+    unsigned    jacgen, low, igh;
+    int         iauto, ifail = 0;
+    Vector      t1, t2, dE;
+
+
+    jacgen = _iopt.jacgen;
+    iauto = _iopt.iauto;
+
+
+    // Comp. of the trajectories
+    _HH = call_IVPSOL( _tnodes, _period, _X, _XU, ifail );
+
+    ++_kount;
+
+    if ( ifail != 0 )
+    {
+        // Singular trajectory
+        _ierr = 82;
+        _FM = Matrix();
+
+        return _FM;
+    }
+
+    // Scale unkowns X
+    compute_scaling_XW( _xthr );
+
+    if ( iauto > 0 )
+    {
+        _periodw = _period;
+    }
+
+    // iranka = _irank;
+
+    // Jacobian matrix generation
+    // --------------------------
+    if ( jacgen != 3 )
+    {
+        _new = 0;
+        ifail = 0;
+
+        if ( !(jacgen > 0) )
+        {
+            // Diff. approx. of Wronskian matrices G(1), ..., G(m1)
+            // ----------------------------------------------------
+            compute_fd_derivative_G( _X, _period, ifail );
+
+            _kount += _n;
+        }
+        else
+        {
+            // Wronskian G(1), ..., G(m1) by integration of variational equation
+            // -----------------------------------------------------------------
+            solve_var_eq_for_G( _X, _period, ifail );
+
+            _kount += _n;
+        }
+
+        // if ( ifail != 0 )
+    }
+    else
+    {
+        // Rank-1 updates of Wronskian matrices G(1), ..., G(m1)
+        // -----------------------------------------------------
+        ++_new;
+        compute_rank1_update_G( iauto );
+    }
+
+    // Comp. of sensitivity matrix E
+    // -----------------------------
+    if ( _irank != 0 )
+    {
+        // Storing row scaling vector
+        for (long j = 1; j <= (long)_n; ++j)
+        {
+            dE(j) = SMALL / _XW(j,1);
+        }
+
+        // Scaled matrix product of Wronskian matrices
+        _E = multiply_G( dE );
+
+        /// if ( floquet ) exit_with_solution();
+    }
+    else
+    {
+        // *** if rank == 0
+        _ierr = 81;
+        _FM = Matrix();
+
+        return _FM;
+    }
+
+
+    for (long k = 1; k <= (long)_n; ++k)
+    {
+        Real s = 1.0 / dE(k);
+
+        _E.set_colm(k) = s * _E.colm(k);
+    }
+
+
+    // Using ``standard´´ software for computation of eigenvalues
+    //  for computation of multipliers of Wronskian
+    balance( _E, low, igh, t2 );
+    orthes( low, igh, _E, t2 );
+    hqr( low, igh, _E, t1, t2, ifail );
+
+    if ( ifail != 0 )
+    {
+        _ierr = (unsigned)ifail;
+    }
+
+    _FM.set_colm(1) = t1;
+    _FM.set_colm(2) = t2;
+
     return _FM;
 }
 //---------------------------------------------------------------------------
@@ -131,7 +247,7 @@ MultipleShootingGN::initialise(
 {
     bool    qsucc = false;
     bool    qrank1 = iopt.qrank1;
-    bool    qfcstr = false;
+    // bool    qfcstr = false;
     int     jacgen = iopt.jacgen;
     int     rscal = iopt.rscal;
 
@@ -141,7 +257,7 @@ MultipleShootingGN::initialise(
     _period = period;
 
     _tolmin = 10.0*_n*EPMACH;
-    _rtol = rtol;
+    _tolf = _tolj = rtol;
     _ierr = 0;
 
     setIOpt(iopt);
@@ -151,7 +267,119 @@ MultipleShootingGN::initialise(
     _tnodes = tnodes;
     _X = X;
 
+    if ( !qsucc )
+    {
+        printl( _lumon, dlib::LINFO,
+                "\n    %s\n    %s\n    %s\n    %s\n\n",
+                "****** PERIOD : Multiple Shooting ******",
+                "* Method for periodic solution of ODEs *",
+                "* via nonlinear least-squares approach *",
+                "****************************************"
+              );
+    }
+
+    check_init();
+    if ( _ierr != 0 ) { return _ierr; }
+
+
+    if ( rscal == 0 )  { _iopt.rscal  = 1; }
+    if ( jacgen == 0 ) { _iopt.jacgen = 2; }
+
+
+    if ( !qsucc )
+    {
+        printl( _lumon, dlib::LINFO,
+                " %s %d\n %s %d\n %s %d\n\n %s %9.2e\n %s %9.2e\n\n",
+                "Number of ODE equations                   (N):    ", _n,
+                "Number of shooting nodes in unit interval (M):    ", _m,
+                "Prescribed relative precision             (TOLF): ", _tolf,
+                "                                          (TOLJ): ", _tolj
+              );
+
+        std::string shooting;
+        if ( _m == 2)
+            shooting = "Single";
+        else
+            shooting = "Multiple";
+        printl( _lumon, dlib::LINFO,
+                " %s shooting method is being used.\n\n", shooting.c_str()
+              );
+
+        std::string jacg, rsmode;
+        if ( jacgen == 1 )
+            jacg = "a user function";
+        else if ( jacgen == 2 )
+            jacg = "numerical differentiation (without feedback strategy)";
+        else if ( jacgen == 3 )
+            jacg = "numerical differentiation (feedback strategy applied)";
+        printl( _lumon, dlib::LINFO,
+                " The Jacobian is supplied by\n %s.\n", jacg.c_str()
+              );
+        rsmode = ( _iopt.norowscal == true) ? "inhibited" : "allowed";
+        printl( _lumon, dlib::LINFO,
+                " Automatic row scaling of the Jacobian is %s.\n\n", rsmode.c_str()
+              );
+    }
+
+    _nonlin = _iopt.nonlin;
+
+    if ( !qsucc )
+    {
+        printl( _lumon, dlib::LINFO,
+                " Rank-1 updates are %s.\n",
+                ((qrank1 == true)? "allowed" : "inhibited")
+              );
+
+        std::string nonlintype;
+        if ( _nonlin == 1 ) nonlintype = "linear";
+        else if ( _nonlin == 2 ) nonlintype = "mildly nonlinear";
+        else if ( _nonlin == 3 ) nonlintype = "highly nonlinear";
+        else if ( _nonlin == 4 ) nonlintype = "extremely nonlinear";
+
+        printl( _lumon, dlib::LINFO,
+                " Problem is specified as being %s.\n", nonlintype.c_str()
+              );
+
+        _niter = _ny = _kount = _new = 0;
+    }
+
     return 0;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void
+MultipleShootingGN::check_init()
+{
+    _ierr = 0;
+
+    // Checking dimensional parameters N,and M
+    if ( (_n <= 0) || (_m <= 1) || (_m != (unsigned)_tnodes.nr()))
+    {
+        printl( _luerr, dlib::LINFO,
+                " Error: %s\n        %s\n        %s%d%s%d%s%d\n",
+                "Bad or inconsistent input to dimensional parameters supplied.",
+                "Choose N and M positive.",
+                "Input is: N = ", _n, " M = ", _m, " #TNODES = ", _tnodes.nr()
+              );
+        _ierr = 20;
+    }
+
+    // Problem type specified by user
+    _nonlin = _iopt.nonlin;
+    if ( _nonlin == 0 ) _nonlin = 3;
+    _iopt.nonlin = _nonlin;
+
+    // Checking of user-precribed RTOL
+    if ( (_tolf <= 0.0) || (_tolj <= 0.0) )
+    {
+        printl( _luerr, dlib::LINFO,
+                " Error: Nonpositive RTOL supplied.\n"
+              );
+        _ierr = 21;
+    }
+
+    return;
 }
 //---------------------------------------------------------------------------
 
@@ -162,39 +390,49 @@ MultipleShootingGN::fire()
     const Real  fcs = 0.7;
     const Real  redh = 1.0e-2;
 
-    Real        hstart, eph, condh, cond1 = 1.0;
-    Real        sens1 = 0.0, rsmall = 0.0;
+    Real        /*hstart,*/ eph = 1.0, condh/*, cond1 = 1.0*/;
+    Real        sens1 = 0.0/*, rsmall = 0.0*/;
     Real        tol;
-    Real        sumxa, conva, fch, fcmin2, fcminh;
+    Real        sumxa, /* conva,*/ fch, fcmin2, fcminh;
     Real        th, fcnum, fcdnm;
     unsigned    n1, m1;
-    unsigned    jacgen, jacgenv, levl, mode, nred;
+    unsigned    jacgen, jacgenv, levl, /*mode,*/ nred;
     unsigned    irkmax, iranka = 0;
-    bool        qsucc, qinisc;      // qsucc: called by successive one-step
+    bool        qsucc/*, qinisc*/;      // qsucc: called by successive one-step
     bool        qinit;
     bool        qiter, qjcrfr;      // qjcrfr: Jacobian refresh flag
-    bool        qgenj, qnext, qredrnk, qrepet;
+    bool        /*qgenj,*/ qnext, qredrnk, qrepet;
     bool        qredu, qred;
     int         iauto, ibroy, ifail;
     Real        ddp;
     Matrix      DDX;
     Vector      u, dx1, t1, t2, dE;
 
+    if ( _ode == 0 )
+    {
+        _ierr = 999;
+        printl( _luerr, dlib::LINFO,
+                " Error: %s\n        %s\n",
+                "No problem (FirstOrderODESystem) set so far.",
+                "Please use setProblem(&ode) first.");
+        return _ierr;
+    }
 
     fcnum = fcdnm = sens1 = 0.0;
     condh = 1.0;
 
+    qsucc   = false;
     iauto   = _iopt.iauto;
     ibroy   = ( _iopt.qrank1 == true ) ? 1 : 0;
     jacgenv = _iopt.jacgen;
-    mode    = _iopt.mode;
+    // mode    = _iopt.mode;
 
     n1      = ( iauto > 0 ) ? (_n + 1) : _n;
     m1      = ( _m > 0 ) ? (_m - 1) : 0;
     irkmax  = std::min(_n, _m);
     fcmin2  = _fcmin * _fcmin;
     fcminh  = std::sqrt( _fcmin );
-    hstart  = (_tnodes(2) - _tnodes(1)) * _period * redh;
+    // hstart  = (_tnodes(2) - _tnodes(1)) * _period * redh;
 
     if ( _fc < _fcmin ) _fc = _fcmin;
     if ( _fc > 1.0 ) _fc = 1.0;
@@ -235,7 +473,7 @@ MultipleShootingGN::fire()
     }
     else
     {
-        qinisc = false;
+        // qinisc = false;
     }
 
     // Main iteration loop
@@ -254,7 +492,7 @@ MultipleShootingGN::fire()
                 _periodw = _period;
             }
 
-            qinisc = false;
+            // qinisc = false;
 
             if ( !qinit )
             {
@@ -279,7 +517,7 @@ MultipleShootingGN::fire()
                 th = _fc - 1.0;
                 DDX = _DXQ + th * _DX;
 
-                if ( iauto == 1)
+                if ( iauto == 1 )
                 {
                     ddp = _dpq + th * _dp;
                 }
@@ -304,7 +542,7 @@ MultipleShootingGN::fire()
 
                 _fca = _fc;
 
-                if (_nonlin > 1)
+                if ( _nonlin > 1 )
                 {
                     _fc = std::min( 1.0, fch );
                 }
@@ -340,7 +578,7 @@ MultipleShootingGN::fire()
                     // Adaption of _tolj and _tolf
                     _tolj = std::sqrt( _sumx );
                     if ( _tolj > redh ) _tolj = redh;
-                    if ( _tolj < _tolmin) _tolj = _tolmin;
+                    if ( _tolj < _tolmin ) _tolj = _tolmin;
 
                     _tolf = tol * 0.1;
                 }
@@ -360,7 +598,7 @@ MultipleShootingGN::fire()
 
         // Comp. of sensitivity matrix E
         // -----------------------------
-        if ( _irank != 0)
+        if ( _irank != 0 )
         {
             // Storing row scaling vector
             for (long j = 1; j <= (long)_n; ++j)
@@ -597,13 +835,13 @@ MultipleShootingGN::fire()
 
             // Eval. of subcondition and sensitivity number
             sumxa = _sumx;
-            conva = _conv;
-            cond1 = 1.0;
+            // conva = _conv;
+            // cond1 = 1.0;
             sens1 = 0.0;
             if ( _irank != 0 )
             {
                sens1 = std::fabs( _qrE.getDiag()(1) );
-               cond1 = sens1 / std::fabs( _qrE.getDiag()(_irank) );
+               // cond1 = sens1 / std::fabs( _qrE.getDiag()(_irank) );
             }
 
             // Est. damping factor (a priori)
@@ -912,6 +1150,21 @@ MultipleShootingGN::fire()
     } // while ( qiter )
 
 
+    ++_niter;
+
+
+    _X = _X + _DXQ;
+
+    if ( iauto > 0 ) { _period = _period + _dpq; }
+
+    for (long j = 1; j <= (long)_n; ++j)
+    {
+        _X(j, _m) = _X(j, 1);
+    }
+
+    _tolj = tol;
+
+
     return 0;
 }
 //---------------------------------------------------------------------------
@@ -933,7 +1186,7 @@ MultipleShootingGN::call_IVPSOL(Vector const& tnodes, Real period,
     {
         double      tj  = period*tnodes(j);
         double      tj1 = period*tnodes(j+1);
-        unsigned    k;
+        unsigned    k = 0;
 
         k = 0;
         while (k < _n)
@@ -1128,7 +1381,7 @@ MultipleShootingGN::compute_fd_derivative_G(Matrix const& XX,
         for (unsigned j = 1; j <= _n; ++j)
         {
             double      th, s;
-            unsigned    k;
+            unsigned    k = 0;
 
             k = 0;
             while (k < _n)
@@ -1811,12 +2064,707 @@ MultipleShootingGN::log_iteration_vals2()
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+void
+MultipleShootingGN::exchange(unsigned& j, unsigned& k, unsigned& ell,
+                             unsigned& m, Matrix& A)
+{
+    unsigned    n = A.nr();
+    double      tmp;
+
+    for (unsigned i = 1; i <= ell; ++i)
+    {
+        tmp = A(i,j);   A(i,j) = A(i,m);   A(i,m) = tmp;
+    }
+
+    for (unsigned i = k; i <= n; ++i)
+    {
+        tmp = A(j,i);   A(j,i) = A(m,i);   A(m,i) = tmp;
+    }
+
+    return;
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+/*
+C
+C     THIS SUBROUTINE IS A TRANSLATION OF THE ALGOL PROCEDURE BALANCE,
+C     NUM. MATH. 13, 293-304(1969) BY PARLETT AND REINSCH.
+C     HANDBOOK FOR AUTO. COMP., VOL.II-LINEAR ALGEBRA, 315-326(1971).
+C
+*/
+//---------------------------------------------------------------------------
+void
+MultipleShootingGN::balance(/* unsigned n = A.nr(), */
+                            Matrix& A,
+                            unsigned& low, unsigned& high, Vector& dscal)
+{
+/*
+C
+C     THIS SUBROUTINE BALANCES A REAL MATRIX AND ISOLATES
+C     EIGENVALUES WHENEVER POSSIBLE.
+C
+C     ON INPUT:
+C
+C        NM MUST BE SET TO THE ROW DIMENSION OF TWO-DIMENSIONAL
+C          ARRAY PARAMETERS AS DECLARED IN THE CALLING PROGRAM
+C          DIMENSION STATEMENT;
+C
+C        N IS THE ORDER OF THE MATRIX;
+C
+C        A CONTAINS THE INPUT MATRIX TO BE BALANCED.
+C
+C     ON OUTPUT:
+C
+C        A CONTAINS THE BALANCED MATRIX;
+C
+C        LOW AND IGH ARE TWO INTEGERS SUCH THAT A(I,J)
+C          IS EQUAL TO ZERO IF
+C           (1) I IS GREATER THAN J AND
+C           (2) J=1,...,LOW-1 OR I=IGH+1,...,N;
+C
+C        SCALE CONTAINS INFORMATION DETERMINING THE
+C           PERMUTATIONS AND SCALING FACTORS USED.
+C
+C     SUPPOSE THAT THE PRINCIPAL SUBMATRIX IN ROWS LOW THROUGH IGH
+C     HAS BEEN BALANCED, THAT P(J) DENOTES THE INDEX INTERCHANGED
+C     WITH J DURING THE PERMUTATION STEP, AND THAT THE ELEMENTS
+C     OF THE DIAGONAL MATRIX USED ARE DENOTED BY D(I,J).  THEN
+C        SCALE(J) = P(J),    FOR J = 1,...,LOW-1
+C                 = D(J,J),      J = LOW,...,IGH
+C                 = P(J)         J = IGH+1,...,N.
+C     THE ORDER IN WHICH THE INTERCHANGES ARE MADE IS N TO IGH+1,
+C     THEN 1 TO LOW-1.
+C
+C     NOTE THAT 1 IS RETURNED FOR IGH IF IGH IS ZERO FORMALLY.
+C
+C     THE ALGOL PROCEDURE EXC CONTAINED IN BALANCE APPEARS IN
+C     PRBALA  IN LINE.  (NOTE THAT THE ALGOL ROLES OF IDENTIFIERS
+C     K,L HAVE BEEN REVERSED.)
+C
+C     QUESTIONS AND COMMENTS SHOULD BE DIRECTED TO B. S. GARBOW,
+C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
+C
+C     ------------------------------------------------------------------
+C
+C     :::::::::: RADIX IS A MACHINE DEPENDENT PARAMETER SPECIFYING
+C                THE BASE OF THE MACHINE FLOATING POINT REPRESENTATION.
+C                RADIX = 16.0D0 FOR LONG FORM ARITHMETIC
+C
+*/
+    unsigned    ell, k;
+    double      b2, rdx = std::numeric_limits<double>::radix;
+    bool        qconv, qswap = true;
+
+
+    b2 = rdx*rdx;
+
+    k = 1;
+    ell = A.nr();
+
+
+    while ( qswap )
+    {
+
+        for (unsigned jj = 1; jj <= ell; ++jj)
+        {
+            unsigned j = ell + 1 - jj;
+
+            qswap = true;
+
+            for (unsigned i = 1; i <= ell; ++i)
+            {
+                if ( i == j ) continue;
+
+                if ( A(j,i) != 0.0 ) { qswap = false; break; }
+            }
+
+            if ( qswap )
+            {
+                // m = ell;
+
+                dscal(ell) = j;
+
+                if ( j != ell ) { exchange(j,k,ell,ell,A); }
+
+                if ( ell == 1 )
+                {
+                    low = k;
+                    high = ell;
+
+                    return;
+                }
+
+                --ell;
+
+                break;
+            }
+        }
+
+    }
+
+    while ( qswap )
+    {
+
+        for (unsigned j = k; j <= ell; ++j)
+        {
+            qswap = true;
+
+            for (unsigned i = k; i <= ell; ++i)
+            {
+                if ( i == j ) continue;
+
+                if ( A(i,j) != 0.0 ) { qswap = false; break; }
+            }
+
+            if ( qswap )
+            {
+                // m = k;
+
+                dscal(k) = j;
+
+                if ( j != k ) { exchange(j,k,ell,k,A); }
+
+                ++k;
+
+                break;
+            }
+        }
+
+    }
+
+    for (unsigned i = k; i <= ell; ++i)
+    {
+        dscal(i) = 1.0;
+    }
+
+    qconv = false;
+
+    while ( !qconv )
+    {
+        double c, r, s, g, f;
+
+        qconv = true;
+
+        for (unsigned i = k; i <= ell; ++i)
+        {
+            c = r = 0.0;
+
+            for (unsigned j = k; j <= ell; ++j)
+            {
+                if ( j == i ) continue;
+
+                c += std::fabs( A(j,i) );
+                r += std::fabs( A(i,j) );
+            }
+
+            ///
+            /// guard against zero c or r due to underflow
+            ///
+            if ( (c == 0.0) || (r == 0.0) ) continue;
+
+            g = r / rdx;
+            f = 1.0;
+            s = c + r;
+
+            while ( !(c >= g) )
+            {
+                f *= rdx;
+                c *= b2;
+            }
+
+            g = r * rdx;
+
+            while ( !(c < g) )
+            {
+                f /= rdx;
+                c /= b2;
+            }
+
+            ///
+            /// now balance
+            ///
+            if ( (c + r)/f >= 0.95*s ) continue;
+
+            g = 1.0 / f;
+            dscal(i) *= f;
+            qconv = false;
+
+            for (unsigned j = k; j <= (unsigned)A.nr(); ++j)
+            {
+                A(i,j) *= g;
+            }
+
+            for (unsigned j = 1; j <= ell; ++j)
+            {
+                A(j,i) *= f;
+            }
+        }
+    }
+
+
+    low = k;
+    high = ell;
+
+
+    return;
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+/*
+C
+C     THIS SUBROUTINE IS A TRANSLATION OF THE ALGOL PROCEDURE ORTHES,
+C     NUM. MATH. 12, 349-368(1968) BY MARTIN AND WILKINSON.
+C     HANDBOOK FOR AUTO. COMP., VOL.II-LINEAR ALGEBRA, 339-358(1971).
+C
+*/
+//---------------------------------------------------------------------------
+void
+MultipleShootingGN::orthes(unsigned low, unsigned high,
+                           Matrix& A, Vector& d)
+{
+/*
+C
+C     GIVEN A REAL GENERAL MATRIX, THIS SUBROUTINE
+C     REDUCES A SUBMATRIX SITUATED IN ROWS AND COLUMNS
+C     LOW THROUGH IGH TO UPPER HESSENBERG FORM BY
+C     ORTHOGONAL SIMILARITY TRANSFORMATIONS.
+C
+C     ON INPUT:
+C
+C        NM MUST BE SET TO THE ROW DIMENSION OF TWO-DIMENSIONAL
+C          ARRAY PARAMETERS AS DECLARED IN THE CALLING PROGRAM
+C          DIMENSION STATEMENT;
+C
+C        N IS THE ORDER OF THE MATRIX;
+C
+C        LOW AND IGH ARE INTEGERS DETERMINED BY THE BALANCING
+C          SUBROUTINE  PRBALA.  IF  PRBALA  HAS NOT BEEN USED,
+C          SET LOW=1, IGH=N;
+C
+C        A CONTAINS THE INPUT MATRIX.
+C
+C     ON OUTPUT:
+C
+C        A CONTAINS THE HESSENBERG MATRIX.  INFORMATION ABOUT
+C          THE ORTHOGONAL TRANSFORMATIONS USED IN THE REDUCTION
+C          IS STORED IN THE REMAINING TRIANGLE UNDER THE
+C          HESSENBERG MATRIX;
+C
+C        ORT CONTAINS FURTHER INFORMATION ABOUT THE TRANSFORMATIONS.
+C          ONLY ELEMENTS LOW THROUGH IGH ARE USED.
+C
+C     QUESTIONS AND COMMENTS SHOULD BE DIRECTED TO B. S. GARBOW,
+C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
+C
+C     ------------------------------------------------------------------
+C
+*/
+    unsigned mp, n = A.nr();
+    unsigned la = high - 1;
+    unsigned kp1 = low + 1;
+
+    if ( la < kp1 ) { return; }
+
+
+    for (unsigned m = kp1; m <= la; ++m)
+    {
+        double  f, g, h = 0.0;
+        double  scal = 0.0;
+
+        d(m) = 0.0;
+
+        ///
+        /// scale column (algol (?) tol then not needed)
+        ///
+        for (unsigned i = m; i <= high; ++i)
+        {
+            scal += std::fabs( A(i,m-1) );
+        }
+
+        if (scal == 0.0 ) continue;
+
+        mp = m + high;
+
+        for (unsigned ii = m; ii <= high; ++ii)
+        {
+            unsigned i = mp - ii;
+
+            d(i) = A(i,m-1) / scal;
+            h += d(i) * d(i);
+        }
+
+        g = - ((d(m) >= 0.0) ? 1.0 : -1.0) * std::sqrt(h);
+
+        h -= d(m) * g;
+
+        d(m) -= g;
+
+        ///
+        /// form (I - (U*Ut)/h) * A
+        ///
+        for (unsigned j = m; j <= n; ++j)
+        {
+            f = 0.0;
+
+            for (unsigned ii = m; ii <= high; ++ii)
+            {
+                unsigned i = mp - ii;
+
+                f += d(i) * A(i,j);
+            }
+
+            f /= h;
+
+            for (unsigned i = m; i <= high; ++i)
+            {
+                A(i,j) -= f * d(i);
+            }
+        }
+
+        ///
+        /// form (I - (U*Ut)/h) * A * (I - (U*Ut)/h)
+        ///
+        for (unsigned i = 1; i <= high; ++i)
+        {
+            f = 0.0;
+
+            for (unsigned jj = m; jj <= high; ++jj)
+            {
+                unsigned j = mp - jj;
+
+                f += d(j) * A(i,j);
+            }
+
+            f /= h;
+
+            for (unsigned j = m; j <= high; ++j)
+            {
+                A(i,j) -= f * d(j);
+            }
+        }
+
+        d(m) *= scal;
+
+        A(m,m-1) = scal * g;
+    }
+
+    return;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+/*
+C
+C     THIS SUBROUTINE IS A TRANSLATION OF THE ALGOL PROCEDURE HQR,
+C     NUM. MATH. 14, 219-231(1970) BY MARTIN, PETERS, AND WILKINSON.
+C     HANDBOOK FOR AUTO. COMP., VOL.II-LINEAR ALGEBRA, 359-371(1971).
+C
+*/
+//---------------------------------------------------------------------------
+void
+MultipleShootingGN::hqr(unsigned low, unsigned high, Matrix& H,
+                        Vector& wr, Vector& wi, int& ifail)
+{
+/*
+C
+C     THIS SUBROUTINE FINDS THE EIGENVALUES OF A REAL
+C     UPPER HESSENBERG MATRIX BY THE QR METHOD.
+C
+C     ON INPUT:
+C
+C        NM MUST BE SET TO THE ROW DIMENSION OF TWO-DIMENSIONAL
+C          ARRAY PARAMETERS AS DECLARED IN THE CALLING PROGRAM
+C          DIMENSION STATEMENT;
+C
+C        N IS THE ORDER OF THE MATRIX;
+C
+C        LOW AND IGH ARE INTEGERS DETERMINED BY THE BALANCING
+C          SUBROUTINE  PRBALA.  IF  PRBALA  HAS NOT BEEN USED,
+C          SET LOW=1, IGH=N;
+C
+C        H CONTAINS THE UPPER HESSENBERG MATRIX.  INFORMATION ABOUT
+C          THE TRANSFORMATIONS USED IN THE REDUCTION TO HESSENBERG
+C          FORM BY  ELMHES  OR  PRORTH, IF PERFORMED, IS STORED
+C          IN THE REMAINING TRIANGLE UNDER THE HESSENBERG MATRIX.
+C
+C     ON OUTPUT:
+C
+C        H HAS BEEN DESTROYED.  THEREFORE, IT MUST BE SAVED
+C          BEFORE CALLING  PRHQR  IF SUBSEQUENT CALCULATION AND
+C          BACK TRANSFORMATION OF EIGENVECTORS IS TO BE PERFORMED;
+C
+C        WR AND WI CONTAIN THE REAL AND IMAGINARY PARTS,
+C          RESPECTIVELY, OF THE EIGENVALUES.  THE EIGENVALUES
+C          ARE UNORDERED EXCEPT THAT COMPLEX CONJUGATE PAIRS
+C          OF VALUES APPEAR CONSECUTIVELY WITH THE EIGENVALUE
+C          HAVING THE POSITIVE IMAGINARY PART FIRST.  IF AN
+C          ERROR EXIT IS MADE, THE EIGENVALUES SHOULD BE CORRECT
+C          FOR INDICES IERR+1,...,N;
+C
+C        IERR IS SET TO
+C          ZERO       FOR NORMAL RETURN,
+C          J          IF THE J-TH EIGENVALUE HAS NOT BEEN
+C                     DETERMINED AFTER 30 ITERATIONS.
+C
+C     QUESTIONS AND COMMENTS SHOULD BE DIRECTED TO B. S. GARBOW,
+C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
+C
+C     ------------------------------------------------------------------
+C
+C     :::::::::: MACHEP IS A MACHINE DEPENDENT PARAMETER SPECIFYING
+C                THE RELATIVE PRECISION OF FLOATING POINT ARITHMETIC.
+C                MACHEP = 16.0D0**(-13) FOR LONG FORM ARITHMETIC
+C                ON S360 ::::::::::
+C
+*/
+    unsigned    en, mp2, m, ell, k = 1;
+    unsigned    na, enm2, its, n = H.nr();
+    double      machep = std::numeric_limits<double>::epsilon();
+    double      p, q, r, s, t, w, x, y, zz, norm = 0.0;
+    bool        qlast, qnext = true;
+
+    ifail = 0;
+
+    for (unsigned i = 1; i <= n; ++i)
+    {
+        for (unsigned j = k; j <= n; ++j)
+        {
+            norm += std::fabs( H(i,j) );
+        }
+
+        k = i;
+
+        if ( (low <= i) && (i <= high) ) continue;
+
+        wr(i) = H(i,i);
+        wi(i) = 0.0;
+    }
+
+    en = high;
+    t = 0.0;
+
+    while ( qnext )
+    {
+        ///
+        /// search for next eigenvalues
+        ///
+        if ( en < low ) { /* exit */ return; }
+
+        its = 0;
+        na = en - 1;
+        enm2 = na - 1;
+
+        while ( true )
+        {
+            for (unsigned ellell = low; ellell <= en; ++ellell)
+            {
+                ell = en + low - ellell;
+
+                if ( ell == low ) { break; }
+
+                s = std::fabs( H(ell-1,ell-1) ) + std::fabs( H(ell,ell) );
+
+                if ( s == 0.0 ) { s = norm; }
+                if ( std::fabs( H(ell,ell-1) ) <= machep * s ) { break; }
+            }
+
+            ///
+            /// form shift
+            ///
+            x = H(en,en);
+
+            if ( ell == en )
+            {
+                /// one root found
+                wr(en) = x + t;
+                wi(en) = 0.0;
+
+                en = na;
+
+                break;
+            }
+
+            y = H(na,na);
+            w = H(en,na) * H(na,en);
+
+            if ( ell == na )
+            {
+                /// two roots found
+                p = 0.5*(y - x);
+                q = p*p + w;
+                zz = std::sqrt(std::fabs( q ));
+                x += t;
+                if ( q < 0.0 )
+                {
+                    /// complex pair
+                    wr(na) = wr(en) = x + p;
+                    wi(na) = zz;
+                    wi(en) = -zz;
+                }
+                else
+                {
+                    /// real pair
+                    zz = p + std::fabs(zz)*((p >= 0.0) ? 1.0 : -1.0);
+                    wr(en) = wr(na) = x + zz;
+                    if ( zz != 0.0 ) wr(en) = x - w / zz;
+                    wi(en) = wi(na) = 0.0;
+                }
+
+                en = enm2;
+
+                break;
+            }
+
+            if ( its >= 30 )
+            {
+                /// error: no convergence within 30 steps
+                ifail = en;
+
+                return;
+            }
+
+            if ( !((its != 10) && (its != 20)) )
+            {
+                ///
+                /// form exceptional shift
+                ///
+                t += x;
+
+                for (unsigned i = low; i <=en; ++i)
+                {
+                    H(i,i) -= x;
+                }
+
+                s = std::fabs( H(en,na) ) + std::fabs( H(na,enm2) );
+                y = x = 0.75 * s;
+                w = -0.4375 * s * s;
+            }
+
+            ++its;
+
+            ///
+            /// look for two consecutive small sub-diagonal elements
+            ///
+            for (unsigned mm = ell; mm <= enm2; ++mm)
+            {
+                m = enm2 + ell - mm;
+
+                zz = H(m,m);
+                r = x - zz;
+                s = y - zz;
+                p = H(m,m+1) + (r*s - w) / H(m+1,m);
+                q = H(m+1,m+1) - zz - r - s;
+                r = H(m+2,m+1);
+                s = std::fabs(p) + std::fabs(q) + std::fabs(r);
+                p /= s;
+                q /= s;
+                r /= s;
+                if ( m == ell ) { break; }
+
+                if ( std::fabs( H(m,m-1) ) * (std::fabs( q ) + std::fabs( r )) <=
+                       machep * std::fabs( p ) *
+                       (std::fabs( H(m-1,m-1) ) + std::fabs( zz ) + std::fabs( H(m+1,m+1) ))
+                   )
+                {
+                    break;
+                }
+            }
+
+            mp2 = m + 2;
+
+            for (unsigned i = mp2; i <= en; ++i)
+            {
+                H(i,i-2) = 0.0;
+
+                if ( i == mp2 ) continue;
+
+                H(i,i-3) = 0.0;
+            }
+
+            ///
+            /// double qr step involving rows ell to en
+            ///                     and columns m to en
+            ///
+            for (unsigned k = m; k <= na; ++k)
+            {
+                qlast = !( k != na );
+
+                if ( !(k == m) )
+                {
+                    p = H(k,k-1);
+                    q = H(k+1,k-1);
+                    r = ( !qlast ) ? H(k+2,k-1) : 0.0;
+                    x = std::fabs( p ) + std::fabs( q ) + std::fabs( r );
+                    if ( x == 0.0 ) { break; }
+                    p /= x;
+                    q /= x;
+                    r /= x;
+                }
+
+                s = ( (p >= 0.0) ? 1.0 : -1.0 )*std::sqrt(p*p + q*q + r*r);
+
+                if ( !(k == m) )
+                {
+                    H(k,k-1) = -s * x;
+                }
+                else
+                {
+                    if ( ell != m ) { H(k,k-1) = - H(k,k-1); }
+                }
+
+                p += s;
+                x = p / s;
+                y = q / s;
+                zz = r / s;
+                q /= p;
+                r /= p;
+
+                ///
+                /// row modification
+                ///
+                for (unsigned j = k; j <= en; ++j)
+                {
+                    p = H(k,j) + q * H(k+1,j);
+
+                    if ( !qlast )
+                    {
+                        p += r * H(k+2,j);
+                    }
+
+                    H(k+2,j) -= p * zz;
+                    H(k+1,j) -= p * y;
+                    H(k,j) -= p * x;
+                }
+
+                unsigned jj = ( en <= (k+3) ) ? en : k+3;
+
+                ///
+                /// column modification
+                ///
+                for (unsigned i = ell; i <= jj; ++i)
+                {
+                    p = x * H(i,k) + y * H(i,k+1);
+
+                    if ( !qlast )
+                    {
+                        p += zz * H(i,k+2);
+                    }
+
+                    H(i,k+2) -= p * r;
+                    H(i,k+1) -= p * q;
+                    H(i,k) -= p;
+                }
+
+            }
+
+        }
+
+    }
+
+    return;
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

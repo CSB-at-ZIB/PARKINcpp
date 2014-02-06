@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
 
     switch(ch)
     {
+        case '0' : testmshoot();            break;
         case '1' : testlinalg();            break;
         case '2' : testnonlin();            break;
         case '3' : testsystem();            break;

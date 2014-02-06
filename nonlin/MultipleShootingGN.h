@@ -62,7 +62,8 @@ namespace PARKIN
             // assignment
             MultipleShootingGN const& operator= (MultipleShootingGN const&);
 
-
+            // helper routines
+            void check_init();
             Matrix call_IVPSOL(Vector const&, Real, Matrix const&, Matrix&, int&);
             Vector call_FCN(Real, Vector const&, int&);
             Real scalarprod(Matrix const&, Matrix const&, Real, Real, int);
@@ -82,6 +83,13 @@ namespace PARKIN
             Vector solve_E(bool,Vector&,int&);
             void log_iteration_vals1(Real);
             void log_iteration_vals2();
+
+            //
+            void exchange(unsigned&,unsigned&,unsigned&,unsigned&,Matrix&);
+            //
+            void balance(Matrix&,unsigned&,unsigned&,Vector&);
+            void orthes(unsigned,unsigned,Matrix&,Vector&);
+            void hqr(unsigned,unsigned,Matrix&,Vector&,Vector&,int&);
 
             //          _mprmon =   0      1      2      3      4       5       6
             //  dlib::log_level =  LNONE  LINFO  LVERB  LTALK  LGABBY  LDEBUG  LTRACE

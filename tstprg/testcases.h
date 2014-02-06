@@ -9,5 +9,6 @@ int testfoerster_react_c();
 int testparkin_aux();
 int testlinalg();
 int testnonlin();
+int testmshoot();
 
 #endif // __TESTCASE_H

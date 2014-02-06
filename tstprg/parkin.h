@@ -14,11 +14,14 @@
 #include <linalg/Vector.h>
 
 #include <odelib/ODESolver.h>
+#include <odelib/LIMEX_A.h>
 #include <system/Expression.h>
+#include <system/Parser.h>
 #include <system/BioSystem.h>
 
 #include <system/BioProcessor.h>
 
 #include <nonlin/GaussNewton.h>
+#include <nonlin/MultipleShootingGN.h>
 
 #endif // __PARKIN_H

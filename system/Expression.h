@@ -12,6 +12,7 @@
 #include <vector>
 #include <map>
 
+#include "common/Types.h"
 
 namespace PARKIN
 {
