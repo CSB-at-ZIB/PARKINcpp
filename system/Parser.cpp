@@ -52,6 +52,10 @@ Token::Token(TokenType type) :
 {
     switch( type )
     {
+        case TypeComma:
+            _ident = ",";
+            _precedence = 8;
+            break;
         case TypeOpenParenthesis:
             _ident = "(";
             _precedence = 8;
@@ -209,17 +213,21 @@ Parser::parse(std::string const& exstr)
     // Parse the range
     //return parseRegion(0, _tokens.size() - 1);
 
-//    std::cout << std::endl;
-//    std::cout << "#tokens = " << _tokens.size();
-//    std::cout << std::endl;
-//    std::cout << std::endl;
-//
-//    for (size_type pos = 0; pos < _tokens.size(); ++pos)
-//    {
-//        std::cout << " " << _tokens[pos].getIdentifier();
-//    }
-//    std::cout << std::endl;
-//    std::cout << std::endl;
+///
+
+    // std::cout << std::endl;
+    // std::cout << "#tokens = " << _tokens.size();
+    // std::cout << std::endl;
+    // std::cout << std::endl;
+    //
+    // for (size_type pos = 0; pos < _tokens.size(); ++pos)
+    // {
+    //     std::cout << " " << _tokens[pos].getIdentifier();
+    // }
+    // std::cout << std::endl;
+    // std::cout << std::endl;
+
+///
 
     for (size_type pos = 0; pos < _tokens.size(); ++pos)
     {
@@ -252,6 +260,16 @@ Parser::parse(std::string const& exstr)
 
             case Token::TypeFunction:
                 opStack.push_back(term);
+                break;
+
+            case Token::TypeComma:
+                while ( opStack.back().getType() != Token::TypeOpenParenthesis )
+                {
+                    rpnStack.push_back( opStack.back() );
+                    rpnStr += " " + opStack.back().getIdentifier();
+
+                    opStack.pop_back();
+                }
                 break;
 
             case Token::TypeOpenParenthesis:
@@ -292,8 +310,10 @@ Parser::parse(std::string const& exstr)
         opStack.pop_back();
     }
 
-//    std::cout << std::endl;
-//    std::cout << "Parser::parse: rpnStr = " << rpnStr << std::endl;
+///
+    // std::cout << std::endl;
+    // std::cout << "Parser::parse: rpnStr = '" << rpnStr << "'" << std::endl;
+///
 
     return buildExpression(rpnStack);
 }
@@ -471,6 +491,14 @@ Parser::buildExpression(std::vector<Token>& rpn)
                     arg1 = buildExpression( rpn );
                     return Expression(PARKIN::SIGN, arg1);
                 }
+                else if ( fun == "pow" )
+                {
+                    rpn.pop_back();
+                    arg2 = buildExpression( rpn );
+                    rpn.pop_back();
+                    arg1 = buildExpression( rpn );
+                    return Expression(PARKIN::POWER, arg1, arg2);
+                }
                 else
                 {
                     std::cerr << std::endl;
@@ -518,8 +546,11 @@ Parser::buildTokens(std::string const& exstr)
     std::string::size_type pos;
     bool comment = false;
 
-    for(pos = 0; pos < exstr.length(); pos++)
+    for(pos = 0; pos < exstr.length(); ++pos)
     {
+///
+        // std::cout << " c:'" << exstr[pos] << "'";
+///
         // Take action based on character
         switch(exstr[pos])
         {
@@ -639,15 +670,15 @@ Parser::buildTokens(std::string const& exstr)
             //     break;
             // }
 
-            // // Comma
-            // case ',':
-            // {
-            //     if(comment == false)
-            //     {
-            //         _tokens.push_back(Token(Token::TypeComma, 0));
-            //     }
-            //     break;
-            // }
+            // Comma
+            case ',':
+            {
+                if(comment == false)
+                {
+                    _tokens.push_back(Token(Token::TypeComma));
+                }
+                break;
+            }
 
             // // Semicolon
             // case ';':

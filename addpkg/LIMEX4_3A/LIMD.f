@@ -2868,7 +2868,7 @@ c
 cTD
                if ( Iopt(31) .eq. 0 ) then
 c
-                  do i = 1, nz
+                  do i = 1, n
 c
                      Temp3(i) = Temp3(i)
      2                    + Scal(i) * Temp2(i) / ( g * Scal(i) )
@@ -2931,7 +2931,7 @@ c-----------------------------------------------------------------------
 cTD
                if ( Iopt(31) .eq. 0 ) then
 c
-                  do i = 1, nz
+                  do i = 1, n
 c
                      if ( Full_or_Band .eq. 0 ) then
                         irh = i

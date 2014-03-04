@@ -39,7 +39,7 @@ namespace PARKIN
                 TypeForwardSlash, // '/'
                 TypeHat, // '^'
                 // TypeAmpersand, // '&'
-                // TypeComma, // ','
+                TypeComma, // ','
                 // TypeSemicolon, // ';'
                 TypeIdentifier, // name
                 TypeFunction, // math function
