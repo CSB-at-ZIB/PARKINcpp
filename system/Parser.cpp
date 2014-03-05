@@ -62,7 +62,7 @@ Token::Token(TokenType type) :
             break;
         case TypeCloseParenthesis:
             _ident = ")";
-            _precedence = 8;
+            _precedence = 0;
             break;
         case TypePlus:
             _ident = "PLUS";
@@ -87,6 +87,16 @@ Token::Token(TokenType type) :
         case TypeHat:
             _ident = "POWER";
             _precedence = 4;
+            _associativity = 1; // right
+            break;
+        case TypeUnaryMinus:
+            _ident = "UMINUS";
+            _precedence = 5;
+            _associativity = 1; // right
+            break;
+        case TypeUnaryPlus:
+            _ident = "UPLUS";
+            _precedence = 5;
             _associativity = 1; // right
             break;
         default:
@@ -215,17 +225,17 @@ Parser::parse(std::string const& exstr)
 
 ///
 
-    // std::cout << std::endl;
-    // std::cout << "#tokens = " << _tokens.size();
-    // std::cout << std::endl;
-    // std::cout << std::endl;
-    //
-    // for (size_type pos = 0; pos < _tokens.size(); ++pos)
-    // {
-    //     std::cout << " " << _tokens[pos].getIdentifier();
-    // }
-    // std::cout << std::endl;
-    // std::cout << std::endl;
+//    std::cout << std::endl;
+//    std::cout << "#tokens = " << _tokens.size();
+//    std::cout << std::endl;
+//    std::cout << std::endl;
+//
+//    for (size_type pos = 0; pos < _tokens.size(); ++pos)
+//    {
+//        std::cout << " " << _tokens[pos].getIdentifier();
+//    }
+//    std::cout << std::endl;
+//    std::cout << std::endl;
 
 ///
 
@@ -258,6 +268,8 @@ Parser::parse(std::string const& exstr)
                 opStack.push_back(term);
                 break;
 
+            case Token::TypeUnaryPlus:
+            case Token::TypeUnaryMinus:
             case Token::TypeFunction:
                 opStack.push_back(term);
                 break;
@@ -311,8 +323,10 @@ Parser::parse(std::string const& exstr)
     }
 
 ///
-    // std::cout << std::endl;
-    // std::cout << "Parser::parse: rpnStr = '" << rpnStr << "'" << std::endl;
+
+//    std::cout << std::endl;
+//    std::cout << "Parser::parse: rpnStr = '" << rpnStr << "'" << std::endl;
+
 ///
 
     return buildExpression(rpnStack);
@@ -337,6 +351,14 @@ Parser::buildExpression(std::vector<Token>& rpn)
     {
         switch ( rpn.back().getType() )
         {
+            case Token::TypeUnaryPlus:
+                rpn.pop_back();
+                return buildExpression( rpn );
+            case Token::TypeUnaryMinus:
+                rpn.pop_back();
+                arg1 = buildExpression( rpn );
+                return Expression(PARKIN::MINUS, arg1);
+
             case Token::TypePlus:
                 rpn.pop_back();
                 arg2 = buildExpression( rpn );
@@ -607,7 +629,20 @@ Parser::buildTokens(std::string const& exstr)
             {
                 if(comment == false)
                 {
-                    _tokens.push_back(Token(Token::TypePlus));
+                    if ( _tokens.size() <= 0 )
+                    {
+                        _tokens.push_back(Token(Token::TypeUnaryPlus));
+                    }
+                    // else if ( _tokens.back().getType() == Token::TypeComma ||
+                    //           _tokens.back().getType() == Token::TypeOpenParenthesis )
+                    else if ( _tokens.back().getPrecedence() > 0 )
+                    {
+                        _tokens.push_back(Token(Token::TypeUnaryPlus));
+                    }
+                    else
+                    {
+                        _tokens.push_back(Token(Token::TypePlus));
+                    }
                 }
                 break;
             }
@@ -617,7 +652,20 @@ Parser::buildTokens(std::string const& exstr)
             {
                 if(comment == false)
                 {
-                    _tokens.push_back(Token(Token::TypeHyphen));
+                    if ( _tokens.size() <= 0 )
+                    {
+                        _tokens.push_back(Token(Token::TypeUnaryMinus));
+                    }
+                    // else if ( _tokens.back().getType() == Token::TypeComma ||
+                    //           _tokens.back().getType() == Token::TypeOpenParenthesis )
+                    else if ( _tokens.back().getPrecedence() > 0 )
+                    {
+                        _tokens.push_back(Token(Token::TypeUnaryMinus));
+                    }
+                    else
+                    {
+                        _tokens.push_back(Token(Token::TypeHyphen));
+                    }
                 }
                 break;
             }

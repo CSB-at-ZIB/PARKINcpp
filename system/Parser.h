@@ -38,6 +38,8 @@ namespace PARKIN
                 TypeAsterisk, // '*'
                 TypeForwardSlash, // '/'
                 TypeHat, // '^'
+                TypeUnaryMinus, // '-'
+                TypeUnaryPlus, // '+'
                 // TypeAmpersand, // '&'
                 TypeComma, // ','
                 // TypeSemicolon, // ';'
