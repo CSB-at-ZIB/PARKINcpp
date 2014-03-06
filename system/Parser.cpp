@@ -89,16 +89,18 @@ Token::Token(TokenType type) :
             _precedence = 4;
             _associativity = 1; // right
             break;
-        case TypeUnaryMinus:
-            _ident = "UMINUS";
+        case TypeUnaryNegate:
+            _ident = "NEG";
             _precedence = 5;
             _associativity = 1; // right
             break;
+        /*
         case TypeUnaryPlus:
             _ident = "UPLUS";
             _precedence = 5;
             _associativity = 1; // right
             break;
+        */
         default:
             break;
     }
@@ -246,6 +248,7 @@ Parser::parse(std::string const& exstr)
 
         switch( term.getType() )
         {
+            case Token::TypeUnaryNegate:
             case Token::TypePlus:
             case Token::TypeHyphen:
             case Token::TypeAsterisk:
@@ -254,11 +257,13 @@ Parser::parse(std::string const& exstr)
                 op2Type = (!opStack.empty()) ?
                                 opStack.back().getType() : Token::TypeUnknown;
 
-                if ( (op2Type == Token::TypePlus ||
+                if ( (op2Type == Token::TypeUnaryNegate ||
+                      op2Type == Token::TypePlus ||
                       op2Type == Token::TypeHyphen ||
                       op2Type == Token::TypeAsterisk ||
                       op2Type == Token::TypeForwardSlash ||
                       op2Type == Token::TypeHat) && (term < opStack.back()) )
+                      // the last comparison '<' includes also associativity already!
                 {
                     rpnStack.push_back( opStack.back() );
                     rpnStr += " " + opStack.back().getIdentifier();
@@ -268,8 +273,6 @@ Parser::parse(std::string const& exstr)
                 opStack.push_back(term);
                 break;
 
-            case Token::TypeUnaryPlus:
-            case Token::TypeUnaryMinus:
             case Token::TypeFunction:
                 opStack.push_back(term);
                 break;
@@ -351,13 +354,14 @@ Parser::buildExpression(std::vector<Token>& rpn)
     {
         switch ( rpn.back().getType() )
         {
-            case Token::TypeUnaryPlus:
-                rpn.pop_back();
-                return buildExpression( rpn );
-            case Token::TypeUnaryMinus:
+            ///
+
+            case Token::TypeUnaryNegate:
                 rpn.pop_back();
                 arg1 = buildExpression( rpn );
                 return Expression(PARKIN::MINUS, arg1);
+
+            ///
 
             case Token::TypePlus:
                 rpn.pop_back();
@@ -631,13 +635,13 @@ Parser::buildTokens(std::string const& exstr)
                 {
                     if ( _tokens.size() <= 0 )
                     {
-                        _tokens.push_back(Token(Token::TypeUnaryPlus));
+                        /// _tokens.push_back(Token(Token::TypeUnaryPlus));
                     }
                     // else if ( _tokens.back().getType() == Token::TypeComma ||
                     //           _tokens.back().getType() == Token::TypeOpenParenthesis )
                     else if ( _tokens.back().getPrecedence() > 0 )
                     {
-                        _tokens.push_back(Token(Token::TypeUnaryPlus));
+                        /// _tokens.push_back(Token(Token::TypeUnaryPlus));
                     }
                     else
                     {
@@ -654,13 +658,13 @@ Parser::buildTokens(std::string const& exstr)
                 {
                     if ( _tokens.size() <= 0 )
                     {
-                        _tokens.push_back(Token(Token::TypeUnaryMinus));
+                        _tokens.push_back(Token(Token::TypeUnaryNegate));
                     }
                     // else if ( _tokens.back().getType() == Token::TypeComma ||
                     //           _tokens.back().getType() == Token::TypeOpenParenthesis )
                     else if ( _tokens.back().getPrecedence() > 0 )
                     {
-                        _tokens.push_back(Token(Token::TypeUnaryMinus));
+                        _tokens.push_back(Token(Token::TypeUnaryNegate));
                     }
                     else
                     {
