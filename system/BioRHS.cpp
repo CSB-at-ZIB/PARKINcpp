@@ -495,6 +495,10 @@ BioRHS::b(double* y, int* nz, double* B, int* ir, int* ic)
 
         switch ( _rhs_type[*it] )
         {
+            /*
+            case 3 :
+                --idx;
+            */
             case 2 :
                 break;
 
@@ -519,21 +523,42 @@ Vector
 BioRHS::f(Expression::Param& par,
           long n, double* dy)
 {
-    Vector         dz; // ( _species.size() );
-    StrIterConst   sBeg = _species.begin();
-    StrIterConst   sEnd = _species.end();
+    /// long                rules = 0;
+    Vector              dz; // ( _species.size() );
+    StrIterConst        sBeg = _species.begin();
+    StrIterConst        sEnd = _species.end();
+    /// Expression::Param   aux = par;
 
+/*
+    for (StrIterConst it = sBeg; it != sEnd; ++it)
+    {
+        if ( _rhs_type[*it] == 3 )
+        {
+            ++rules;
+            par[*it] = _rhs[*it].eval(aux);
+        }
+    }
+*/
     if ( n == 0 )
     {
         // species index start at 2 (1 is for time!)
         long j = 0;
-        dz.zeros( _species.size() + 1 );
+        dz.zeros( _species.size() + 1 ); // - rules );
 
         dz(++j) = 1.0;
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
-            dz(++j) = _rhs[*it].eval(par);
+            /*
+            if ( _rhs_type[*it] == 3 )
+            {
+                dz(++j) = 0.0;
+            }
+            else
+            */
+            {
+                dz(++j) = _rhs[*it].eval(par);
+            }
         }
 
         return dz;
@@ -545,7 +570,16 @@ BioRHS::f(Expression::Param& par,
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
-        *(dy++) = _rhs[*it].eval(par);
+        /*
+        if ( _rhs_type[*it] == 3 )
+        {
+            *(dy++) = 0.0;
+        }
+        else
+        */
+        {
+            *(dy++) = _rhs[*it].eval(par);
+        }
     }
 
     return dz;
@@ -555,23 +589,59 @@ Vector
 BioRHS::f(double* y,
           long n, double* dy)
 {
+    /// long           k, rules = 0;
     Vector         dz; // ( _species.size() );
     StrIterConst   sBeg = _species.begin();
     StrIterConst   sEnd = _species.end();
+    /// double         z[_species.size()];
 
     _data_table[0] = y;
+
+/*
+    k = 0;
+    for (StrIterConst it = sBeg; it != sEnd; ++it)
+    {
+        if ( _rhs_type[*it] == 3 )
+        {
+            ++rules;
+            z[k] = _rhs[*it].eval( _data_table );
+        }
+
+        ++k;
+    }
+
+    k = 0;
+    for (StrIterConst it = sBeg; it != sEnd; ++it)
+    {
+        if ( _rhs_type[*it] == 3 )
+        {
+            _data_table[0][k] = z[k];
+        }
+
+        ++k;
+    }
+*/
 
     if ( n == 0 )
     {
         // species index start at 2 (1 is for time!)
         long   j = 0;
-        dz.zeros( _species.size() + 1 );
+        dz.zeros( _species.size() + 1 ) ; // - rules );
 
         dz(++j) = 1.0;  // dummy equation y' = 1 (time!)
 
         for (StrIterConst it = sBeg; it != sEnd; ++it)
         {
-            dz(++j) = _rhs[*it].eval( _data_table );
+            /*
+            if ( _rhs_type[*it] == 3 )
+            {
+                dz(++j) = 0.0;
+            }
+            else
+            */
+            {
+                dz(++j) = _rhs[*it].eval( _data_table );
+            }
         }
 
         return dz;
@@ -583,7 +653,16 @@ BioRHS::f(double* y,
 
     for (StrIterConst it = sBeg; it != sEnd; ++it)
     {
-        *dy++ = _rhs[*it].eval( _data_table );
+        /*
+        if ( _rhs_type[*it] == 3 )
+        {
+            *(dy++) = 0.0;
+        }
+        else
+        */
+        {
+            *(dy++) = _rhs[*it].eval( _data_table );
+        }
     }
 
     return dz;
