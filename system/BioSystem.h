@@ -20,6 +20,7 @@
 #include "odelib/FirstOrderODESystem.h"
 #include "Expression.h"
 #include "BioRHS.h"
+#include "BioMedication.h"
 
 namespace PARKIN
 {
@@ -37,6 +38,8 @@ namespace PARKIN
             typedef BioRHS::ExprTypeMap                     ExprTypeMap;
             typedef BioRHS::ExpressionMap                   ExpressionMap;
             typedef std::vector< MeasurementPoint >         MeasurementList;
+
+            typedef BioMedication::MedicationList           MedicationList;
 
             /// c'tor
             BioSystem(  Real tStart = 0.0, Real tEnd = 1.0 );
@@ -145,6 +148,24 @@ namespace PARKIN
 
             void
             setEvent(long j, ExpressionMap const& emap);
+
+            //
+
+            BioMedication const&
+            getMedication() const
+            { return _adm; }
+
+            MedicationList const&
+            getMedicationList() const
+            { return _adm.getMedicationList(); }
+
+            //
+
+            void
+            setMedicationList(MedicationList medList);
+
+            void
+            addMedication(Medication med);
 
             //
 
@@ -330,8 +351,11 @@ namespace PARKIN
 
             void setIdentityEvents();
 
+            BioMedication                   _adm;
+
             BioRHS                          _ode;
             std::vector<BioRHS>             _iniCond;
+
             Expression::Param               _iniPar;
             Expression::Param               _sysPar;
             Expression::Param               _optPar;

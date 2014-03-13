@@ -11,7 +11,7 @@ using namespace PARKIN;
 
 //----------------------------------------------------------------------------
 BioSystemODE::BioSystemODE() :
-        _dim(0), _nz(0), _obj(0), _rhs()
+        _dim(0), _nz(0), _obj(0), _rhs() // , _adm()
 {
 }
 //----------------------------------------------------------------------------
@@ -24,6 +24,7 @@ BioSystemODE::setObj(BioSystem& obj)
 {
     _obj = &obj;
     _rhs = _obj -> getODE();
+    // _adm = _obj -> getMedication();
     _dim = _rhs.getSpecies().size()+1;
     _nz  = _dim;
 }
@@ -36,6 +37,8 @@ BioSystemODE::computeDerivatives(Real const t, Real* y, Real* dy, int* info)
 
     _rhs.f( y, _dim, dy );
 
+    // _adm.computeMedication( y, _dim, dy );
+
     *info = 0;
 }
 //----------------------------------------------------------------------------
@@ -43,6 +46,8 @@ void
 BioSystemODE::computeMassMatrix(Real const t, Real* y,
                                 Real* B, int* ir, int* ic)
 {
+    // ??? _adm.computeMedication( y, _dim, dy );
+
     _rhs.b( y, &_nz, B, ir, ic );
 }
 //----------------------------------------------------------------------------
@@ -55,6 +60,8 @@ BioSystemODE::computeJacobian(Real const t, Real* y, Real* dy,
     BioRHS::Species const&      spec = _rhs.getSpecies();
     StrIterConst                sBeg = spec.begin();
     StrIterConst                sEnd = spec.end();
+
+    // ??? _adm.computeMedication( y, _dim, dy );
 
     sys["odeTime"] = t;
     y++; // skip first component as it is reserved as time variable

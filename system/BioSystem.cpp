@@ -22,6 +22,7 @@ using namespace PARKIN;
 //---------------------------------------------------------------------------
 /// c'tor
 BioSystem::BioSystem( Real tStart, Real tEnd ) :
+    _adm(),
     _ode(), _iniCond(),
     _iniPar(), _sysPar(), _optPar(),
     _parValue(0),
@@ -52,6 +53,7 @@ BioSystem::BioSystem( Real tStart, Real tEnd ) :
 //---------------------------------------------------------------------------
 /// c'tor
 BioSystem::BioSystem( Vector const&  tInterval ) :
+    _adm(),
     _ode(), _iniCond(),
     _iniPar(), _sysPar(), _optPar(),
     _parValue(0),
@@ -87,6 +89,7 @@ BioSystem::BioSystem( ExpressionMap const&      eMap,
                       MeasurementList const&    meas,
                       ODESolver::Grid const&    tInterval
                     ) :
+    _adm(),
     _ode(eMap), _iniCond(),
     _iniPar(), _sysPar(), _optPar(),
     _parValue(0),
@@ -130,6 +133,7 @@ BioSystem::~BioSystem()
  {
      if (this != &s)
      {
+         _adm     = s._adm;
          _ode     = s._ode;
          _iniCond = s._iniCond;
 
@@ -413,6 +417,49 @@ BioSystem::setEvent(long j, ExpressionMap const& emap)
     {
         _iniCond[j].setRHS(emap);
     }
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void
+BioSystem::setMedicationList(MedicationList medList)
+{
+    int             nAdm    = medList.size();
+    Species const&  species = _ode.getSpecies();
+    StrIterConst    sBeg    = species.begin();
+    StrIterConst    sEnd    = species.end();
+
+    for (int j = 0; j < nAdm; ++j)
+    {
+        StrIterConst it = std::find(sBeg, sEnd, medList[j].adm_comp);
+
+        medList[j].index = 0;
+
+        if ( it != sEnd )
+        {
+            medList[j].index = (it - sBeg);  //trick to get index into vec!
+        }
+    }
+
+    _adm.setMedicationList(medList);
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::addMedication(Medication med)
+{
+    Species const&  species = _ode.getSpecies();
+    StrIterConst    sBeg    = species.begin();
+    StrIterConst    sEnd    = species.end();
+
+    StrIterConst it = std::find(sBeg, sEnd, med.adm_comp);
+
+    med.index = 0;
+
+    if ( it != sEnd )
+    {
+        med.index = (it - sBeg);  // neat trick to get index into vector!!
+    }
+
+    _adm.addMedication(med);
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
