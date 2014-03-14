@@ -437,6 +437,7 @@ BioSystem::setMedicationList(MedicationList medList)
         if ( it != sEnd )
         {
             medList[j].index = (it - sBeg);  //trick to get index into vec!
+            medList[j].index += 1;           //index 0 reserved for time t
         }
     }
 
@@ -457,6 +458,7 @@ BioSystem::addMedication(Medication med)
     if ( it != sEnd )
     {
         med.index = (it - sBeg);  // neat trick to get index into vector!!
+        med.index += 1;           // index 0 reserved for time t
     }
 
     _adm.addMedication(med);

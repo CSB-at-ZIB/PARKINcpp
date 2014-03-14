@@ -11,7 +11,7 @@ using namespace PARKIN;
 
 //----------------------------------------------------------------------------
 BioSystemODE::BioSystemODE() :
-        _dim(0), _nz(0), _obj(0), _rhs() // , _adm()
+        _dim(0), _nz(0), _obj(0), _rhs(), _adm()
 {
 }
 //----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ BioSystemODE::setObj(BioSystem& obj)
 {
     _obj = &obj;
     _rhs = _obj -> getODE();
-    // _adm = _obj -> getMedication();
+    _adm = _obj -> getMedication();
     _dim = _rhs.getSpecies().size()+1;
     _nz  = _dim;
 }
@@ -37,7 +37,7 @@ BioSystemODE::computeDerivatives(Real const t, Real* y, Real* dy, int* info)
 
     _rhs.f( y, _dim, dy );
 
-    // _adm.computeMedication( y, _dim, dy );
+    _adm.computeMedication( y, _dim, dy );
 
     *info = 0;
 }

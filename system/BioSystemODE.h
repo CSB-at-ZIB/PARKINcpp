@@ -9,6 +9,7 @@
 
 
 #include "odelib/FirstOrderODESystem.h"
+#include "BioMedication.h"
 #include "BioRHS.h"
 
 
@@ -47,10 +48,11 @@ namespace PARKIN
             void setObj(BioSystem& obj);
 
         private:
-            int         _dim;
-            int         _nz;
-            BioSystem*  _obj;
-            BioRHS      _rhs;
+            int             _dim;
+            int             _nz;
+            BioSystem*      _obj;
+            BioRHS          _rhs;
+            BioMedication   _adm;
     };
 
 }
