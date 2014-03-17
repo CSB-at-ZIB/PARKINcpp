@@ -98,6 +98,27 @@ namespace PARKIN
             //
 
             Real
+            getSolverIniStep() const;
+
+            void
+            setSolverIniStep(Real inistep);
+
+            //
+
+            Real
+            getSolverMaxStep() const;
+
+            void
+            setSolverMaxStep(Real maxstep);
+
+            //
+
+            std::string
+            getSolverMessage(int rc) const;
+
+            ///
+
+            Real
             getSystemTol() const;
 
             void

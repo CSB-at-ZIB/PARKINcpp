@@ -70,6 +70,7 @@ namespace PARKIN
             virtual Trajectory&     getDataTrajectory()     { return _data; }
             virtual ODETrajectory*  getRawTrajectory()      { return 0; }
 
+            virtual std::string     getErrorMessage(int rc);
 
             /// void    fcn (unsigned n, double x, double* y, double* f, double* cd);
             /// void solout (long nr, double xold, double x, double* y, unsigned n, int* irtrn);

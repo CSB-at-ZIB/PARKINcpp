@@ -73,23 +73,29 @@ namespace PARKIN
             virtual Trajectory&     getDataTrajectory()               = 0;
             virtual ODETrajectory*  getRawTrajectory()                = 0;
 
+            virtual std::string     getErrorMessage(int rc)           = 0;
+
             ///
 
             void    setDebugFlag(int flag) { _debugflag = flag; }
-            int     getDebugFlag() { return _debugflag; }
+            int     getDebugFlag() const { return _debugflag; }
 
             void    setInterpolationFlag(int cubint) { _cubintflag = cubint; }
-            int     getInterpolationFlag() { return _cubintflag; }
+            int     getInterpolationFlag() const { return _cubintflag; }
 
             ///
-            ODESolverId getId() { return _solverId; }
+            ODESolverId getId() const { return _solverId; }
             ///
 
             void setRTol(Real rtol) { _rtol = rtol; }
             void setATol(Real atol) { _atol = atol; }
+            void setIniStep(Real inistep) { _inistep = inistep; }
+            void setMaxStep(Real maxstep) { _maxstep = maxstep; }
 
-            Real getRTol() { return _rtol; }
-            Real getATol() { return _atol; }
+            Real getRTol() const { return _rtol; }
+            Real getATol() const { return _atol; }
+            Real getIniStep() const { return _inistep; }
+            Real getMaxStep() const { return _maxstep; }
 
         protected:
             explicit ODESolver(ODESolverId solverId) :
@@ -97,7 +103,9 @@ namespace PARKIN
                                         _debugflag(0),
                                         _cubintflag(-1),
                                         _atol(10*EPMACH),
-                                        _rtol(1.0e-12)
+                                        _rtol(1.0e-12),
+                                        _inistep(1.0e-4),
+                                        _maxstep(0.0)
             { }
 
             // The following precision setting seems to work only semi-stable:
@@ -107,6 +115,7 @@ namespace PARKIN
             int         _debugflag;
             int         _cubintflag;
             Real        _atol, _rtol;
+            Real        _inistep, _maxstep;
     };
 
 }

@@ -67,6 +67,8 @@ namespace PARKIN
             virtual Trajectory&     getDataTrajectory()       { return _data; }
             virtual ODETrajectory*  getRawTrajectory()        { return _trajectory; }
 
+            virtual std::string     getErrorMessage(int rc);
+
             //
 
             void setODESystem(

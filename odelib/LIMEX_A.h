@@ -72,6 +72,8 @@ namespace PARKIN
             virtual Trajectory&     getDataTrajectory()         { return _data; }
             virtual ODETrajectory*  getRawTrajectory()  { return _trajectory->clone(); }
 
+            virtual std::string     getErrorMessage(int rc);
+
             ///
 
             int integrateWithoutInterpolation();
@@ -90,6 +92,7 @@ namespace PARKIN
 
             int             getSuccessiveCallFlag()         { return _iOpt[15]; }
             void            resetSuccessiveCallFlag()       { _iOpt[15] = -1; }
+
 
         private:
             int             getLimexInterpolationFlag()     { return _iOpt[31]; }

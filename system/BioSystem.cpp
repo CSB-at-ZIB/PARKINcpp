@@ -250,6 +250,8 @@ BioSystem::setSolver(ODESolverId solverid)
     {
         newSolver -> setRTol( _odeSolver -> getRTol() );
         newSolver -> setATol( _odeSolver -> getATol() );
+        newSolver -> setIniStep( _odeSolver -> getIniStep() );
+        newSolver -> setMaxStep( _odeSolver -> getMaxStep() );
         newSolver -> setDebugFlag( _odeSolver -> getDebugFlag() );
         newSolver -> setInterpolationFlag( _odeSolver -> getInterpolationFlag() );
 
@@ -285,6 +287,38 @@ BioSystem::setSolverATol(Real tol)
 }
 //---------------------------------------------------------------------------
 Real
+BioSystem::getSolverIniStep() const
+{
+    return _odeSolver -> getIniStep();
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::setSolverIniStep(Real inistep)
+{
+    _odeSolver -> setIniStep(inistep);
+}
+//---------------------------------------------------------------------------
+Real
+BioSystem::getSolverMaxStep() const
+{
+    return _odeSolver -> getMaxStep();
+}
+//---------------------------------------------------------------------------
+void
+BioSystem::setSolverMaxStep(Real maxstep)
+{
+    _odeSolver -> setMaxStep(maxstep);
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+std::string
+BioSystem::getSolverMessage(int rc) const
+{
+    return _odeSolver -> getErrorMessage(rc);
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+Real
 BioSystem::getSystemTol() const
 {
     return _systemTol;
@@ -295,6 +329,7 @@ BioSystem::setSystemTol(Real tol)
 {
     _systemTol = tol;
 }
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 Expression::Param&
 BioSystem::getSysPar()

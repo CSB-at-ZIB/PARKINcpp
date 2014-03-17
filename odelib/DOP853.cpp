@@ -85,7 +85,7 @@ DOP853::DOP853() :
     _solout(DOP853Wrapper::solout), _iout(0), _fileout(0),
 
     _uround(0.0), _safe(0.9), _fac1(0.333), _fac2(6.0), _beta(0.0),
-    _hmax(0.0), _h(0.0), _nmax(100000), _meth(1), _nstiff(1000),
+    _hmax(0.0), _h(_inistep), _nmax(100000), _meth(1), _nstiff(1000),
     _nrdens(0), _icont(0), _licont(0), _cd(0)
 { }
 //----------------------------------------------------------------------------
@@ -223,6 +223,49 @@ std::cerr << std::endl;
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+std::string
+DOP853::getErrorMessage(int rc)
+{
+    std::string message;
+
+    message.clear();
+
+    switch(rc)
+    {
+        case 2:
+	        message = "Computation successful (but interrupted by solout).";
+            break;
+
+        case 1:
+        case 0:
+            message = "Computation successful.";
+            break;
+
+        case -1:
+            message = "Input is not consistent.";
+            break;
+
+        case -2:
+            message = "Larger nmax is needed.";
+            break;
+
+        case -3:
+            message = "Step size becomes too small.";
+            break;
+
+        case -4:
+            message = "The problem is probably stiff (interrupted).";
+            break;
+
+        default:
+            message = "Unknown rc number.";
+            break;
+    }
+
+    return message;
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 ODESolver::Grid&
 DOP853::getAdaptiveGridPoints()
 {
@@ -289,6 +332,9 @@ DOP853::setODESystem(
     _fcn  = fcn;
     _t0   = t0;
     _tEnd = tEnd;
+
+    _h    = _inistep;
+    _hmax = _maxstep;
 
     for (GridIterConst it = y0.begin(); it != y0.end(); ++it) _y0[j++] = *it;
 

@@ -376,6 +376,8 @@
 		<Unit filename="swig/testbioparkin_helper.py">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="system/BioMedication.cpp" />
+		<Unit filename="system/BioMedication.h" />
 		<Unit filename="system/BioPAR.cpp" />
 		<Unit filename="system/BioPAR.h" />
 		<Unit filename="system/BioProcessor.cpp" />

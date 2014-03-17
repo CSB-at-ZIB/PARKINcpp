@@ -62,7 +62,7 @@ METAN_A::METAN_A() :
     ODESolver(ODE_SOLVER_METAN_A),
     _n(0), _fcn(METANWrapper::xfcn),
     _t0(0.0), _y0(0), _y(0), _tEnd(0.0),
-    _hMax(0.0), _h(0.0), _kFlag(4),
+    _hMax(0.0), _h(_inistep), _kFlag(4),
     _sout(METANWrapper::xsout)
 {
     _trajectory = new CubicHermiteTrajectory(0);
@@ -352,6 +352,44 @@ METAN_A::getAdaptiveSolution()
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+std::string
+METAN_A::getErrorMessage(int rc)
+{
+    std::string message;
+
+    message.clear();
+
+    switch(rc)
+    {
+        case 0:
+            message = "Computation successful.";
+            break;
+
+        case -1:
+            message = "Interval error:  TEND < T.";
+            break;
+
+        case -2:
+            message = "More than NSTMAX basic integration steps per interval have been performed.";
+            break;
+
+        case -3:
+            message = "More than JRMAX stepsize reductions occurred per basic integration step.";
+            break;
+
+        case -4:
+            message = "Stepsize proposal for next basic integration too small.";
+            break;
+
+        default:
+            message = "Unknown rc number.";
+            break;
+    }
+
+    return message;
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void
 METAN_A::setODESystem(
                         FirstOrderODESystem&   ode,
@@ -404,8 +442,8 @@ METAN_A::setODESystem(
     _fcn  = fcn;
     _t0   = t0;
     _tEnd = tEnd;
-    _hMax = std::fabs( tEnd - t0 );
-    _h    = _rtol;
+    _hMax = (_maxstep <= 0.0) ? std::fabs( tEnd - t0 ) : _maxstep;
+    _h    = _inistep;  // _rtol;
 
     _datPoints = refGrid;
     std::sort( _datPoints.begin(), _datPoints.end() );

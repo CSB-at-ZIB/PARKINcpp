@@ -190,7 +190,7 @@ LIMEX_A::initOpt()
     // rOpt[0] - rOpt[2] must be set by caller
     // all values are NOT modified
 
-    _rOpt[0] =  0.0;        // Maximum allowed stepsize (default t_End - t_Begin if set to 0.0)
+    _rOpt[0] = _maxstep;    // Maximum allowed stepsize (default t_End - t_Begin if set to 0.0)
     _rOpt[1] = -1.0;        // Maximal distance between two dense output points (0 < rOpt[1] if iOpt[12] == 3)
     _rOpt[2] =  0.0;        // Upper limit for t (used only if iOpt[16] == 1; no upper limit will be considered if rOpt[2] < t_End)
 
@@ -219,7 +219,8 @@ LIMEX_A::integrate()
 
     //
 
-    _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
+    _rOpt[0] = _maxstep;
+    _rOpt[1] = _rOpt[2] = 0.0;
 
     //
 
@@ -245,8 +246,10 @@ LIMEX_A::integrate(unsigned n, double* yIni, double tLeft, double tRight)
     if ( _iOpt[15] == -1 ) {
         _iOpt[15] = 0;  // type of call of limex_(): 0 initial call, 1 successive call
 
-        _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
-        _h = _rtol;
+        _rOpt[0] = _maxstep;
+        _rOpt[1] = _rOpt[2] = 0.0;
+
+        _h = _inistep; // _rtol;
     }
 
     _iOpt[16] = 0;      // integration for t > T internally forbidden
@@ -908,7 +911,8 @@ LIMEX_A::integrateSensitivitySystem(unsigned nDAE)
 
     //
 
-    _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
+    _rOpt[0] = _maxstep;
+    _rOpt[1] = _rOpt[2] = 0.0;
 
     //
 
@@ -936,8 +940,10 @@ LIMEX_A::integrateSensitivitySystem(unsigned nDAE,
     if ( _iOpt[15] == -1 ) {
         _iOpt[15] = 0;  // type of call of limex_(): 0 initial call, 1 successive call
 
-        _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
-        _h = _rtol;
+        _rOpt[0] = _maxstep;
+        _rOpt[1] = _rOpt[2] = 0.0;
+
+        _h = _inistep; // _rtol;
     }
 
     _iOpt[16] = 0;      // integration for t > T internally forbidden
@@ -1518,7 +1524,8 @@ LIMEX_A::integrateWithoutInterpolation()
 
     //
 
-    _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
+    _rOpt[0] = _maxstep;
+    _rOpt[1] = _rOpt[2] = 0.0;
 
     //
 
@@ -1586,8 +1593,10 @@ LIMEX_A::integrateWithoutInterpolation( unsigned n, double* yIni,
     if ( _iOpt[15] == -1 ) {
         _iOpt[15] = 0;  // type of call of limex_(): 0 initial call, 1 successive call
 
-        _rOpt[0] = _rOpt[1] = _rOpt[2] = 0.0;
-        _h = _rtol;
+        _rOpt[0] = _maxstep;
+        _rOpt[1] = _rOpt[2] = 0.0;
+
+        _h = _inistep; // _rtol;
     }
 
     _iOpt[16] = 0;      // integration for t > T internally forbidden
@@ -1643,6 +1652,186 @@ ODESolver::Trajectory&
 LIMEX_A::getAdaptiveSolution()
 {
     return _solution;
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+std::string
+LIMEX_A::getErrorMessage(int rc)
+{
+    std::string message;
+
+    message.clear();
+
+    switch(rc)
+    {
+        case 0:
+            message = "Computation successful.";
+            break;
+
+        case -1:
+            message = "Max_Nr_of_Equations < n  or  n < 1.";
+            break;
+
+        case -2:
+            message = "rTol(i) <= 0 for some index i.";
+            break;
+
+        case -3:
+            message = "aTol(i) < 0 for some index i.";
+            break;
+
+        case -4:
+            message = "Iopt(1) < 0  or  Iopt(1) > 2.";
+            break;
+
+        case -5:
+            message = "Iopt(2) < 0  and  Iopt(1) > 0.";
+            break;
+
+        case -6:
+            message = "Iopt(3) < 0  or  Iopt(3) > 2.";
+            break;
+
+        case -7:
+            message = "Iopt(4) < 0  and  Iopt(3) > 0.";
+            break;
+
+        case -8:
+            message = "Iopt(5) < 0  or  Iopt(5) > 1.";
+            break;
+
+        case -9:
+            message = "Iopt(6) < 0  or  Iopt(6) > 1.";
+            break;
+
+        case -10:
+            message = "Iopt(7) < 0  or  Iopt(7) > 1.";
+            break;
+
+        case -11:
+            message = "Max_Lower_Diagonals < Iopt(8)  or  Iopt(8) < 0.";
+            break;
+
+        case -12:
+            message = "Max_Upper_Diagonals < Iopt(9)  or  Iopt(9) < 0.";
+            break;
+
+        case -13:
+            message = "Iopt(10) < 0  or  Iopt(10) > 1.";
+            break;
+
+        case -14:
+            message = "Iopt(11) < 0  or  Iopt(11) > 1.";
+            break;
+
+        case -15:
+            message = "Iopt(12) < 0  or  Iopt(12) > 1.";
+            break;
+
+        case -16:
+            message = "Iopt(13) < 0  or  Iopt(13) > 3.";
+            break;
+
+        case -17:
+            message = "Iopt(14) < 0  and  Iopt(13) = 1 or 2.";
+            break;
+
+        case -18:
+            message = "Iopt(15) < 0  and  Iopt(13) > 0.";
+            break;
+
+        case -19:
+            message = "Iopt(16) < 0  or  Iopt(16) > 1.";
+            break;
+
+        case -20:
+            message = "Iopt(17) < 0  or  Iopt(17) > 1.";
+            break;
+
+        case -21:
+            message = "Iopt(18) < -1.";
+            break;
+
+        case -27:
+            message = "Ropt(1) < 0.";
+            break;
+
+        case -28:
+            message = "Ropt(2) <= 0  and  Iopt(13) = 3.";
+            break;
+
+        case -32:
+            message = "An initial value of y is less than zero.  "
+                      "By the setting of IPos, it should be => 0.";
+            break;
+
+        case -33:
+            message = "The routine Fcn returns with an error ( FcnInfo < 0 ).  "
+                      "More precisely, in the first call of Fcn in the current integration interval.";
+            break;
+
+        case -34:
+            message = "More than Max_Non_Zeros_B non-zero entries in matrix B(t,y) defined.";
+            break;
+
+        case -35:
+            message = "The routine Fcn returns with an error (FcnInfo < 0).  "
+                      "More precisely, in the numerical evaluation of the Jacobian.";
+            break;
+
+        case -36:
+            message = "The routine Jacobian returns with an error (JacInfo < 0).";
+            break;
+
+        case -39:
+            message = "Internal error in the LAPACK routines dgetrf or dgbtrf.  "
+                      "See IFail(2) and the LAPACK User's Guide.";
+            break;
+
+        case -43:
+            message = "Problem not solvable with this LIMEX version.  "
+                      "Most probable reason:  index of the DAE > 1.";
+            break;
+
+        case -44:
+            message = "Problem not solvable with this LIMEX version.  "
+                      "Most probable reason:  initial values not consistent or index of the DAE > 1.";
+            break;
+
+        case -45:
+            message = "A value of the solution vector y within the CIV computation is negative.  "
+                      "It should be by => 0 by the settings of IPos.";
+            break;
+
+        case -46:
+            message = "More stepsize reductions than allowed due to failing convergence in the extrapolation.  "
+                      "This is controlled by the parameter Max_Step_Red_Ex.";
+            break;
+
+        case -47:
+            message = "Singular matrix pencil B - hA ;  problem not solvable with LIMEX.";
+            break;
+
+        case -48:
+            message = "More integration steps than allowed.  "
+                      "This is controlled by the parameter Max_Int_Steps.";
+            break;
+
+        case -49:
+            message = "More internal Newton steps for the computation of consistent initial values than allowed.  "
+                      "This is controlled by the parameter Max_Step_CIV.";
+            break;
+
+        case -50:
+            message = "Stepsize too small, in most cases due to too many stepsize reductions.";
+            break;
+
+        default:
+            message = "Unknown rc number.";
+            break;
+    }
+
+    return message;
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -1703,7 +1892,7 @@ LIMEX_A::setODESystem(
     _jac = jac;
     _t0  = t0;
     _T   = tEnd;
-    _h   = _rtol; // 1.0e-06; // 0.0;
+    _h   = _inistep;  // _rtol; // 1.0e-06; // 0.0;
 
     _datPoints = refGrid;
     std::sort( _datPoints.begin(), _datPoints.end() );
@@ -1757,6 +1946,12 @@ LIMEX_A::setODESystem(
 // std::cerr << std::endl;
 
     _iOpt[0] = _debugflag;
+
+    //
+
+    _rOpt[0] = _maxstep;
+
+    //
 
     return;
 }
