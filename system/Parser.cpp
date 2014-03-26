@@ -348,7 +348,7 @@ Parser::operator[] (Parser::size_type pos) const
 Expression
 Parser::buildExpression(std::vector<Token>& rpn)
 {
-    Expression arg1, arg2;
+    Expression arg1, arg2, arg3;
 
     if ( !rpn.empty() )
     {
@@ -524,6 +524,26 @@ Parser::buildExpression(std::vector<Token>& rpn)
                     rpn.pop_back();
                     arg1 = buildExpression( rpn );
                     return Expression(PARKIN::POWER, arg1, arg2);
+                }
+                else if ( fun == "hplus" || fun == "hillp" )
+                {
+                    rpn.pop_back();
+                    arg3 = buildExpression( rpn );
+                    rpn.pop_back();
+                    arg2 = buildExpression( rpn );
+                    rpn.pop_back();
+                    arg1 = buildExpression( rpn );
+                    return Expression(PARKIN::HILLplus, arg1, arg2, arg3);
+                }
+                else if ( fun == "hminus" || fun == "hillm" )
+                {
+                    rpn.pop_back();
+                    arg3 = buildExpression( rpn );
+                    rpn.pop_back();
+                    arg2 = buildExpression( rpn );
+                    rpn.pop_back();
+                    arg1 = buildExpression( rpn );
+                    return Expression(PARKIN::HILLminus, arg1, arg2, arg3);
                 }
                 else
                 {
