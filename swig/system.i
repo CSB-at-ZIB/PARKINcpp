@@ -12,6 +12,7 @@
 #include <common/Types.h>
 #include <system/Expression.h>
 #include <system/BioRHS.h>
+#include <system/BioMedication.h>
 #include <system/BioSystem.h>
 #include <system/BioPAR.h>
 #include <system/BioProcessor.h>
@@ -45,12 +46,14 @@
 //%ignore PARKIN::Expression::Param;
 %ignore PARKIN::Expression::operator=;
 %ignore PARKIN::BioRHS::operator=;
+%ignore PARKIN::BioMedication::operator=;
 %ignore PARKIN::operator<<;
 
 
 %include "common/Types.h"
 %include "system/Expression.h"
 %include "system/BioRHS.h"
+%include "system/BioMedication.h"
 %include "system/BioSystem.h"
 %include "system/BioPAR.h"
 %include "system/BioProcessor.h"

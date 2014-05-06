@@ -531,11 +531,23 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
         {
             Vector v = _sensTraj->eval( tp(j) );
             Matrix mat;
-            long   n = m;
+            long   n = m+1;     // small(!!) remainder: first entry is reserved
+                                // (for the time variable...)
 
             mat.zeros(m,q);
 
-            if ( v.nr() == m*(q+1) )
+/*
+std::cerr << "\n";
+std::cerr << "*******************************************" << std::endl;
+std::cerr << "* BioProc::prepareDetailedSensitivities() *" << std::endl;
+std::cerr << "*******************************************" << std::endl;
+std::cerr << " jacgen  = " << jacgen << std::endl;
+std::cerr << " v.nr()  = " << v.nr() << std::endl;
+std::cerr << " m*(q+1) = " << m*(q+1) << std::endl;
+std::cerr << "*******************************************" << std::endl;
+*/
+
+            if ( v.nr() == (m+1)*(q+1) )
             {
                 for (long k = 1; k <= m; ++k)
                 {
