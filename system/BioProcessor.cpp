@@ -541,13 +541,17 @@ std::cerr << "\n";
 std::cerr << "*******************************************" << std::endl;
 std::cerr << "* BioProc::prepareDetailedSensitivities() *" << std::endl;
 std::cerr << "*******************************************" << std::endl;
-std::cerr << " jacgen  = " << jacgen << std::endl;
+std::cerr << " T       = " << T << std::endl;
 std::cerr << " v.nr()  = " << v.nr() << std::endl;
-std::cerr << " m*(q+1) = " << m*(q+1) << std::endl;
+std::cerr << " n*(q+1) = " << n*(q+1) << std::endl;
+std::cerr << " n       = " << n << std::endl;
+std::cerr << " m       = " << m << std::endl;
+std::cerr << " q       = " << q << std::endl;
+std::cerr << " v.t()   = " << v.t() << std::endl;
 std::cerr << "*******************************************" << std::endl;
 */
 
-            if ( v.nr() == (m+1)*(q+1) )
+            if ( v.nr() == n*(q+1) )
             {
                 for (long k = 1; k <= m; ++k)
                 {
@@ -557,7 +561,8 @@ std::cerr << "*******************************************" << std::endl;
                     {
                         Real s = pw(l);
 
-                        mat(k,l) = r * v(++n) * s;
+                        // mat(k,l) = r * v(++n) * s;
+                        mat(k,l) = r * v( n + (n*(l-1) + k+1) ) * s;
                     }
                 }
             }
