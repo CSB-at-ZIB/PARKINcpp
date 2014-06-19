@@ -363,6 +363,19 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    inline rectangle intersect (
+        const rectangle& a,
+        const rectangle& b
+    ) { return a.intersect(b); }
+
+// ----------------------------------------------------------------------------------------
+
+    inline unsigned long area (
+        const rectangle& a
+    ) { return a.area(); }
+
+// ----------------------------------------------------------------------------------------
+
     inline point center (
         const dlib::rectangle& rect
     )
@@ -587,6 +600,40 @@ namespace dlib
     )
     {
         return rectangle(x, y, x+rect.width()-1, y+rect.height()-1);
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    inline rectangle set_aspect_ratio (
+        const rectangle& rect,
+        double ratio
+    )
+    {
+        DLIB_ASSERT(ratio > 0,
+            "\t rectangle set_aspect_ratio()"
+            << "\n\t ratio: " << ratio 
+            );
+
+        // aspect ratio is w/h
+
+        // we need to find the rectangle that is nearest to rect in area but
+        // with an aspect ratio of ratio.
+
+        // w/h == ratio
+        // w*h == rect.area()
+
+        if (ratio >= 1)
+        {
+            const long h = static_cast<long>(std::sqrt(rect.area()/ratio) + 0.5);
+            const long w = static_cast<long>(h*ratio + 0.5);
+            return centered_rect(rect, w, h);
+        }
+        else
+        {
+            const long w = static_cast<long>(std::sqrt(rect.area()*ratio) + 0.5);
+            const long h = static_cast<long>(w/ratio + 0.5);
+            return centered_rect(rect, w, h);
+        }
     }
 
 // ----------------------------------------------------------------------------------------

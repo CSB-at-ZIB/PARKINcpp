@@ -40,6 +40,7 @@
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
@@ -51,7 +52,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="/bin/rm -f swig/parkin.cxx obj/SharedLib/swig/parkin.o" />
+					<Add before="/bin/rm -f swig/parkin.cpp obj/SharedLib/swig/parkin.o" />
 					<Add after="/bin/cp swig/parkin.py bin/SharedLib/swig/_parkin.so link2BioPARKIN/parkincpp/" />
 				</ExtraCommands>
 			</Target>
@@ -63,6 +64,7 @@
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLibDebug/swig ; /usr/bin/python -i testbioparkin_aux.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
@@ -71,7 +73,7 @@
 					<Add directory="/usr/lib/python2.7/config" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="/bin/rm -f swig/parkin.cxx obj/SharedLibDebug/swig/parkin.o" />
+					<Add before="/bin/rm -f swig/parkin.cpp obj/SharedLibDebug/swig/parkin.o" />
 					<Add after="/bin/cp swig/parkin.py bin/SharedLibDebug/swig/_parkin.so link2BioPARKIN/parkincpp/" />
 				</ExtraCommands>
 			</Target>
@@ -82,6 +84,7 @@
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O3" />
@@ -98,6 +101,7 @@
 				<Option compiler="gcc" />
 				<Option parameters='-sb -e &quot;export PYTHONPATH=../bin/SharedLib/swig ; /usr/bin/python -i testbioparkin_008.py&quot;' />
 				<Option host_application="xterm" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
@@ -115,6 +119,7 @@
 			<Add library="X11" />
 			<Add library="lapack" />
 			<Add library="blas" />
+			<Add library="gfortran" />
 		</Linker>
 		<Unit filename="addpkg/ExprEval35/defs.h">
 			<Option target="&lt;{~None~}&gt;" />
@@ -182,7 +187,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="addpkg/Ode/sum.h" />
-		<Unit filename="addpkg/dlib/all/source.cpp" />
+		<Unit filename="addpkg/dlib/all/source.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="addpkg/gnuplot_cpp/gnuplot_i.hpp" />
 		<Unit filename="addpkg/newmat11/bandmat.cpp">
 			<Option target="&lt;{~None~}&gt;" />

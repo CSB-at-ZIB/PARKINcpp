@@ -996,6 +996,8 @@ namespace dlib
         const static long NR = matrix_traits<matrix>::NR;
         const static long NC = matrix_traits<matrix>::NC;
         const static long cost = matrix_traits<matrix>::cost;
+        typedef T*          iterator;       
+        typedef const T*    const_iterator; 
 
         matrix () 
         {
@@ -1500,9 +1502,7 @@ namespace dlib
             const T a
         )
         {
-            const long size = data.nr()*data.nc();
-            for (long i = 0; i < size; ++i)
-                data(i) *= a;
+            *this = *this * a;
             return *this;
         }
 
@@ -1510,9 +1510,7 @@ namespace dlib
             const T a
         )
         {
-            const long size = data.nr()*data.nc();
-            for (long i = 0; i < size; ++i)
-                data(i) /= a;
+            *this = *this / a;
             return *this;
         }
 
@@ -1551,6 +1549,39 @@ namespace dlib
             const matrix_exp<U>& 
         ) const { return false; }
 
+
+        iterator begin() 
+        {
+            if (size() != 0)
+                return &data(0,0);
+            else
+                return 0;
+        }
+
+        iterator end()
+        {
+            if (size() != 0)
+                return &data(0,0)+size();
+            else
+                return 0;
+        }
+
+        const_iterator begin()  const
+        {
+            if (size() != 0)
+                return &data(0,0);
+            else
+                return 0;
+        }
+
+        const_iterator end() const
+        {
+            if (size() != 0)
+                return &data(0,0)+size();
+            else
+                return 0;
+        }
+
     private:
         struct literal_assign_helper
         {
@@ -1561,7 +1592,7 @@ namespace dlib
             */
 
             literal_assign_helper(const literal_assign_helper& item) : m(item.m), r(item.r), c(item.c), has_been_used(false) {}
-            literal_assign_helper(matrix* m_): m(m_), r(0), c(0),has_been_used(false) {next();}
+            explicit literal_assign_helper(matrix* m_): m(m_), r(0), c(0),has_been_used(false) {next();}
             ~literal_assign_helper()
             {
                 DLIB_CASSERT(!has_been_used || r == m->nr(),
@@ -1589,6 +1620,8 @@ namespace dlib
 
         private:
 
+            friend class matrix;
+
             void next (
             ) const
             {
@@ -1607,6 +1640,14 @@ namespace dlib
         };
 
     public:
+
+        matrix& operator = (
+            const literal_assign_helper& val
+        ) 
+        {  
+            *this = *val.m;
+            return *this;
+        }
 
         const literal_assign_helper operator = (
             const T& val
@@ -1663,8 +1704,12 @@ namespace dlib
     {
         try
         {
-            serialize(item.nr(),out);
-            serialize(item.nc(),out);
+            // The reason the serialization is a little funny is because we are trying to
+            // maintain backwards compatibility with an older serialization format used by
+            // dlib while also encoding things in a way that lets the array2d and matrix
+            // objects have compatible serialization formats.
+            serialize(-item.nr(),out);
+            serialize(-item.nc(),out);
             for (long r = 0; r < item.nr(); ++r)
             {
                 for (long c = 0; c < item.nc(); ++c)
@@ -1696,6 +1741,13 @@ namespace dlib
             long nr, nc;
             deserialize(nr,in); 
             deserialize(nc,in); 
+
+            // this is the newer serialization format
+            if (nr < 0 || nc < 0)
+            {
+                nr *= -1;
+                nc *= -1;
+            }
 
             if (NR != 0 && nr != NR)
                 throw serialization_error("Error while deserializing a dlib::matrix.  Invalid rows");
@@ -1753,6 +1805,67 @@ namespace dlib
         }
         out.width(old);
         return out;
+    }
+
+    /*
+    template <
+        typename T, 
+        long NR, 
+        long NC,
+        typename MM,
+        typename L
+        >
+    std::istream& operator>> (
+        std::istream& in,
+        matrix<T,NR,NC,MM,L>& m
+    );
+
+    This function is defined inside the matrix_read_from_istream.h file.
+    */
+
+// ----------------------------------------------------------------------------------------
+
+    class print_matrix_as_csv_helper 
+    {
+        /*!
+            This object is used to define an io manipulator for matrix expressions.
+            In particular, this code allows you to write statements like:
+                cout << csv << yourmatrix;
+            and have it print the matrix with commas separating each element.
+        !*/
+    public:
+        print_matrix_as_csv_helper (std::ostream& out_) : out(out_) {}
+
+        template <typename EXP>
+        std::ostream& operator<< (
+            const matrix_exp<EXP>& m
+        ) 
+        {
+            for (long r = 0; r < m.nr(); ++r)
+            {
+                for (long c = 0; c < m.nc(); ++c)
+                {
+                    if (c+1 == m.nc())
+                        out << m(r,c) << "\n";
+                    else
+                        out << m(r,c) << ", ";
+                }
+            }
+            return out;
+        }
+
+    private:
+        std::ostream& out;
+    };
+
+    class print_matrix_as_csv {};
+    const print_matrix_as_csv csv = print_matrix_as_csv();
+    inline print_matrix_as_csv_helper operator<< (
+        std::ostream& out,
+        const print_matrix_as_csv& 
+    )
+    {
+        return print_matrix_as_csv_helper(out);
     }
 
 // ----------------------------------------------------------------------------------------

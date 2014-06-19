@@ -3,7 +3,6 @@
 #ifndef DLIB_MATRIx_ASSIGn_
 #define DLIB_MATRIx_ASSIGn_
 
-#include "../geometry.h"
 #include "matrix.h"
 #include "matrix_utilities.h"
 #include "matrix_subexp.h"
@@ -11,6 +10,7 @@
 #include "matrix_assign_fwd.h"
 #include "matrix_default_mul.h"
 #include "matrix_conj_trans.h"
+#include "matrix_mat.h"
 
 namespace dlib
 {
@@ -65,7 +65,7 @@ namespace dlib
 
         template <typename T, bool Tb> 
         struct has_matrix_multiply<matrix_mul_scal_exp<T,Tb> >  
-        { const static bool value = has_matrix_multiply<T>::value; };
+        { const static bool value = true; };
 
         template <typename T> 
         struct has_matrix_multiply<matrix_div_scal_exp<T> >  
@@ -159,6 +159,29 @@ namespace dlib
         {
             const static int value = general_matrix;
         };
+
+        template < typename T, typename MM >
+        struct matrix_type_id<matrix_op<op_array2d_to_mat<array2d<T,MM> > > >
+        { const static int value = general_matrix; };
+
+        template < typename T, typename MM >
+        struct matrix_type_id<matrix_op<op_array_to_mat<array<T,MM> > > >
+        { const static int value = column_matrix; };
+
+        template < typename value_type, typename alloc >
+        struct matrix_type_id<matrix_op<op_std_vect_to_mat<std::vector<value_type,alloc> > > >
+        { const static int value = column_matrix; };
+
+        template < typename value_type, typename alloc >
+        struct matrix_type_id<matrix_op<op_std_vect_to_mat<std_vector_c<value_type,alloc> > > >
+        { const static int value = column_matrix; };
+
+        template < typename T >
+        struct matrix_type_id<matrix_op<op_pointer_to_col_vect<T> > >
+        { const static int value = column_matrix; };
+        template < typename T >
+        struct matrix_type_id<matrix_op<op_pointer_to_mat<T> > >
+        { const static int value = general_matrix; };
 
     // ------------------------------------------------------------------------------------
 
@@ -346,11 +369,6 @@ namespace dlib
             }
         };
 
-#ifdef __GNUC__
-#define DLIB_SHUT_UP_GCC_ABOUT_THIS_UNUSED_VARIABLE __attribute__ ((unused))
-#else
-#define DLIB_SHUT_UP_GCC_ABOUT_THIS_UNUSED_VARIABLE 
-#endif
         // This is a macro to help us add overloads for the matrix_assign_blas_helper template.  
         // Using this macro it is easy to add overloads for arbitrary matrix expressions.
 #define DLIB_ADD_BLAS_BINDING(src_expression)                                               \
@@ -365,9 +383,9 @@ namespace dlib
             const src_exp& src,                                                             \
             typename src_exp::type alpha,                                                   \
             bool add_to,                                                                    \
-            bool DLIB_SHUT_UP_GCC_ABOUT_THIS_UNUSED_VARIABLE transpose                      \
+            bool DLIB_NO_WARN_UNUSED transpose                      \
         ) {                                                                                 \
-            typedef typename dest_exp::type T;                                             
+            DLIB_NO_WARN_UNUSED typedef typename dest_exp::type T;                                             
 
 #define DLIB_END_BLAS_BINDING }};
 
@@ -645,6 +663,22 @@ namespace dlib
     // Once we get into this function it means that we are dealing with a matrix of float,
     // double, complex<float>, or complex<double> and the src_exp contains at least one
     // matrix multiply.
+
+        template <
+            typename T, long NR, long NC, typename MM, typename L,
+            long NR2, long NC2, bool Sb
+            >
+        void matrix_assign_blas (
+            matrix<T,NR,NC,MM,L>& dest,
+            const matrix_mul_scal_exp<matrix<T,NR2,NC2,MM,L>,Sb>& src
+        )
+        {
+            // It's ok that we don't check for aliasing in this case because there isn't
+            // any complex unrolling of successive + or - operators in this expression.
+            matrix_assign_blas_proxy(dest,src.m,src.s,false, false);
+        }
+            
+    // ------------------------------------------------------------------------------------
 
         template <
             typename T, long NR, long NC, typename MM, typename L,

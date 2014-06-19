@@ -36,9 +36,20 @@ namespace dlib
             name[19] = '\0';
         }
 
+        bool operator< (const log_level& rhs) const { return priority <  rhs.priority; }
+        bool operator<=(const log_level& rhs) const { return priority <= rhs.priority; }
+        bool operator> (const log_level& rhs) const { return priority >  rhs.priority; }
+        bool operator>=(const log_level& rhs) const { return priority >= rhs.priority; }
+
         int priority;
         char name[20];
     };
+
+    inline std::ostream& operator<< (std::ostream& out, const log_level& item)
+    {
+        out << item.name;
+        return out;
+    }
 
     const log_level LALL  (std::numeric_limits<int>::min(),"ALL");
     const log_level LNONE (std::numeric_limits<int>::max(),"NONE");
@@ -78,6 +89,16 @@ namespace dlib
                          const uint64 thread_id,
                          const char* message_to_log)
     );
+
+    template <
+        typename T
+        >
+    void set_all_logging_output_hooks (
+        T& object
+    )
+    {
+        set_all_logging_output_hooks(object, &T::log);
+    }
 
 // ----------------------------------------------------------------------------------------
 
@@ -203,7 +224,7 @@ namespace dlib
     public:
 
         typedef member_function_pointer<const std::string&, const log_level&, 
-                                        const uint64, const char*>::kernel_1a_c hook_mfp;
+                                        const uint64, const char*> hook_mfp;
 
         logger (  
             const char* name_
@@ -603,7 +624,7 @@ namespace dlib
             // following line of code.  However, there is also a bug in gcc-3.3 
             // that causes it to error out if <T> is present.  So this works around
             // this problem.
-#if _MSC_VER == 1400
+#if defined(_MSC_VER) && _MSC_VER == 1400
             hook.set<T>(object, hook_);
 #else
             hook.set(object, hook_);

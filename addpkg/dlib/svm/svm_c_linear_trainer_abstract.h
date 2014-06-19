@@ -52,6 +52,9 @@ namespace dlib
                 - #get_epsilon() == 0.001
                 - this object will not be verbose unless be_verbose() is called
                 - #get_max_iterations() == 10000
+                - #learns_nonnegative_weights() == false
+                - #force_last_weight_to_1() == false
+                - #has_prior() == false
         !*/
 
         explicit svm_c_linear_trainer (
@@ -69,6 +72,9 @@ namespace dlib
                 - #get_epsilon() == 0.001
                 - this object will not be verbose unless be_verbose() is called
                 - #get_max_iterations() == 10000
+                - #learns_nonnegative_weights() == false
+                - #force_last_weight_to_1() == false
+                - #has_prior() == false
         !*/
 
         void set_epsilon (
@@ -86,8 +92,10 @@ namespace dlib
         /*!
             ensures
                 - returns the error epsilon that determines when training should stop.
-                  Smaller values may result in a more accurate solution but take longer 
-                  to execute.
+                  Smaller values may result in a more accurate solution but take longer to
+                  train.  You can think of this epsilon value as saying "solve the
+                  optimization problem until the probability of misclassification is within
+                  epsilon of its optimal value".  
         !*/
 
         void set_max_iterations (
@@ -143,6 +151,81 @@ namespace dlib
                 - returns a copy of the kernel function in use by this object.  Since
                   the linear kernels don't have any parameters this function just
                   returns kernel_type()
+        !*/
+
+        bool learns_nonnegative_weights (
+        ) const;
+        /*!
+            ensures
+                - The output of training is a weight vector and a bias value.  These
+                  two things define the resulting decision function.  That is, the
+                  decision function simply takes the dot product between the learned
+                  weight vector and a test sample, then subtracts the bias value.  
+                  Therefore, if learns_nonnegative_weights() == true then the resulting
+                  learned weight vector will always have non-negative entries.  The
+                  bias value may still be negative though.
+        !*/
+       
+        void set_learns_nonnegative_weights (
+            bool value
+        );
+        /*!
+            ensures
+                - #learns_nonnegative_weights() == value
+                - if (value == true) then
+                    - #has_prior() == false
+        !*/
+
+        void set_prior (
+            const trained_function_type& prior
+        );
+        /*!
+            requires
+                - prior == a function produced by a call to this class's train() function.  
+                  Therefore, it must be the case that:
+                    - prior.basis_vectors.size() == 1
+                    - prior.alpha(0) == 1
+            ensures
+                - Subsequent calls to train() will try to learn a function similar to the
+                  given prior.
+                - #has_prior() == true
+                - #learns_nonnegative_weights() == false
+                - #forces_last_weight_to_1() == false
+        !*/
+
+        bool has_prior (
+        ) const
+        /*!
+            ensures
+                - returns true if a prior has been set and false otherwise.  Having a prior
+                  set means that you have called set_prior() and supplied a previously
+                  trained function as a reference.  In this case, any call to train() will
+                  try to learn a function that matches the behavior of the prior as close
+                  as possible but also fits the supplied training data.  In more technical
+                  detail, having a prior means we replace the ||w||^2 regularizer with one
+                  of the form ||w-prior||^2 where w is the set of parameters for a learned
+                  function.
+        !*/
+
+        bool forces_last_weight_to_1 (
+        ) const;
+        /*!
+            ensures
+                - returns true if this trainer has the constraint that the last weight in
+                  the learned parameter vector must be 1.  This is the weight corresponding
+                  to the feature in the training vectors with the highest dimension.  
+                - Forcing the last weight to 1 also disables the bias and therefore the b
+                  field of the learned decision_function will be 0 when forces_last_weight_to_1() == true.
+        !*/
+
+        void force_last_weight_to_1 (
+            bool should_last_weight_be_1
+        );
+        /*!
+            ensures
+                - #forces_last_weight_to_1() == should_last_weight_be_1
+                - if (should_last_weight_be_1 == true) then
+                    - #has_prior() == false
         !*/
 
         void set_c (
@@ -210,11 +293,16 @@ namespace dlib
         ) const;
         /*!
             requires
-                - is_binary_classification_problem(x,y) == true
-                - x == a matrix or something convertible to a matrix via vector_to_matrix().
+                - is_learning_problem(x,y) == true
+                  (Note that it is ok for x.size() == 1)
+                - All elements of y must be equal to +1 or -1
+                - x == a matrix or something convertible to a matrix via mat().
                   Also, x should contain sample_type objects.
-                - y == a matrix or something convertible to a matrix via vector_to_matrix().
+                - y == a matrix or something convertible to a matrix via mat().
                   Also, y should contain scalar_type objects.
+                - if (has_prior()) then
+                    - The vectors in x must have the same dimensionality as the vectors
+                      used to train the prior given to set_prior().  
             ensures
                 - trains a C support vector classifier given the training samples in x and 
                   labels in y.  
@@ -239,11 +327,16 @@ namespace dlib
         ) const;
         /*!
             requires
-                - is_binary_classification_problem(x,y) == true
-                - x == a matrix or something convertible to a matrix via vector_to_matrix().
+                - is_learning_problem(x,y) == true
+                  (Note that it is ok for x.size() == 1)
+                - All elements of y must be equal to +1 or -1
+                - x == a matrix or something convertible to a matrix via mat().
                   Also, x should contain sample_type objects.
-                - y == a matrix or something convertible to a matrix via vector_to_matrix().
+                - y == a matrix or something convertible to a matrix via mat().
                   Also, y should contain scalar_type objects.
+                - if (has_prior()) then
+                    - The vectors in x must have the same dimensionality as the vectors
+                      used to train the prior given to set_prior().  
             ensures
                 - trains a C support vector classifier given the training samples in x and 
                   labels in y.  

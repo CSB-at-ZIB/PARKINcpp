@@ -80,6 +80,15 @@ namespace
                 DLIB_TEST(last >= eig(i));
             }
 
+            {
+                matrix<double> mat = dpca.dpca_matrix_of_size(4);
+                DLIB_TEST(equal(mat*trans(mat), identity_matrix<double>(4)));
+            }
+            {
+                matrix<double> mat = dpca.dpca_matrix_of_size(3);
+                DLIB_TEST(equal(mat*trans(mat), identity_matrix<double>(3)));
+            }
+
 
             dpca.set_within_class_weight(5);
             dpca.set_between_class_weight(6);
@@ -243,7 +252,7 @@ namespace
 
             matrix<double> mat, mat2;
 
-            sum_dpca = dpca_type() + dpca_type() + add_dpca1 + dpca_type() + add_dpca2 + add_dpca3 + add_dpca4;
+            sum_dpca += dpca_type() + dpca_type() + add_dpca1 + dpca_type() + add_dpca2 + add_dpca3 + add_dpca4;
             dpca.set_within_class_weight(0);
             dpca.set_between_class_weight(0);
             sum_dpca.set_within_class_weight(0);

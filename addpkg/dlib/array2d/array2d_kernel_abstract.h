@@ -52,10 +52,9 @@ namespace dlib
                 of this object throw exceptions.
 
 
-                Finally, note that this object stores each row of data contiguously 
-                in memory, and the overall layout is in row major order.  However,
-                there might be padding at the end of each row.  To determine the
-                offset from one row to another you can use width_step(). 
+                Finally, note that this object stores its data contiguously and in 
+                row major order.  Moreover, there is no padding at the end of each row.
+                This means that its width_step() value is always equal to sizeof(type)*nc().  
         !*/
 
 
@@ -109,7 +108,6 @@ namespace dlib
         private:
             // restricted functions
             row();
-            row(row&);
             row& operator=(row&);
         };
 
@@ -192,7 +190,7 @@ namespace dlib
                     value for its type.
         !*/
 
-        row& operator[] (
+        row operator[] (
             long row_index
         );
         /*!
@@ -203,7 +201,7 @@ namespace dlib
                   given row_index'th row in *this.
         !*/
 
-        const row& operator[] (
+        const row operator[] (
             long row_index
         ) const;
         /*!
@@ -229,6 +227,12 @@ namespace dlib
                 - returns the size of one row of the image, in bytes.  
                   More precisely, return a number N such that:
                   (char*)&item[0][0] + N == (char*)&item[1][0].
+                - for dlib::array2d objects, the returned value
+                  is always equal to sizeof(type)*nc().  However,
+                  other objects which implement dlib::array2d style
+                  interfaces might have padding at the ends of their
+                  rows and therefore might return larger numbers.
+                  An example of such an object is the dlib::cv_image.
         !*/
 
     private:
@@ -260,7 +264,9 @@ namespace dlib
         std::ostream& out 
     );   
     /*!
-        provides serialization support 
+        Provides serialization support.  Note that the serialization formats used by the
+        dlib::matrix and dlib::array2d objects are compatible.  That means you can load the
+        serialized data from one into another and it will work properly.
     !*/
 
     template <

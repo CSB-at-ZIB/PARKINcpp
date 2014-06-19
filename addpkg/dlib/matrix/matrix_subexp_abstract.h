@@ -4,7 +4,7 @@
 #ifdef DLIB_MATRIx_SUBEXP_ABSTRACT_
 
 #include "matrix_abstract.h"
-#include "../geometry.h"
+#include "../geometry/rectangle.h"
 
 namespace dlib
 {
@@ -65,7 +65,7 @@ namespace dlib
     );
     /*!
         requires
-            - rows and cols contain elements of type long
+            - rows and cols contain integral elements (e.g. int, long)
             - 0 <= min(rows) && max(rows) < m.nr() 
             - 0 <= min(cols) && max(cols) < m.nc()
             - rows.nr() == 1 || rows.nc() == 1
@@ -197,7 +197,7 @@ namespace dlib
     );
     /*!
         requires
-            - rows contains elements of type long
+            - rows contains integral elements (e.g. int, long)
             - 0 <= min(rows) && max(rows) < m.nr() 
             - rows.nr() == 1 || rows.nc() == 1
               (i.e. rows must be a vector)
@@ -284,7 +284,7 @@ namespace dlib
     );
     /*!
         requires
-            - cols contains elements of type long
+            - cols contains integral elements (e.g. int, long)
             - 0 <= min(cols) && max(cols) < m.nc() 
             - cols.nr() == 1 || cols.nc() == 1
               (i.e. cols must be a vector)
@@ -324,6 +324,10 @@ namespace dlib
                 - set_subm(m,row,col,nr,nc) = scalar_value;
               result in it being the case that:
                 - subm(m,row,col,nr,nc) == uniform_matrix<matrix::type>(nr,nc,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -346,6 +350,10 @@ namespace dlib
                 - set_subm(m,rect) = scalar_value;
               result in it being the case that:
                 - subm(m,rect) == uniform_matrix<matrix::type>(nr,nc,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -357,7 +365,7 @@ namespace dlib
     );
     /*!
         requires
-            - rows and cols contain elements of type long
+            - rows and cols contain integral elements (e.g. int, long)
             - 0 <= min(rows) && max(rows) < m.nr() 
             - 0 <= min(cols) && max(cols) < m.nc()
             - rows.nr() == 1 || rows.nc() == 1
@@ -373,6 +381,10 @@ namespace dlib
                 - set_subm(m,rows,cols) = scalar_value;
               result in it being the case that:
                 - subm(m,rows,cols) == uniform_matrix<matrix::type>(nr,nc,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -394,6 +406,10 @@ namespace dlib
                 - set_rowm(m,row) = scalar_value;
               result in it being the case that:
                 - rowm(m,row) == uniform_matrix<matrix::type>(1,nc,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -404,7 +420,7 @@ namespace dlib
     );
     /*!
         requires
-            - rows contains elements of type long
+            - rows contains integral elements (e.g. int, long)
             - 0 <= min(rows) && max(rows) < m.nr() 
             - rows.nr() == 1 || rows.nc() == 1
               (i.e. rows must be a vector)
@@ -418,6 +434,10 @@ namespace dlib
                 - set_rowm(m,rows) = scalar_value;
               result in it being the case that:
                 - rowm(m,rows) == uniform_matrix<matrix::type>(nr,nc,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -439,6 +459,10 @@ namespace dlib
                 - set_colm(m,col) = scalar_value;
               result in it being the case that:
                 - colm(m,col) == uniform_matrix<matrix::type>(nr,1,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------
@@ -449,7 +473,7 @@ namespace dlib
     );
     /*!
         requires
-            - cols contains elements of type long
+            - cols contains integral elements (e.g. int, long)
             - 0 <= min(cols) && max(cols) < m.nc() 
             - cols.nr() == 1 || cols.nc() == 1
               (i.e. cols must be a vector)
@@ -463,6 +487,10 @@ namespace dlib
                 - set_colm(m,cols) = scalar_value;
               result in it being the case that:
                 - colm(m,cols) == uniform_matrix<matrix::type>(nr,nc,scalar_value).
+
+            - In addition to the normal assignment statements using the = symbol, you may
+              also use the usual += and -= versions of the assignment operator.  In these
+              cases, they have their usual effect.
     !*/
 
 // ----------------------------------------------------------------------------------------

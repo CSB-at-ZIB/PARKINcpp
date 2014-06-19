@@ -29,14 +29,14 @@ namespace
 
     struct feature_extractor_dense
     {
-        typedef matrix<double,4,1> feature_vector_type;
+        typedef matrix<double,3,1> feature_vector_type;
 
         typedef ::lhs_element lhs_element;
         typedef ::rhs_element rhs_element;
 
         unsigned long num_features() const
         {
-            return 4;
+            return 3;
         }
 
         void get_features (
@@ -45,7 +45,7 @@ namespace
             feature_vector_type& feats
         ) const
         {
-            feats = join_cols(squared(left - right), ones_matrix<double>(1,1));
+            feats = squared(left - right);
         }
 
     };
@@ -64,7 +64,7 @@ namespace
 
         unsigned long num_features() const
         {
-            return 4;
+            return 3;
         }
 
         void get_features (
@@ -77,7 +77,6 @@ namespace
             feats.push_back(make_pair(0,squared(left-right)(0)));
             feats.push_back(make_pair(1,squared(left-right)(1)));
             feats.push_back(make_pair(2,squared(left-right)(2)));
-            feats.push_back(make_pair(3,1.0));
         }
 
     };
@@ -299,7 +298,7 @@ namespace
         DLIB_TEST(trainer.forces_assignment() == false);
         DLIB_TEST(trainer.get_c() == 100);
         DLIB_TEST(trainer.get_num_threads() == 2);
-        DLIB_TEST(trainer.get_max_cache_size() == 40);
+        DLIB_TEST(trainer.get_max_cache_size() == 5);
 
 
         trainer.set_forces_assignment(force_assignment);
@@ -315,9 +314,9 @@ namespace
         for (unsigned long i = 0; i < samples.size(); ++i)
         {
             std::vector<long> out = ass(samples[i]);
-            dlog << LINFO << "true labels: " << trans(vector_to_matrix(labels[i]));
-            dlog << LINFO << "pred labels: " << trans(vector_to_matrix(out));
-            DLIB_TEST(trans(vector_to_matrix(labels[i])) == trans(vector_to_matrix(out)));
+            dlog << LINFO << "true labels: " << trans(mat(labels[i]));
+            dlog << LINFO << "pred labels: " << trans(mat(out));
+            DLIB_TEST(trans(mat(labels[i])) == trans(mat(out)));
         }
 
         double accuracy;
@@ -343,9 +342,9 @@ namespace
         for (unsigned long i = 0; i < samples.size(); ++i)
         {
             std::vector<long> out = ass2(samples[i]);
-            dlog << LINFO << "true labels: " << trans(vector_to_matrix(labels[i]));
-            dlog << LINFO << "pred labels: " << trans(vector_to_matrix(out));
-            DLIB_TEST(trans(vector_to_matrix(labels[i])) == trans(vector_to_matrix(out)));
+            dlog << LINFO << "true labels: " << trans(mat(labels[i]));
+            dlog << LINFO << "pred labels: " << trans(mat(out));
+            DLIB_TEST(trans(mat(labels[i])) == trans(mat(out)));
         }
     }
 

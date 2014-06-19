@@ -479,6 +479,46 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    inline rectangle set_aspect_ratio (
+        const rectangle& rect,
+        double ratio
+    );
+    /*!
+        requires
+            - ratio > 0
+        ensures
+            - This function reshapes the given rectangle so that it has the given aspect
+              ratio.  In particular, this means we return a rectangle R such that the
+              following equations are as true as possible:
+                - R.width()/R.height() == ratio
+                - R.area() == rect.area()
+                - center(rect) == center(R)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
+    inline rectangle intersect (
+        const rectangle& a,
+        const rectangle& b
+    );
+    /*!
+        ensures
+            - returns a.intersect(b)
+              (i.e. returns a rectangle representing the intersection of a and b)
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
+    inline unsigned long area (
+        const rectangle& a
+    );
+    /*!
+        ensures
+            - returns a.area()
+    !*/
+
+// ----------------------------------------------------------------------------------------
+
     inline const rectangle shrink_rect (
         const rectangle& rect,
         long num 

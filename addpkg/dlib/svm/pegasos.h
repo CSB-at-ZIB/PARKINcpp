@@ -525,9 +525,9 @@ namespace dlib
         ) const
         {
             if (use_cache)
-                return do_train_cached(vector_to_matrix(x), vector_to_matrix(y));
+                return do_train_cached(mat(x), mat(y));
             else
-                return do_train(vector_to_matrix(x), vector_to_matrix(y));
+                return do_train(mat(x), mat(y));
         }
 
     private:
@@ -541,8 +541,6 @@ namespace dlib
             const in_scalar_vector_type& y
         ) const
         {
-            typedef typename decision_function<kernel_type>::sample_vector_type sample_vector_type;
-            typedef typename decision_function<kernel_type>::scalar_vector_type scalar_vector_type;
 
             dlib::rand rnd;
 
@@ -591,8 +589,6 @@ namespace dlib
             const in_scalar_vector_type& y
         ) const
         {
-            typedef typename decision_function<kernel_type>::sample_vector_type sample_vector_type;
-            typedef typename decision_function<kernel_type>::scalar_vector_type scalar_vector_type;
 
             dlib::rand rnd;
 

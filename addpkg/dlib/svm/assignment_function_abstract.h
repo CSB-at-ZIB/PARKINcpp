@@ -29,17 +29,17 @@ namespace dlib
                 case it is excluded from the sum.    
 
                 Finally, match_score() is defined as: 
-                    match_score(l,r) == dot(w, PSI(l,r))
-                where l is an element of LHS, r is an element of RHS, and
-                w is a parameter vector.
+                    match_score(l,r) == dot(w, PSI(l,r)) + bias
+                where l is an element of LHS, r is an element of RHS, w is a parameter
+                vector and bias is a scalar valued parameter.
 
                 Therefore, a feature extractor defines how the PSI() feature vector 
                 is calculated.  In particular, PSI() is defined by the get_features()
                 method of this class.
 
             THREAD SAFETY
-                Instances of this object should be thread safe, that is, it should 
-                be safe for multiple threads to make concurrent calls to the member 
+                Instances of this object are required to be threadsafe, that is, it should
+                be safe for multiple threads to make concurrent calls to the member
                 functions of this object.
 
         !*/
@@ -73,6 +73,23 @@ namespace dlib
                   (i.e. This function computes a feature vector which, in some sense, 
                   captures information useful for deciding if matching left to right 
                   is "good").
+        !*/
+
+        unsigned long num_nonnegative_weights (
+        ) const;
+        /*!
+            ensures
+                - returns the number of elements of the w parameter vector which should be
+                  non-negative.  That is, this feature extractor is intended to be used
+                  with w vectors where the first num_nonnegative_weights() elements of w
+                  are >= 0.  That is, it should be the case that w(i) >= 0 for all i <
+                  num_nonnegative_weights().
+                - Note that num_nonnegative_weights() is just an optional method to allow
+                  you to tell a tool like the structural_assignment_trainer that the
+                  learned w should have a certain number of non-negative elements.
+                  Therefore, if you do not provide a num_nonnegative_weights() method in
+                  your feature extractor then it will default to a value of 0, indicating
+                  that all elements of the w parameter vector may be any value.
         !*/
 
     };
@@ -123,9 +140,19 @@ namespace dlib
                 case it is excluded from the sum.    
 
                 Finally, this object supports match_score() functions of the form: 
-                    match_score(l,r) == dot(w, PSI(l,r))
-                where l is an element of LHS, r is an element of RHS, w is a parameter 
-                vector, and PSI() is defined by the feature_extractor template argument.  
+                    match_score(l,r) == dot(w, PSI(l,r)) + bias
+                where l is an element of LHS, r is an element of RHS, w is a parameter
+                vector, bias is a scalar valued parameter, and PSI() is defined by the
+                feature_extractor template argument.  
+
+            THREAD SAFETY
+                It is always safe to use distinct instances of this object in different
+                threads.  However, when a single instance is shared between threads then
+                the following rules apply:
+                    It is safe to call the const members of this object from multiple
+                    threads so long as the feature_extractor is also threadsafe.  This is
+                    because the const members are purely read-only operations.  However,
+                    any operation that modifies an assignment_function is not threadsafe.
         !*/
 
     public:
@@ -144,11 +171,13 @@ namespace dlib
                   (i.e. it will have its default value)
                 - #get_weights().size() == #get_feature_extractor().num_features()
                 - #get_weights() == 0
+                - #get_bias() == 0
                 - #forces_assignment() == false 
         !*/
 
         explicit assignment_function(
-            const matrix<double,0,1>& weights
+            const matrix<double,0,1>& weights,
+            double bias
         );
         /*!
             requires
@@ -157,11 +186,13 @@ namespace dlib
                 - #get_feature_extractor() == feature_extractor() 
                   (i.e. it will have its default value)
                 - #get_weights() == weights
+                - #get_bias() == bias
                 - #forces_assignment() == false 
         !*/
 
         assignment_function(
             const matrix<double,0,1>& weights,
+            double bias,
             const feature_extractor& fe
         );
         /*!
@@ -170,11 +201,13 @@ namespace dlib
             ensures
                 - #get_feature_extractor() == fe
                 - #get_weights() == weights
+                - #get_bias() == bias
                 - #forces_assignment() == false 
         !*/
 
         assignment_function(
             const matrix<double,0,1>& weights,
+            double bias,
             const feature_extractor& fe,
             bool force_assignment
         );
@@ -184,6 +217,7 @@ namespace dlib
             ensures
                 - #get_feature_extractor() == fe
                 - #get_weights() == weights
+                - #get_bias() == bias
                 - #forces_assignment() == force_assignment
         !*/
 
@@ -200,6 +234,13 @@ namespace dlib
             ensures
                 - returns the parameter vector (w) associated with this assignment function. 
                   The length of the vector is get_feature_extractor().num_features().  
+        !*/
+
+        double get_bias (
+        ) const;
+        /*!
+            ensures
+                - returns the bias parameter associated with this assignment function.
         !*/
 
         bool forces_assignment (

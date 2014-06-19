@@ -15,7 +15,7 @@ c-----------------------------------------------------------------------
 c
 c     Define size of problem via the include file
 c
-c        'LIMEX4_3_Size_Definitions.h'. 
+c        'LIMEX4_3_Size_Definitions.h'.
 c
 c     See the installation notes for a detailed description.
 c
@@ -40,7 +40,7 @@ c
       double precision   Dense ( Max_Nr_of_Equations, 30 )
 c
       double precision   Work ( Max_Nr_of_Equations , Max_Row_Tab + 1 )
-c      
+c
 c-----------------------------------------------------------------------
 c
 c     Define stepsize sequence and ipt pointers
@@ -64,13 +64,13 @@ c
          call Comp_Herm ( n, Max_Nr_of_Equations, Dense, k, ipt, nj,
      2                    Work )
 c
-         call Eval_Herm ( n, Max_Nr_of_Equations, Dense, k, 
+         call Eval_Herm ( n, Max_Nr_of_Equations, Dense, k,
      2                    ( tEval - t1 ) / ( t2 - t1 ), yEval )
 c
       else
 c
          write ( *, '(a,f12.5,a,2f12.5)' )
-     2      ' Evalution point ', tEval, 
+     2      ' Evalution point ', tEval,
      3      ' in HERMINE outside of current interval ', t1, t2
 c
       end if

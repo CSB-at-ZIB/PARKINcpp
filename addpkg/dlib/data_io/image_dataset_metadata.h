@@ -27,28 +27,44 @@ namespace dlib
                     The main variable of interest is rect.  It gives the location of 
                     the box.  All the other variables are optional.
             !*/
+
             box(
             ) : 
-                head(-0xFFFF,-0xFFFF), 
                 difficult(false),
                 truncated(false),
-                occluded(false)
+                occluded(false),
+                ignore(false),
+                angle(0)
+            {}
+
+            box (
+                const rectangle& rect_
+            ) : 
+                rect(rect_), 
+                difficult(false),
+                truncated(false),
+                occluded(false),
+                ignore(false),
+                angle(0)
             {}
 
             rectangle rect;
 
+            std::map<std::string,point> parts;
+
             // optional fields
             std::string label;
-            point head; // a value of (-0xFFFF,-0xFFFF) indicates the field not supplied
             bool difficult;
             bool truncated;
             bool occluded;
+            bool ignore;
 
-            bool has_head() const { return head != point(-0xFFFF,-0xFFFF); }
-            /*!
-                ensures
-                    - returns true if head metadata is present and false otherwise.
-            !*/
+            // The angle of the object in radians.  Positive values indicate that the
+            // object at the center of the box is rotated clockwise by angle radians.  A
+            // value of 0 would indicate that the object is in its "standard" upright pose.
+            // Therefore, to make the object appear upright we would have to rotate the
+            // image counter-clockwise by angle radians.
+            double angle; 
 
             bool has_label() const { return label.size() != 0; }
             /*!

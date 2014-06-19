@@ -15,7 +15,7 @@
 
 
 const long PARKINCPP_VERSION = 2010900; // <=> 02 01 09 00
-const char PARKINCPP_DOTTED_VERSION[] = "2.1.9 ("  __DATE__ " " __TIME__ ")\0";
+const char PARKINCPP_DOTTED_VERSION[] = "2.1.9 (" __DATE__ " " __TIME__ ")\0";
 
 
 // pi ~ 3.1415926535 8979323846 2643383279 5028841971 7

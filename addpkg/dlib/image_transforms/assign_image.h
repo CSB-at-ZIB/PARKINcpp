@@ -75,7 +75,7 @@ namespace dlib
         if (is_same_object(dest,src))
             return;
 
-        impl_assign_image(dest, array_to_matrix(src));
+        impl_assign_image(dest, mat(src));
     }
 
 // ----------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ namespace dlib
         if (is_same_object(dest,src))
             return;
 
-        impl_assign_image_scaled(dest, array_to_matrix(src),thresh);
+        impl_assign_image_scaled(dest, mat(src),thresh);
     }
 
 // ----------------------------------------------------------------------------------------
@@ -272,6 +272,39 @@ namespace dlib
         typename image_type::type zero_pixel;
         assign_pixel_intensity(zero_pixel, 0);
         assign_border_pixels(img, x_border_size, y_border_size, zero_pixel);
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename image_type
+        >
+    void zero_border_pixels (
+        image_type& img,
+        rectangle inside
+    )
+    {
+        inside = inside.intersect(get_rect(img));
+        if (inside.is_empty())
+            return;
+
+        for (long r = 0; r < inside.top(); ++r)
+        {
+            for (long c = 0; c < img.nc(); ++c)
+                assign_pixel(img[r][c], 0);
+        }
+        for (long r = inside.top(); r <= inside.bottom(); ++r)
+        {
+            for (long c = 0; c < inside.left(); ++c)
+                assign_pixel(img[r][c], 0);
+            for (long c = inside.right()+1; c < img.nc(); ++c)
+                assign_pixel(img[r][c], 0);
+        }
+        for (long r = inside.bottom()+1; r < img.nr(); ++r)
+        {
+            for (long c = 0; c < img.nc(); ++c)
+                assign_pixel(img[r][c], 0);
+        }
     }
 
 // ----------------------------------------------------------------------------------------

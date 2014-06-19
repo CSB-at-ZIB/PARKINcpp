@@ -699,8 +699,8 @@ namespace dlib
             HSL c2;
             using namespace std;
 
-            themin = min(c1.r,min(c1.g,c1.b));
-            themax = max(c1.r,max(c1.g,c1.b));
+            themin = std::min(c1.r,std::min(c1.g,c1.b));
+            themax = std::max(c1.r,std::max(c1.g,c1.b));
             delta = themax - themin;
             c2.l = (themin + themax) / 2;
             c2.s = 0;
@@ -743,9 +743,9 @@ namespace dlib
                 sat.g = 0;
                 sat.b = (360 - c1.h) / 60.0;
             }
-            sat.r = min(sat.r,1.0);
-            sat.g = min(sat.g,1.0);
-            sat.b = min(sat.b,1.0);
+            sat.r = std::min(sat.r,1.0);
+            sat.g = std::min(sat.g,1.0);
+            sat.b = std::min(sat.b,1.0);
 
             ctmp.r = 2 * c1.s * sat.r + (1 - c1.s);
             ctmp.g = 2 * c1.s * sat.g + (1 - c1.s);
@@ -801,7 +801,7 @@ namespace dlib
             else
             {
                 // perform this assignment using fixed point arithmetic: 
-                // dest = src*(alpha/255) + src*(1 - alpha/255);
+                // dest = src*(alpha/255) + dest*(1 - alpha/255);
                 // dest = src*(alpha/255) + dest*1 - dest*(alpha/255);
                 // dest = dest*1 + src*(alpha/255) - dest*(alpha/255);
                 // dest = dest*1 + (src - dest)*(alpha/255);
@@ -945,14 +945,14 @@ namespace dlib
         { 
             rgb_pixel temp;
             // convert target hsi pixel to rgb
-            assign(temp,dest);
+            assign_pixel_helpers::assign(temp,dest);
 
             // now assign the rgb_alpha value to our temp rgb pixel
-            assign(temp,src);
+            assign_pixel_helpers::assign(temp,src);
 
             // now we can just go assign the new rgb value to the
             // hsi pixel
-            assign(dest,temp);
+            assign_pixel_helpers::assign(dest,temp);
         }
 
     }

@@ -75,7 +75,7 @@ namespace dlib
             const in_scalar_vector_type& y
         ) const
         {
-            return do_train(vector_to_matrix(x), vector_to_matrix(y));
+            return do_train(mat(x), mat(y));
         }
 
         void swap (
@@ -100,7 +100,6 @@ namespace dlib
         ) const
         {
             typedef typename decision_function<kernel_type>::scalar_vector_type scalar_vector_type;
-            typedef typename decision_function<kernel_type>::sample_vector_type sample_vector_type;
 
             // make sure requires clause is not broken
             DLIB_ASSERT(is_learning_problem(x,y),

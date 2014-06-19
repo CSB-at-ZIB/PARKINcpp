@@ -295,7 +295,7 @@ namespace dlib
             T temp;
             sin >> temp;
             if (!sin) throw string_cast_error(narrow(str));
-            if (sin.get() != char_traits<charT>::eof()) throw string_cast_error(narrow(str));   
+            if (sin.get() != std::char_traits<charT>::eof()) throw string_cast_error(narrow(str));   
             return temp;
         }
     };
@@ -355,7 +355,7 @@ namespace dlib
             else                                                    \
                 sin >> temp;                                        \
             if (!sin) throw string_cast_error(narrow(str));                 \
-            if (sin.get() != char_traits<charT>::eof()) throw string_cast_error(narrow(str));     \
+            if (sin.get() != std::char_traits<charT>::eof()) throw string_cast_error(narrow(str));     \
             return temp;                                            \
         }                                                           \
     };
@@ -496,8 +496,8 @@ namespace dlib
         >
     const std::basic_string<charT,traits,alloc> wrap_string (
         const std::basic_string<charT,traits,alloc>& str,
-        const unsigned long first_pad,
-        const unsigned long rest_pad,
+        const unsigned long first_pad = 0,
+        const unsigned long rest_pad = 0,
         const unsigned long max_per_line = 79
     )
     {
@@ -583,8 +583,8 @@ namespace dlib
         >
     const std::basic_string<charT> wrap_string (
         const charT* str,
-        const unsigned long first_pad,
-        const unsigned long rest_pad,
+        const unsigned long first_pad = 0,
+        const unsigned long rest_pad = 0,
         const unsigned long max_per_line = 79
     ) { return wrap_string(std::basic_string<charT>(str),first_pad,rest_pad,max_per_line); }
 
@@ -863,6 +863,74 @@ namespace dlib
         typename traits,
         typename alloc
         >
+    std::pair<std::basic_string<charT,traits,alloc>, std::basic_string<charT,traits,alloc> > 
+    split_on_first (
+        const std::basic_string<charT,traits,alloc>& str,
+        const charT* delim = _dT(charT," \n\r\t")
+    )
+    {
+        typename std::basic_string<charT,traits,alloc>::size_type delim_pos = str.find_first_of(delim);
+        if (delim_pos != std::basic_string<charT,traits,alloc>::npos)
+            return std::make_pair(str.substr(0, delim_pos), str.substr(delim_pos+1));
+        else
+            return std::make_pair(str, _dT(charT,""));
+    }
+
+    template <
+        typename charT,
+        typename traits,
+        typename alloc
+        >
+    inline std::pair<std::basic_string<charT,traits,alloc>, std::basic_string<charT,traits,alloc> > 
+    split_on_first (
+        const std::basic_string<charT,traits,alloc>& str,
+        const std::basic_string<charT,traits,alloc>& delim 
+    )
+    {
+        return split_on_first(str, delim.c_str());
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename charT,
+        typename traits,
+        typename alloc
+        >
+    std::pair<std::basic_string<charT,traits,alloc>, std::basic_string<charT,traits,alloc> > 
+    split_on_last (
+        const std::basic_string<charT,traits,alloc>& str,
+        const charT* delim = _dT(charT," \n\r\t")
+    )
+    {
+        typename std::basic_string<charT,traits,alloc>::size_type delim_pos = str.find_last_of(delim);
+        if (delim_pos != std::basic_string<charT,traits,alloc>::npos)
+            return std::make_pair(str.substr(0, delim_pos), str.substr(delim_pos+1));
+        else
+            return std::make_pair(str, _dT(charT,""));
+    }
+
+    template <
+        typename charT,
+        typename traits,
+        typename alloc
+        >
+    inline std::pair<std::basic_string<charT,traits,alloc>, std::basic_string<charT,traits,alloc> > 
+    split_on_last (
+        const std::basic_string<charT,traits,alloc>& str,
+        const std::basic_string<charT,traits,alloc>& delim 
+    )
+    {
+        return split_on_last(str, delim.c_str());
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename charT,
+        typename traits,
+        typename alloc
+        >
     const std::vector<std::basic_string<charT,traits,alloc> > split (
         const std::basic_string<charT,traits,alloc>& str,
         const charT* delim = _dT(charT," \n\r\t")
@@ -918,6 +986,14 @@ namespace dlib
     )
     {
         return split(str,delim.c_str());
+    }
+
+    inline const std::vector<std::string> split (
+        const char* str,
+        const char* delim = " \n\r\t"
+    )
+    {
+        return split(std::string(str),delim);
     }
 
 // ----------------------------------------------------------------------------------------

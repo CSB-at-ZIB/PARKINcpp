@@ -44,15 +44,18 @@ namespace dlib
             const in_scalar_vector_type& labels_,
             const bool be_verbose_,
             const scalar_type eps_,
-            const unsigned long max_iter
+            const unsigned long max_iter,
+            const unsigned long dims_
         ) :
             samples(samples_),
             labels(labels_),
-            Cpos(C_pos),
-            Cneg(C_neg),
+            C(std::min(C_pos,C_neg)),
+            Cpos(C_pos/C),
+            Cneg(C_neg/C),
             be_verbose(be_verbose_),
             eps(eps_),
-            max_iterations(max_iter)
+            max_iterations(max_iter),
+            dims(dims_)
         {
             dot_prods.resize(samples.size());
             is_first_call = true;
@@ -61,21 +64,21 @@ namespace dlib
         virtual scalar_type get_c (
         ) const 
         {
-            return 1;
+            return C;
         }
 
         virtual long get_num_dimensions (
         ) const 
         {
             // plus 1 for the bias term
-            return sparse_vector::max_index_plus_one(samples) + 1;
+            return dims + 1;
         }
 
         virtual bool optimization_status (
             scalar_type current_objective_value,
             scalar_type current_error_gap,
-            scalar_type ,
-            scalar_type ,
+            scalar_type current_risk_value,
+            scalar_type current_risk_gap,
             unsigned long num_cutting_planes,
             unsigned long num_iterations
         ) const 
@@ -83,20 +86,19 @@ namespace dlib
             if (be_verbose)
             {
                 using namespace std;
-                cout << "svm objective: " << current_objective_value << endl;
-                cout << "gap: " << current_error_gap << endl;
-                cout << "num planes: " << num_cutting_planes << endl;
-                cout << "iter: " << num_iterations << endl;
+                cout << "objective:     " << current_objective_value << endl;
+                cout << "objective gap: " << current_error_gap << endl;
+                cout << "risk:          " << current_risk_value << endl;
+                cout << "risk gap:      " << current_risk_gap << endl;
+                cout << "num planes:    " << num_cutting_planes << endl;
+                cout << "iter:          " << num_iterations << endl;
                 cout << endl;
             }
 
             if (num_iterations >= max_iterations)
                 return true;
 
-            if (current_objective_value == 0)
-                return true;
-
-            if (current_error_gap/current_objective_value < eps)
+            if (current_risk_gap < eps)
                 return true;
 
             return false;
@@ -138,13 +140,13 @@ namespace dlib
                 {
                     if (labels(i) > 0)
                     {
-                        sparse_vector::subtract_from(subgradient, samples(i), Cpos);
+                        subtract_from(subgradient, samples(i), Cpos);
 
                         subgradient(subgradient.size()-1) += Cpos;
                     }
                     else
                     {
-                        sparse_vector::add_to(subgradient, samples(i), Cneg);
+                        add_to(subgradient, samples(i), Cneg);
 
                         subgradient(subgradient.size()-1) -= Cneg;
                     }
@@ -171,10 +173,11 @@ namespace dlib
                 - for all i: #dot_prods[i] == dot(colm(#w,0,w.size()-1), samples(i)) - #w(w.size()-1)
         !*/
         {
-            using dlib::sparse_vector::dot;
-            using dlib::dot;
+            // The reason for using w_size_m1 and not just w.size()-1 is because
+            // doing it this way avoids an inane warning from gcc that can occur in some cases.
+            const long w_size_m1 = w.size()-1;
             for (long i = 0; i < samples.size(); ++i)
-                dot_prods[i] = dot(colm(w,0,w.size()-1), samples(i)) - w(w.size()-1);
+                dot_prods[i] = dot(colm(w,0,w_size_m1), samples(i)) - w(w_size_m1);
 
             if (is_first_call)
             {
@@ -188,7 +191,7 @@ namespace dlib
                 // Here we use the line search algorithm presented in section 3.1.1 of Franc and Sonnenburg.
 
                 const scalar_type A0 = length_squared(best_so_far - w);
-                const scalar_type B0 = dot(best_so_far, w - best_so_far);
+                const scalar_type BB0 = dot(best_so_far, w - best_so_far);
 
                 const scalar_type scale_pos = (get_c()*Cpos)/samples.size();
                 const scalar_type scale_neg = (get_c()*Cneg)/samples.size();
@@ -196,7 +199,7 @@ namespace dlib
                 ks.clear();
                 ks.reserve(samples.size());
 
-                scalar_type f0 = B0;
+                scalar_type f0 = BB0;
                 for (long i = 0; i < samples.size(); ++i)
                 {
                     const scalar_type& scale = (labels(i)>0) ? scale_pos : scale_neg;
@@ -292,12 +295,14 @@ namespace dlib
 
         const in_sample_vector_type& samples;
         const in_scalar_vector_type& labels;
+        const scalar_type C;
         const scalar_type Cpos;
         const scalar_type Cneg;
 
         const bool be_verbose;
         const scalar_type eps;
         const unsigned long max_iterations;
+        const unsigned long dims;
     };
 
 // ----------------------------------------------------------------------------------------
@@ -315,11 +320,12 @@ namespace dlib
         const in_scalar_vector_type& labels,
         const bool be_verbose,
         const scalar_type eps,
-        const unsigned long max_iterations
+        const unsigned long max_iterations,
+        const unsigned long dims
     )
     {
         return oca_problem_c_svm<matrix_type, in_sample_vector_type, in_scalar_vector_type>(
-            C_pos, C_neg, samples, labels, be_verbose, eps, max_iterations);
+            C_pos, C_neg, samples, labels, be_verbose, eps, max_iterations, dims);
     }
 
 // ----------------------------------------------------------------------------------------
@@ -351,6 +357,8 @@ namespace dlib
             verbose = false;
             eps = 0.001;
             max_iterations = 10000;
+            learn_nonnegative_weights = false;
+            last_weight_1 = false;
         }
 
         explicit svm_c_linear_trainer (
@@ -370,6 +378,8 @@ namespace dlib
             verbose = false;
             eps = 0.001;
             max_iterations = 10000;
+            learn_nonnegative_weights = false;
+            last_weight_1 = false;
         }
 
         void set_epsilon (
@@ -429,6 +439,59 @@ namespace dlib
         ) const
         {
             return kernel_type();
+        }
+
+        bool learns_nonnegative_weights (
+        ) const { return learn_nonnegative_weights; }
+       
+        void set_learns_nonnegative_weights (
+            bool value
+        )
+        {
+            learn_nonnegative_weights = value;
+            if (learn_nonnegative_weights)
+                prior.set_size(0); 
+        }
+
+        bool forces_last_weight_to_1 (
+        ) const
+        {
+            return last_weight_1;
+        }
+
+        void force_last_weight_to_1 (
+            bool should_last_weight_be_1
+        )
+        {
+            last_weight_1 = should_last_weight_be_1;
+            if (last_weight_1)
+                prior.set_size(0);
+        }
+
+        void set_prior (
+            const trained_function_type& prior_
+        )
+        {
+            // make sure requires clause is not broken
+            DLIB_ASSERT(prior_.basis_vectors.size() == 1 &&
+                        prior_.alpha(0) == 1,
+                "\t void svm_c_linear_trainer::set_prior()"
+                << "\n\t The supplied prior could not have been created by this object's train() method."
+                << "\n\t prior_.basis_vectors.size(): " << prior_.basis_vectors.size() 
+                << "\n\t prior_.alpha(0):             " << prior_.alpha(0) 
+                << "\n\t this: " << this
+                );
+
+            prior = sparse_to_dense(prior_.basis_vectors(0));
+            prior_b = prior_.b;
+            learn_nonnegative_weights = false;
+            last_weight_1 = false;
+        }
+
+        bool has_prior (
+        ) const
+        {
+            return prior.size() != 0;
         }
 
         void set_c (
@@ -499,7 +562,7 @@ namespace dlib
         ) const
         {
             scalar_type obj;
-            return do_train(vector_to_matrix(x),vector_to_matrix(y),obj);
+            return do_train(mat(x),mat(y),obj);
         }
 
 
@@ -513,7 +576,7 @@ namespace dlib
             scalar_type& svm_objective
         ) const
         {
-            return do_train(vector_to_matrix(x),vector_to_matrix(y),svm_objective);
+            return do_train(mat(x),mat(y),svm_objective);
         }
 
     private:
@@ -529,23 +592,80 @@ namespace dlib
         ) const
         {
             // make sure requires clause is not broken
-            DLIB_ASSERT(is_binary_classification_problem(x,y) == true,
+            DLIB_ASSERT(is_learning_problem(x,y) == true,
                 "\t decision_function svm_c_linear_trainer::train(x,y)"
                 << "\n\t invalid inputs were given to this function"
                 << "\n\t x.nr(): " << x.nr() 
                 << "\n\t y.nr(): " << y.nr() 
                 << "\n\t x.nc(): " << x.nc() 
                 << "\n\t y.nc(): " << y.nc() 
-                << "\n\t is_binary_classification_problem(x,y): " << is_binary_classification_problem(x,y)
+                << "\n\t is_learning_problem(x,y): " << is_learning_problem(x,y)
                 );
+#ifdef ENABLE_ASSERTS
+            for (long i = 0; i < x.size(); ++i)
+            {
+                DLIB_ASSERT(y(i) == +1 || y(i) == -1,
+                    "\t decision_function svm_c_linear_trainer::train(x,y)"
+                    << "\n\t invalid inputs were given to this function"
+                    << "\n\t y("<<i<<"): " << y(i)
+                );
+            }
+#endif
 
 
             typedef matrix<scalar_type,0,1> w_type;
             w_type w;
 
-            svm_objective = solver(
-                make_oca_problem_c_svm<w_type>(Cpos, Cneg, x, y, verbose, eps, max_iterations), 
-                w);
+            const unsigned long num_dims = max_index_plus_one(x);
+
+            unsigned long num_nonnegative = 0;
+            if (learn_nonnegative_weights)
+            {
+                num_nonnegative = num_dims;
+            }
+
+            unsigned long force_weight_1_idx = std::numeric_limits<unsigned long>::max(); 
+            if (last_weight_1)
+            {
+                force_weight_1_idx = num_dims-1; 
+            }
+
+
+            if (has_prior())
+            {
+                if (is_matrix<sample_type>::value)
+                {
+                    // make sure requires clause is not broken
+                    DLIB_CASSERT(num_dims == (unsigned long)prior.size(),
+                        "\t decision_function svm_c_linear_trainer::train(x,y)"
+                        << "\n\t The dimension of the training vectors must match the dimension of\n"
+                        << "\n\t those used to create the prior."
+                        << "\n\t num_dims:     " << num_dims 
+                        << "\n\t prior.size(): " << prior.size() 
+                    );
+                }
+                const unsigned long dims = std::max(num_dims, (unsigned long)prior.size());
+                // In the case of sparse sample vectors, it is possible that the input
+                // vector dimensionality is larger than the prior vector dimensionality.
+                // We need to check for this case and pad prior with zeros if it is the
+                // case.
+                matrix<scalar_type,0,1> prior_temp = join_cols(join_cols(prior, 
+                                                                         zeros_matrix<scalar_type>(dims-prior.size(),1)),
+                                                                         mat(prior_b));
+
+                svm_objective = solver(
+                    make_oca_problem_c_svm<w_type>(Cpos, Cneg, x, y, verbose, eps, max_iterations, dims), 
+                    w,
+                    prior_temp);
+            }
+            else
+            {
+                svm_objective = solver(
+                    make_oca_problem_c_svm<w_type>(Cpos, Cneg, x, y, verbose, eps, max_iterations, num_dims), 
+                    w,
+                    num_nonnegative,
+                    force_weight_1_idx);
+            }
 
             // put the solution into a decision function and then return it
             decision_function<kernel_type> df;
@@ -555,8 +675,8 @@ namespace dlib
             // sparse vector container so we need to use this special kind of copy to handle that case.
             // As an aside, the reason for using max_index_plus_one() and not just w.size()-1 is because
             // doing it this way avoids an inane warning from gcc that can occur in some cases.
-            const long out_size = sparse_vector::max_index_plus_one(x);
-            sparse_vector::assign(df.basis_vectors(0), matrix_cast<scalar_type>(colm(w, 0, out_size)));
+            const long out_size = max_index_plus_one(x);
+            assign(df.basis_vectors(0), matrix_cast<scalar_type>(colm(w, 0, out_size)));
             df.alpha.set_size(1);
             df.alpha(0) = 1;
 
@@ -569,6 +689,10 @@ namespace dlib
         scalar_type eps;
         bool verbose;
         unsigned long max_iterations;
+        bool learn_nonnegative_weights;
+        bool last_weight_1;
+        matrix<scalar_type,0,1> prior;
+        scalar_type prior_b;
     }; 
 
 // ----------------------------------------------------------------------------------------

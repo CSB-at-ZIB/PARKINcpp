@@ -90,18 +90,15 @@ namespace dlib
     {
         using namespace dlib::cvtti_helpers;
         typedef typename trainer_type::scalar_type scalar_type;
-        typedef typename trainer_type::sample_type sample_type;
         typedef typename trainer_type::mem_manager_type mem_manager_type;
-        typedef matrix<sample_type,0,1,mem_manager_type> sample_vector_type;
-        typedef matrix<scalar_type,0,1,mem_manager_type> scalar_vector_type;
 
         // make sure requires clause is not broken
         DLIB_ASSERT(is_binary_classification_problem(x,y) == true &&
-                    1 < folds && folds <= x.nr() &&
+                    1 < folds && folds <= std::min(sum(y>0),sum(y<0)) &&
                     num_threads > 0,
             "\tmatrix cross_validate_trainer()"
             << "\n\t invalid inputs were given to this function"
-            << "\n\t x.nr(): " << x.nr() 
+            << "\n\t std::min(sum(y>0),sum(y<0)): " << std::min(sum(y>0),sum(y<0))
             << "\n\t folds:  " << folds 
             << "\n\t num_threads:  " << num_threads 
             << "\n\t is_binary_classification_problem(x,y): " << ((is_binary_classification_problem(x,y))? "true":"false")
@@ -237,8 +234,8 @@ namespace dlib
     )
     {
         return cross_validate_trainer_threaded_impl(trainer,
-                                           vector_to_matrix(x),
-                                           vector_to_matrix(y),
+                                           mat(x),
+                                           mat(y),
                                            folds,
                                            num_threads);
     }

@@ -32,7 +32,6 @@ namespace
             - runs tests on the matrix stuff compliance with the specs
     !*/
     {        
-        typedef memory_manager_stateless<char>::kernel_2_2a MM;
         print_spinner();
 
         {
@@ -607,6 +606,31 @@ namespace
                 DLIB_TEST(equal(0.0/m , zeros_matrix<double>(3,4)));
             }
         }
+
+        {
+            matrix<int> m(2,3);
+            m = 1,2,3,
+                4,5,6;
+            matrix<int> M(2,3);
+            M = m;
+
+            DLIB_TEST(upperbound(m,6) == M);
+            DLIB_TEST(upperbound(m,60) == M);
+            DLIB_TEST(lowerbound(m,-2) == M);
+            DLIB_TEST(lowerbound(m,0) == M);
+
+            M = 2,2,3,
+                4,5,6;
+            DLIB_TEST(lowerbound(m,2) == M);
+
+            M = 0,0,0,
+                0,0,0;
+            DLIB_TEST(upperbound(m,0) == M);
+
+            M = 1,2,3,
+                3,3,3;
+            DLIB_TEST(upperbound(m,3) == M);
+        }
     }
 
 
@@ -785,6 +809,258 @@ namespace
         DLIB_TEST(mean(a) == complex<double>(4, 5));
     }
 
+    void test_setsubs()
+    {
+        {
+            matrix<double> m(3,3);
+            m = 0;
+
+            set_colm(m,0) += 1;
+            set_rowm(m,0) += 1;
+            set_subm(m,1,1,2,2) += 5;
+
+            matrix<double> m2(3,3);
+            m2 = 2, 1, 1,
+                 1, 5, 5, 
+                 1, 5, 5;
+
+            DLIB_TEST(m == m2);
+
+            set_colm(m,0) -= 1;
+            set_rowm(m,0) -= 1;
+            set_subm(m,1,1,2,2) -= 5;
+
+            m2 = 0;
+            DLIB_TEST(m == m2);
+
+            matrix<double,1,3> r;
+            matrix<double,3,1> c;
+            matrix<double,2,2> b;
+            r = 1,2,3;
+
+            c = 2,
+                3,
+                4;
+
+            b = 2,3,
+                4,5;
+
+            set_colm(m,1) += c;
+            set_rowm(m,1) += r;
+            set_subm(m,1,1,2,2) += b;
+
+            m2 = 0, 2, 0,
+                 1, 7, 6,
+                 0, 8, 5;
+
+            DLIB_TEST(m2 == m);
+
+            set_colm(m,1) -= c;
+            set_rowm(m,1) -= r;
+            set_subm(m,1,1,2,2) -= b;
+
+            m2 = 0;
+            DLIB_TEST(m2 == m);
+
+
+            // check that the code path for destructive aliasing works right.
+            m = 2*identity_matrix<double>(3);
+            set_colm(m,1) += m*c;
+            m2 = 2, 4, 0,
+                 0, 8, 0,
+                 0, 8, 2;
+            DLIB_TEST(m == m2);
+
+            m = 2*identity_matrix<double>(3);
+            set_colm(m,1) -= m*c;
+            m2 = 2, -4, 0,
+                 0, -4, 0,
+                 0, -8, 2;
+            DLIB_TEST(m == m2);
+
+            m = 2*identity_matrix<double>(3);
+            set_rowm(m,1) += r*m;
+            m2 = 2, 0, 0,
+                 2, 6, 6,
+                 0, 0, 2;
+            DLIB_TEST(m == m2);
+
+            m = 2*identity_matrix<double>(3);
+            set_rowm(m,1) -= r*m;
+            m2 = 2, 0, 0,
+                -2, -2, -6,
+                 0, 0, 2;
+            DLIB_TEST(m == m2);
+
+            m = identity_matrix<double>(3);
+            const rectangle rect(0,0,1,1);
+            set_subm(m,rect) += subm(m,rect)*b;
+            m2 = 3, 3, 0,
+                 4, 6, 0,
+                 0, 0, 1;
+            DLIB_TEST(m == m2);
+
+            m = identity_matrix<double>(3);
+            set_subm(m,rect) -= subm(m,rect)*b;
+            m2 = -1, -3, 0,
+                 -4, -4, 0,
+                  0, 0, 1;
+            DLIB_TEST(m == m2);
+
+        }
+
+        {
+            matrix<double,1,1> a, b;
+            a = 2;
+            b = 3;
+            DLIB_TEST(dot(a,b) == 6);
+        }
+        {
+            matrix<double,1,1> a;
+            matrix<double,0,1> b(1);
+            a = 2;
+            b = 3;
+            DLIB_TEST(dot(a,b) == 6);
+            DLIB_TEST(dot(b,a) == 6);
+        }
+        {
+            matrix<double,1,1> a;
+            matrix<double,1,0> b(1);
+            a = 2;
+            b = 3;
+            DLIB_TEST(dot(a,b) == 6);
+            DLIB_TEST(dot(b,a) == 6);
+        }
+    }
+
+    template <typename T>
+    std::vector<int> tovect1(const T& m)
+    {
+        std::vector<int> temp;
+        for (typename T::const_iterator i = m.begin(); i != m.end(); ++i)
+        {
+            temp.push_back(*i);
+        }
+        return temp;
+    }
+
+    template <typename T>
+    std::vector<int> tovect2(const T& m)
+    {
+        std::vector<int> temp;
+        for (typename T::const_iterator i = m.begin(); i != m.end(); i++)
+        {
+            temp.push_back(*i);
+        }
+        return temp;
+    }
+
+    template <typename T>
+    std::vector<int> tovect3(const T& m_)
+    {
+        matrix<int> m(m_);
+        std::vector<int> temp;
+        for (matrix<int>::iterator i = m.begin(); i != m.end(); ++i)
+        {
+            temp.push_back(*i);
+        }
+        return temp;
+    }
+
+    template <typename T>
+    std::vector<int> tovect4(const T& m_)
+    {
+        matrix<int> m(m_);
+        std::vector<int> temp;
+        for (matrix<int>::iterator i = m.begin(); i != m.end(); i++)
+        {
+            temp.push_back(*i);
+        }
+        return temp;
+    }
+
+    void test_iterators()
+    {
+        matrix<int> m(3,2);
+        m = 1,2,3,
+        4,5,6;
+
+        std::vector<int> v1 = tovect1(m);
+        std::vector<int> v2 = tovect2(m);
+        std::vector<int> v3 = tovect3(m);
+        std::vector<int> v4 = tovect4(m);
+
+        std::vector<int> v5 = tovect1(m+m);
+        std::vector<int> v6 = tovect2(m+m);
+        std::vector<int> v7 = tovect3(m+m);
+        std::vector<int> v8 = tovect4(m+m);
+
+
+        std::vector<int> a1, a2;
+        for (int i = 1; i <= 6; ++i)
+        {
+            a1.push_back(i);
+            a2.push_back(i*2);
+        }
+
+        DLIB_TEST(max(abs(mat(v1) - mat(a1))) == 0);
+        DLIB_TEST(max(abs(mat(v2) - mat(a1))) == 0);
+        DLIB_TEST(max(abs(mat(v3) - mat(a1))) == 0);
+        DLIB_TEST(max(abs(mat(v4) - mat(a1))) == 0);
+
+        DLIB_TEST(max(abs(mat(v5) - mat(a2))) == 0);
+        DLIB_TEST(max(abs(mat(v6) - mat(a2))) == 0);
+        DLIB_TEST(max(abs(mat(v7) - mat(a2))) == 0);
+        DLIB_TEST(max(abs(mat(v8) - mat(a2))) == 0);
+    }
+
+    void test_linpiece()
+    {
+        matrix<double,0,1> temp = linpiece(5, linspace(-1, 9, 2));
+        DLIB_CASSERT(temp.size() == 1,"");
+        DLIB_CASSERT(std::abs(temp(0) - 6) < 1e-13,"");
+
+        temp = linpiece(5, linspace(-1, 9, 6));
+        DLIB_CASSERT(temp.size() == 5,"");
+        DLIB_CASSERT(std::abs(temp(0) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(1) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(2) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(3) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(4) - 0) < 1e-13,"");
+
+        temp = linpiece(4, linspace(-1, 9, 6));
+        DLIB_CASSERT(temp.size() == 5,"");
+        DLIB_CASSERT(std::abs(temp(0) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(1) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(2) - 1) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(3) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(4) - 0) < 1e-13,"");
+
+        temp = linpiece(40, linspace(-1, 9, 6));
+        DLIB_CASSERT(temp.size() == 5,"");
+        DLIB_CASSERT(std::abs(temp(0) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(1) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(2) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(3) - 2) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(4) - 2) < 1e-13,"");
+
+        temp = linpiece(-40, linspace(-1, 9, 6));
+        DLIB_CASSERT(temp.size() == 5,"");
+        DLIB_CASSERT(std::abs(temp(0) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(1) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(2) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(3) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(4) - 0) < 1e-13,"");
+
+        temp = linpiece(0, linspace(-1, 9, 6));
+        DLIB_CASSERT(temp.size() == 5,"");
+        DLIB_CASSERT(std::abs(temp(0) - 1) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(1) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(2) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(3) - 0) < 1e-13,"");
+        DLIB_CASSERT(std::abs(temp(4) - 0) < 1e-13,"");
+
+    }
 
     class matrix_tester : public tester
     {
@@ -798,6 +1074,9 @@ namespace
         void perform_test (
         )
         {
+            test_iterators();
+            test_setsubs();
+
             test_conv<0,0,0,0>();
             test_conv<1,2,3,4>();
 
@@ -806,6 +1085,7 @@ namespace
                 matrix_test();
 
             test_complex();
+            test_linpiece();
         }
     } a;
 

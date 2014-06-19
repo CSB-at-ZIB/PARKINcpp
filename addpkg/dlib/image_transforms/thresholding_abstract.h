@@ -39,6 +39,20 @@ namespace dlib
             - #out_img.nr() == in_img.nr()
     !*/
 
+    template <
+        typename image_type
+        >
+    void threshold_image (
+        image_type& img,
+        typename pixel_traits<typename image_type::type>::basic_pixel_type thresh
+    );
+    /*!
+        requires
+            - it is valid to call threshold_image(img,img,thresh);
+        ensures
+            - calls threshold_image(img,img,thresh);
+    !*/
+
 // ----------------------------------------------------------------------------------------
 
     template <
@@ -53,10 +67,11 @@ namespace dlib
         requires
             - in_image_type == is an implementation of array2d/array2d_kernel_abstract.h
             - out_image_type == is an implementation of array2d/array2d_kernel_abstract.h
-            - pixel_traits<typename out_image_type::type>::grayscale == true  
-            - pixel_traits<typename in_image_type::type>::has_alpha == false
-            - pixel_traits<typename out_image_type::type>::has_alpha == false 
+            - pixel_traits<typename in_image_type::type>::max() <= 65535 
+            - pixel_traits<typename in_image_type::type>::has_alpha   == false
             - pixel_traits<typename in_image_type::type>::is_unsigned == true 
+            - pixel_traits<typename out_image_type::type>::grayscale  == true  
+            - pixel_traits<typename out_image_type::type>::has_alpha  == false 
             - pixel_traits<typename out_image_type::type>::is_unsigned == true 
         ensures
             - #out_img == the thresholded version of in_img (in_img is converted to a grayscale
@@ -67,6 +82,19 @@ namespace dlib
               means found is used as the thresh value.
             - #out_img.nc() == in_img.nc()
             - #out_img.nr() == in_img.nr()
+    !*/
+
+    template <
+        typename image_type
+        >
+    void auto_threshold_image (
+        image_type& img
+    );
+    /*!
+        requires
+            - it is valid to call auto_threshold_image(img,img);
+        ensures
+            - calls auto_threshold_image(img,img);
     !*/
 
 // ----------------------------------------------------------------------------------------

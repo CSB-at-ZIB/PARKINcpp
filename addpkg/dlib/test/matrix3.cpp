@@ -610,6 +610,7 @@ namespace
             m2 = 1,2,3,4,5,6;
 
             DLIB_TEST(reshape_to_column_vector(m) == m2);
+            DLIB_TEST(reshape_to_column_vector(m+m) == m2+m2);
 
         }
         {
@@ -622,6 +623,7 @@ namespace
             m2 = 1,2,3,4,5,6;
 
             DLIB_TEST(reshape_to_column_vector(m) == m2);
+            DLIB_TEST(reshape_to_column_vector(m+m) == m2+m2);
 
         }
     }
@@ -634,7 +636,6 @@ namespace
             - runs tests on the matrix stuff compliance with the specs
     !*/
     {        
-        typedef memory_manager_stateless<char>::kernel_2_2a MM;
         print_spinner();
 
 
@@ -723,16 +724,16 @@ namespace
             std::vector<double> v(34, 8);
             std::vector<double> v2(34, 9);
 
-            DLIB_TEST(pointer_to_column_vector(&v[0], v.size()) == vector_to_matrix(v));
-            DLIB_TEST(pointer_to_column_vector(&v2[0], v.size()) != vector_to_matrix(v));
+            DLIB_TEST(mat(&v[0], v.size()) == mat(v));
+            DLIB_TEST(mat(&v2[0], v.size()) != mat(v));
         }
 
         {
             std::vector<long> v(1, 3);
             std::vector<long> v2(1, 2);
 
-            DLIB_TEST(pointer_to_column_vector(&v[0], v.size()) == vector_to_matrix(v));
-            DLIB_TEST(pointer_to_column_vector(&v2[0], v.size()) != vector_to_matrix(v));
+            DLIB_TEST(mat(&v[0], v.size()) == mat(v));
+            DLIB_TEST(mat(&v2[0], v.size()) != mat(v));
         }
 
         {
@@ -940,7 +941,7 @@ namespace
             a = 0, 1, 2, 
                 3, 4, 5;
 
-            DLIB_TEST(pointer_to_matrix(&v[0], 2, 3) == a);
+            DLIB_TEST(mat(&v[0], 2, 3) == a);
         }
 
         {
@@ -998,9 +999,79 @@ namespace
             DLIB_TEST(sum_rows(a) == c);
 
         }
+
+        {
+            matrix<int> m(3,4), s(3,4);
+            m = -2, 1, 5, -5,
+                5, 5, 5, 5,
+                9, 0, -4, -2;
+
+            s = -1, 1, 1, -1,
+                 1, 1, 1, 1, 
+                 1, 1, -1, -1;
+
+            DLIB_TEST(sign(m) == s);
+            DLIB_TEST(sign(matrix_cast<double>(m)) == matrix_cast<double>(s));
+        }
+
     }
 
 
+    void test_matrix_IO()
+    {
+        dlib::rand rnd;
+        print_spinner();
+
+        for (int i = 0; i < 400; ++i)
+        {
+            ostringstream sout;
+            sout.precision(20);
+
+            matrix<double> m1, m2, m3;
+
+            const long r = rnd.get_random_32bit_number()%7+1;
+            const long c = rnd.get_random_32bit_number()%7+1;
+            const long num = rnd.get_random_32bit_number()%2+1;
+
+            m1 = randm(r,c,rnd);
+            sout << m1;
+            if (num != 1)
+                sout << "\n" << m1;
+
+            if (rnd.get_random_double() < 0.3)
+                sout << "   \n";
+            else if (rnd.get_random_double() < 0.3)
+                sout << "   \n\n 3 3 3 3";
+            else if (rnd.get_random_double() < 0.3)
+                sout << "   \n \n  v 3 3 3 3 3";
+
+            istringstream sin(sout.str());
+            sin >> m2;
+            DLIB_TEST_MSG(equal(m1,m2),  m1 << "\n***********\n" << m2);
+
+            if (num != 1)
+            {
+                sin >> m3;
+                DLIB_TEST_MSG(equal(m1,m3),  m1 << "\n***********\n" << m3);
+            }
+        }
+
+
+        {
+            istringstream sin(" 1 2\n3");
+            matrix<double> m;
+            DLIB_TEST(sin.good());
+            sin >> m;
+            DLIB_TEST(!sin.good());
+        }
+        {
+            istringstream sin("");
+            matrix<double> m;
+            DLIB_TEST(sin.good());
+            sin >> m;
+            DLIB_TEST(!sin.good());
+        }
+    }
 
 
 
@@ -1017,6 +1088,7 @@ namespace
         void perform_test (
         )
         {
+            test_matrix_IO();
             matrix_test();
         }
     } a;

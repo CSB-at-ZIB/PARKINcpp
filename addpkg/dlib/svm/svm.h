@@ -18,6 +18,7 @@
 #include "../optimization.h"
 #include "svm_nu_trainer.h"
 #include <vector>
+#include <set>
 
 namespace dlib
 {
@@ -48,7 +49,7 @@ namespace dlib
         const U& x_labels
     )
     {
-        return is_learning_problem_impl(vector_to_matrix(x), vector_to_matrix(x_labels));
+        return is_learning_problem_impl(mat(x), mat(x_labels));
     }
 
 // ----------------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ namespace dlib
         const U& x_labels
     )
     {
-        return is_binary_classification_problem_impl(vector_to_matrix(x), vector_to_matrix(x_labels));
+        return is_binary_classification_problem_impl(mat(x), mat(x_labels));
     }
 
 // ----------------------------------------------------------------------------------------
@@ -109,9 +110,6 @@ namespace dlib
         const in_scalar_vector_type& y_test
     )
     {
-        typedef typename dec_funct_type::sample_type sample_type;
-        typedef typename dec_funct_type::mem_manager_type mem_manager_type;
-        typedef matrix<sample_type,0,1,mem_manager_type> sample_vector_type;
 
         // make sure requires clause is not broken
         DLIB_ASSERT( is_binary_classification_problem(x_test,y_test) == true,
@@ -153,7 +151,7 @@ namespace dlib
         }
 
 
-        matrix<double, 1, 2, mem_manager_type> res;
+        matrix<double, 1, 2> res;
         res(0) = (double)num_pos_correct/(double)(num_pos); 
         res(1) = (double)num_neg_correct/(double)(num_neg); 
         return res;
@@ -171,8 +169,8 @@ namespace dlib
     )
     {
         return test_binary_decision_function_impl(dec_funct,
-                                 vector_to_matrix(x_test),
-                                 vector_to_matrix(y_test));
+                                 mat(x_test),
+                                 mat(y_test));
     }
 
 // ----------------------------------------------------------------------------------------
@@ -191,6 +189,49 @@ namespace dlib
             {
                 if (samples[i].size() != labels[i].size())
                     return false;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename sequence_type 
+        >
+    bool is_sequence_segmentation_problem (
+        const std::vector<sequence_type>& samples,
+        const std::vector<std::vector<std::pair<unsigned long,unsigned long> > >& segments
+    )
+    {
+        if (is_learning_problem(samples, segments))
+        {
+            for (unsigned long i = 0; i < samples.size(); ++i)
+            {
+                // Make sure the segments are inside samples[i] and don't overlap with each
+                // other.
+                std::vector<bool> hits(samples[i].size(), false);
+                for (unsigned long j = 0; j < segments[i].size(); ++j)
+                {
+                    const unsigned long begin = segments[i][j].first;
+                    const unsigned long end = segments[i][j].second;
+                    // if the segment is outside the sequence
+                    if (end > samples[i].size())
+                        return false;
+
+                    if (begin >= end)
+                        return false;
+
+                    // check for overlap
+                    for (unsigned long k = begin; k < end; ++k)
+                    {
+                        if (hits[k])
+                            return false;
+                        hits[k] = true;
+                    }
+                }
             }
             return true;
         }
@@ -256,7 +297,7 @@ namespace dlib
         {
             for (unsigned long i = 0; i < samples.size(); ++i)
             {
-                const unsigned long N = sum(vector_to_matrix(labels[i]) != -1);
+                const unsigned long N = sum(mat(labels[i]) != -1);
                 if (std::min(samples[i].first.size(), samples[i].second.size()) != N)
                     return false;
             }
@@ -264,6 +305,96 @@ namespace dlib
         }
 
         return false;
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename detection_type_,
+        typename label_type_ = long
+        >
+    struct labeled_detection
+    {
+        typedef detection_type_ detection_type;
+        typedef label_type_ label_type;
+        detection_type det;
+        label_type label;
+    };
+
+    template <
+        typename detection_type_,
+        typename label_type_ 
+        >
+    inline void serialize ( const labeled_detection<detection_type_,label_type_>& item, std::ostream& out)
+    {
+        serialize(item.det, out);
+        serialize(item.label, out);
+    }
+
+    template <
+        typename detection_type_,
+        typename label_type_ 
+        >
+    inline void deserialize (labeled_detection<detection_type_,label_type_>& item, std::istream& in)
+    {
+        deserialize(item.det, in);
+        deserialize(item.label, in);
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename detection_type, 
+        typename label_type 
+        >
+    bool is_track_association_problem (
+        const std::vector<std::vector<labeled_detection<detection_type,label_type> > >& samples
+    )
+    {
+        if (samples.size() == 0)
+            return false;
+
+        unsigned long num_nonzero_elements = 0;
+        for (unsigned long i = 0; i < samples.size(); ++i)
+        {
+            if (samples.size() > 0)
+                ++num_nonzero_elements;
+        }
+        if (num_nonzero_elements < 2)
+            return false;
+
+        // now make sure the label_type values are unique within each time step.
+        for (unsigned long i = 0; i < samples.size(); ++i)
+        {
+            std::set<label_type> vals;
+            for (unsigned long j = 0; j < samples[i].size(); ++j)
+                vals.insert(samples[i][j].label);
+            if (vals.size() != samples[i].size())
+                return false;
+        }
+
+        // passed all tests so it's good
+        return true;
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename detection_type, 
+        typename label_type 
+        >
+    bool is_track_association_problem (
+        const std::vector<std::vector<std::vector<labeled_detection<detection_type,label_type> > > >& samples
+    )
+    {
+        for (unsigned long i = 0; i < samples.size(); ++i)
+        {
+            if (!is_track_association_problem(samples[i]))
+                return false;
+        }
+
+        // passed all tests so it's good
+        return true;
     }
 
 // ----------------------------------------------------------------------------------------
@@ -289,10 +420,10 @@ namespace dlib
 
         // make sure requires clause is not broken
         DLIB_ASSERT(is_binary_classification_problem(x,y) == true &&
-                    1 < folds && folds <= x.nr(),
+                    1 < folds && folds <= std::min(sum(y>0),sum(y<0)),
             "\tmatrix cross_validate_trainer()"
             << "\n\t invalid inputs were given to this function"
-            << "\n\t x.nr(): " << x.nr() 
+            << "\n\t std::min(sum(y>0),sum(y<0)): " << std::min(sum(y>0),sum(y<0))
             << "\n\t folds:  " << folds 
             << "\n\t is_binary_classification_problem(x,y): " << ((is_binary_classification_problem(x,y))? "true":"false")
             );
@@ -418,8 +549,8 @@ namespace dlib
     )
     {
         return cross_validate_trainer_impl(trainer,
-                                           vector_to_matrix(x),
-                                           vector_to_matrix(y),
+                                           mat(x),
+                                           mat(y),
                                            folds);
     }
 
@@ -559,6 +690,77 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
+    inline double platt_scale (
+        const std::pair<double,double>& params,
+        const double score
+    )
+    {
+        return 1/(1 + std::exp(params.first*score + params.second));
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <typename T, typename alloc>
+    std::pair<double,double> learn_platt_scaling (
+        const std::vector<T,alloc>& scores,
+        const std::vector<T,alloc>& labels
+    )
+    {
+        // make sure requires clause is not broken
+        DLIB_ASSERT(is_binary_classification_problem(scores,labels) == true,
+            "\t std::pair<T,T> learn_platt_scaling()"
+            << "\n\t invalid inputs were given to this function"
+            << "\n\t scores.size(): " << scores.size() 
+            << "\n\t labels.size(): " << labels.size() 
+            << "\n\t is_binary_classification_problem(scores,labels): " << is_binary_classification_problem(scores,labels)
+            );
+
+        const T num_pos = sum(mat(labels)>0); 
+        const T num_neg = sum(mat(labels)<0);
+        const T hi_target = (num_pos+1)/(num_pos+2);
+        const T lo_target = 1.0/(num_neg+2);
+
+        std::vector<T,alloc> target;
+        for (unsigned long i = 0; i < labels.size(); ++i)
+        {
+            // if this was a positive example
+            if (labels[i] == +1.0)
+            {
+                target.push_back(hi_target);
+            }
+            else if (labels[i] == -1.0)
+            {
+                target.push_back(lo_target);
+            }
+            else
+            {
+                throw dlib::error("invalid input labels to the learn_platt_scaling() function.");
+            }
+        }
+
+        // Now find the maximum likelihood parameters of the sigmoid.  
+
+        prob_impl::objective<std::vector<T,alloc> > obj(scores, target);
+        prob_impl::der<std::vector<T,alloc> > obj_der(scores, target);
+        prob_impl::hessian<std::vector<T,alloc> > obj_hessian(scores, target);
+
+        matrix<double,2,1> val;
+        val = 0;
+        find_min(newton_search_strategy(obj_hessian),
+                 objective_delta_stop_strategy(),
+                 obj,
+                 obj_der,
+                 val,
+                 0);
+
+        const double A = val(0);
+        const double B = val(1);
+
+        return std::make_pair(A,B);
+    }
+
+// ----------------------------------------------------------------------------------------
+
     template <
         typename trainer_type,
         typename sample_vector_type,
@@ -600,8 +802,8 @@ namespace dlib
             );
 
         // count the number of positive and negative examples
-        const long num_pos = (long)sum(vector_to_matrix(y) > 0);
-        const long num_neg = (long)sum(vector_to_matrix(y) < 0);
+        const long num_pos = (long)sum(mat(y) > 0);
+        const long num_neg = (long)sum(mat(y) < 0);
 
         // figure out how many positive and negative examples we will have in each fold
         const long num_pos_test_samples = num_pos/folds; 
@@ -617,18 +819,10 @@ namespace dlib
         x_train.resize(num_pos_train_samples + num_neg_train_samples);
         y_train.resize(num_pos_train_samples + num_neg_train_samples);
 
-        typedef std::vector<scalar_type > dvector;
-
-        dvector out;
-        dvector target;
+        std::vector<scalar_type> out, out_label;
 
         long pos_idx = 0;
         long neg_idx = 0;
-
-        const scalar_type prior0 = num_pos_test_samples*folds; 
-        const scalar_type prior1 = num_neg_test_samples*folds; 
-        const scalar_type hi_target = (prior1+1)/(prior1+2);
-        const scalar_type lo_target = 1.0/(prior0+2);
 
         for (long i = 0; i < folds; ++i)
         {
@@ -695,40 +889,15 @@ namespace dlib
             for (unsigned long i = 0; i < x_test.size(); ++i)
             {
                 out.push_back(d(x_test[i]));
-                // if this was a positive example
-                if (y_test[i] == +1.0)
-                {
-                    target.push_back(hi_target);
-                }
-                else if (y_test[i] == -1.0)
-                {
-                    target.push_back(lo_target);
-                }
-                else
-                {
-                    throw dlib::error("invalid input labels to the train_probabilistic_decision_function() function");
-                }
+                out_label.push_back(y_test[i]);
             }
 
         } // for (long i = 0; i < folds; ++i)
 
-        // Now find the maximum likelihood parameters of the sigmoid.  
+        std::pair<double,double> params = learn_platt_scaling(out, out_label);
 
-        prob_impl::objective<dvector> obj(out, target);
-        prob_impl::der<dvector> obj_der(out, target);
-        prob_impl::hessian<dvector> obj_hessian(out, target);
-
-        matrix<double,2,1> val;
-        val = 0;
-        find_min(newton_search_strategy(obj_hessian),
-                 objective_delta_stop_strategy(),
-                 obj,
-                 obj_der,
-                 val,
-                 0);
-
-        const double A = val(0);
-        const double B = val(1);
+        const double A = params.first;
+        const double B = params.second;
 
         return probabilistic_function<typename trainer_type::trained_function_type>( A, B, trainer.train(x,y) );
     }
@@ -740,7 +909,7 @@ namespace dlib
     {
         typedef probabilistic_function<typename trainer_type::trained_function_type> trained_function_type;
 
-        const trainer_type& trainer;
+        const trainer_type trainer;
         const long folds;
 
         trainer_adapter_probabilistic (
@@ -779,9 +948,109 @@ namespace dlib
     template <
         typename T,
         typename U,
+        typename V,
         typename rand_type 
         >
     typename enable_if<is_matrix<T>,void>::type randomize_samples (
+        T& t,
+        U& u,
+        V& v,
+        rand_type& r
+    )
+    {
+        // make sure requires clause is not broken
+        DLIB_ASSERT(is_vector(t) && is_vector(u) && is_vector(v) && u.size() == t.size() &&
+                    u.size() == v.size(),
+            "\t randomize_samples(t,u,v)"
+            << "\n\t invalid inputs were given to this function"
+            << "\n\t t.size(): " << t.size()
+            << "\n\t u.size(): " << u.size()
+            << "\n\t v.size(): " << v.size()
+            << "\n\t is_vector(t): " << is_vector(t)
+            << "\n\t is_vector(u): " << is_vector(u)
+            << "\n\t is_vector(v): " << is_vector(v)
+            );
+
+        long n = t.size()-1;
+        while (n > 0)
+        {
+            // pick a random index to swap into t[n]
+            const unsigned long idx = r.get_random_32bit_number()%(n+1);
+
+            // swap our randomly selected index into the n position
+            exchange(t(idx), t(n));
+            exchange(u(idx), u(n));
+            exchange(v(idx), v(n));
+
+            --n;
+        }
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename T,
+        typename U,
+        typename V,
+        typename rand_type
+        >
+    typename disable_if<is_matrix<T>,void>::type randomize_samples (
+        T& t,
+        U& u,
+        V& v,
+        rand_type& r
+    )
+    {
+        // make sure requires clause is not broken
+        DLIB_ASSERT(u.size() == t.size() && u.size() == v.size(),
+            "\t randomize_samples(t,u,v)"
+            << "\n\t invalid inputs were given to this function"
+            << "\n\t t.size(): " << t.size()
+            << "\n\t u.size(): " << u.size()
+            << "\n\t v.size(): " << v.size()
+            );
+
+        long n = t.size()-1;
+        while (n > 0)
+        {
+            // pick a random index to swap into t[n]
+            const unsigned long idx = r.get_random_32bit_number()%(n+1);
+
+            // swap our randomly selected index into the n position
+            exchange(t[idx], t[n]);
+            exchange(u[idx], u[n]);
+            exchange(v[idx], v[n]);
+
+            --n;
+        }
+    }
+
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename T,
+        typename U,
+        typename V
+        >
+    typename disable_if<is_rand<V>,void>::type randomize_samples (
+        T& t,
+        U& u,
+        V& v
+    )
+    {
+        rand r;
+        randomize_samples(t,u,v,r);
+    }
+
+// ----------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
+
+    template <
+        typename T,
+        typename U,
+        typename rand_type 
+        >
+    typename enable_if_c<is_matrix<T>::value && is_rand<rand_type>::value,void>::type randomize_samples (
         T& t,
         U& u,
         rand_type& r
@@ -800,11 +1069,8 @@ namespace dlib
         long n = t.size()-1;
         while (n > 0)
         {
-            // put a random integer into idx
-            unsigned long idx = r.get_random_32bit_number();
-
-            // make idx be less than n
-            idx %= n;
+            // pick a random index to swap into t[n]
+            const unsigned long idx = r.get_random_32bit_number()%(n+1);
 
             // swap our randomly selected index into the n position
             exchange(t(idx), t(n));
@@ -821,7 +1087,7 @@ namespace dlib
         typename U,
         typename rand_type
         >
-    typename disable_if<is_matrix<T>,void>::type randomize_samples (
+    typename disable_if_c<is_matrix<T>::value || !is_rand<rand_type>::value,void>::type randomize_samples (
         T& t,
         U& u,
         rand_type& r
@@ -838,11 +1104,8 @@ namespace dlib
         long n = t.size()-1;
         while (n > 0)
         {
-            // put a random integer into idx
-            unsigned long idx = r.get_random_32bit_number();
-
-            // make idx be less than n
-            idx %= n;
+            // pick a random index to swap into t[n]
+            const unsigned long idx = r.get_random_32bit_number()%(n+1);
 
             // swap our randomly selected index into the n position
             exchange(t[idx], t[n]);
@@ -868,6 +1131,7 @@ namespace dlib
     }
 
 // ----------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 
     template <
         typename T,
@@ -888,11 +1152,8 @@ namespace dlib
         long n = t.size()-1;
         while (n > 0)
         {
-            // put a random integer into idx
-            unsigned long idx = r.get_random_32bit_number();
-
-            // make idx be less than n
-            idx %= n;
+            // pick a random index to swap into t[n]
+            const unsigned long idx = r.get_random_32bit_number()%(n+1);
 
             // swap our randomly selected index into the n position
             exchange(t(idx), t(n));
@@ -915,11 +1176,8 @@ namespace dlib
         long n = t.size()-1;
         while (n > 0)
         {
-            // put a random integer into idx
-            unsigned long idx = r.get_random_32bit_number();
-
-            // make idx be less than n
-            idx %= n;
+            // pick a random index to swap into t[n]
+            const unsigned long idx = r.get_random_32bit_number()%(n+1);
 
             // swap our randomly selected index into the n position
             exchange(t[idx], t[n]);

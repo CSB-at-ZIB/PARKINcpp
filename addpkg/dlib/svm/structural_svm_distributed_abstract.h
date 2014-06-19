@@ -47,6 +47,8 @@ namespace dlib
                 - Note that the following parameters within the given problem are ignored:
                     - problem.get_c()
                     - problem.get_epsilon()
+                    - problem.get_cache_based_epsilon()
+                    - problem.num_nuclear_norm_regularizers()
                     - weather the problem is verbose or not
                   Instead, they are defined by the svm_struct_controller_node. Note, however,
                   that the problem.get_max_cache_size() parameter is meaningful and controls
@@ -88,9 +90,9 @@ namespace dlib
                         svm_struct_controller_node cont;
                         cont.set_c(100);
                         // Tell cont where the processing nodes are on your network.
-                        cont.add_processing_node("192.168.1.10", 12345);
-                        cont.add_processing_node("192.168.1.11", 12345);
-                        cont.add_processing_node("192.168.1.12", 12345);
+                        cont.add_processing_node("192.168.1.10:12345");
+                        cont.add_processing_node("192.168.1.11:12345");
+                        cont.add_processing_node("192.168.1.12:12345");
                         matrix<double> w;
                         oca solver;
                         cont(solver, w); // Run the optimization.
@@ -145,6 +147,87 @@ namespace dlib
                   optimal value".
         !*/
 
+        double get_cache_based_epsilon (
+        ) const;
+        /*!
+            ensures
+                - if (get_max_cache_size() != 0) then
+                    - The solver will not stop when the average sample risk is within
+                      get_epsilon() of its optimal value.  Instead, it will keep running
+                      but will run the optimizer completely on the cache until the average
+                      sample risk is within #get_cache_based_epsilon() of its optimal
+                      value.  This means that it will perform this additional refinement in
+                      the solution accuracy without making any additional calls to the
+                      separation_oracle().  This is useful when using a nuclear norm
+                      regularization term because it allows you to quickly solve the
+                      optimization problem to a high precision, which in the case of a
+                      nuclear norm regularized problem means that many of the learned
+                      matrices will be low rank or very close to low rank due to the
+                      nuclear norm regularizer.  This may not happen without solving the
+                      problem to a high accuracy or their ranks may be difficult to
+                      determine, so the extra accuracy given by the cache based refinement
+                      is very useful.  Finally, note that we include the nuclear norm term
+                      as part of the "risk" for the purposes of determining when to stop.  
+                - else
+                    - The value of #get_cache_based_epsilon() has no effect.
+        !*/
+
+        void set_cache_based_epsilon (
+            double eps
+        );
+        /*!
+            requires
+                - eps > 0
+            ensures
+                - #get_cache_based_epsilon() == eps
+        !*/
+
+        void add_nuclear_norm_regularizer (
+            long first_dimension,
+            long rows,
+            long cols,
+            double regularization_strength
+        );
+        /*!
+            requires
+                - 0 <= first_dimension < number of dimensions in problem 
+                - 0 <= rows
+                - 0 <= cols
+                - first_dimension+rows*cols <= number of dimensions in problem
+                - 0 < regularization_strength
+            ensures
+                - Adds a nuclear norm regularization term to the optimization problem
+                  solved by this object.  That is, instead of solving:
+                    Minimize: h(w) == 0.5*dot(w,w) + C*R(w)
+                  this object will solve:
+                    Minimize: h(w) == 0.5*dot(w,w) + C*R(w) + regularization_strength*nuclear_norm_of(part of w)
+                  where "part of w" is the part of w indicated by the arguments to this
+                  function. In particular, the part of w included in the nuclear norm is
+                  exactly the matrix reshape(rowm(w, range(first_dimension, first_dimension+rows*cols-1)), rows, cols).
+                  Therefore, if you think of the w vector as being the concatenation of a
+                  bunch of matrices then you can use multiple calls to add_nuclear_norm_regularizer() 
+                  to add nuclear norm regularization terms to any of the matrices packed into w.
+                - #num_nuclear_norm_regularizers() == num_nuclear_norm_regularizers() + 1
+        !*/
+
+        unsigned long num_nuclear_norm_regularizers (
+        ) const; 
+        /*!
+            ensures
+                - returns the number of nuclear norm regularizers that are currently a part
+                  of this optimization problem.  That is, returns the number of times
+                  add_nuclear_norm_regularizer() has been called since the last call to
+                  clear_nuclear_norm_regularizers() or object construction, whichever is
+                  most recent.
+        !*/
+
+        void clear_nuclear_norm_regularizers (
+        );
+        /*!
+            ensures
+                - #num_nuclear_norm_regularizers() == 0
+        !*/
+
         void be_verbose (
         );
         /*!
@@ -183,17 +266,29 @@ namespace dlib
         !*/
 
         void add_processing_node (
-            const std::string& ip,
+            const network_address& addr
+        );
+        /*!
+            requires
+                - addr.port != 0
+            ensures
+                - if (this address hasn't already been added) then
+                    - #get_num_processing_nodes() == get_num_processing_nodes() + 1
+                    - When operator() is invoked to solve the structural svm problem this
+                      object will connect to the svm_struct_processing_node located at the
+                      given network address and will include it in the distributed
+                      optimization.
+        !*/
+
+        void add_processing_node (
+            const std::string& ip_or_hostname,
             unsigned short port
         );
         /*!
+            requires
+                - port != 0
             ensures
-                - if (this port and ip haven't already been added) then
-                    - #get_num_processing_nodes() == get_num_processing_nodes() + 1
-                    - When operator() is invoked to solve the structural svm problem
-                      this object will connect to the svm_struct_processing_node located
-                      at the given IP address and port number and will include it in the
-                      distributed optimization.
+                - invokes: add_processing_node(network_address(ip_or_hostname, port))
         !*/
 
         unsigned long get_num_processing_nodes (
