@@ -187,9 +187,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="addpkg/Ode/sum.h" />
-		<Unit filename="addpkg/dlib/all/source.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="addpkg/dlib/all/source.cpp" />
 		<Unit filename="addpkg/gnuplot_cpp/gnuplot_i.hpp" />
 		<Unit filename="addpkg/newmat11/bandmat.cpp">
 			<Option target="&lt;{~None~}&gt;" />
