@@ -429,9 +429,10 @@ BioProcessor::prepareDetailedSensitivities(Vector const& tp)
     int                 ifail;
     Expression::Param   parScale = computeParameterScales();
     Expression::Param   speScale;  //  = computeSpeciesScales();
-    unsigned           mcon = 0;
-    unsigned           irankMax = 0;
-    Real                condMax = 1.0/( _biosys->getSolverRTol() );
+    unsigned            mcon = 0;
+    unsigned            irankMax = 0;
+ // Real                condMax = 1.0/EPMACH; // ( _biosys->getSolverRTol() );
+    Real                condMax = 1.0/( _biosys->getSystemTol() );
     long                T = tp.nr();
     long                m = _curSpecies.size();
     long                q = _optPar.size();
