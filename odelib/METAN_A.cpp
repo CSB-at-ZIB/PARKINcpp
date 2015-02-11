@@ -86,6 +86,7 @@ METAN_A::integrate()
     double          t[1];
 
     *rc = _kFlag;
+    
     *h  = _h;
     *t  = _t0;
 
@@ -464,6 +465,8 @@ METAN_A::setODESystem(
 
     _trajectory->clear();
     _trajectory->setDim(_n);
+
+    _kFlag = (_debugflag != 0) ? 5 : 4;
 
     METANWrapper::setObj(*this);
 

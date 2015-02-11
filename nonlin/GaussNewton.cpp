@@ -376,7 +376,7 @@ GaussNewton::initialise(
     _maxmn = std::max(_m, _n);
     // minmn = std::min(_m,_n);
 
-    if ( rscal == 0 )  { _iopt.rscal  = 1; }
+    // if ( rscal == 0 )  { _iopt.rscal  = 1; }
     if ( jacgen == 0 ) { _iopt.jacgen = 2; }
 
 
