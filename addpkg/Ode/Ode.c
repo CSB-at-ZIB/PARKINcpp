@@ -45,7 +45,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <math.h>
 #include "formulc.h"
 #ifdef EIGHT

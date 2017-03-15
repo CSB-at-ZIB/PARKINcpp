@@ -5,6 +5,8 @@ add_library(system
             BioProcessor.cpp
             BioRHS.cpp
             BioSystem.cpp
+            BioSystemODE.cpp
+            BioSystemVAR.cpp
             ExprNode.cpp
             Expression.cpp)
             
