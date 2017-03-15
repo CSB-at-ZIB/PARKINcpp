@@ -2,6 +2,7 @@ ENABLE_LANGUAGE (Fortran)
 
 add_executable(tstprg
                main.cpp
+               testmshoot.cpp
                testlinalg.cpp
                testnonlin.cpp
                testparkin_aux.cpp
