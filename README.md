@@ -39,7 +39,7 @@ NOTE: On Windows you have to use the MinGW shell.
 
 ### Link to BioPARKIN
 
-Presumingly, we want to make use of all the numerical code in BioPARKIN, the sister package of PARKINcpp, there is a last step to do (which, in priciple, can not handled automatically, due to the splitting of the two packages BioPARKIN and PARKINcpp) :
+Presumingly, we want to make use of all the numerical code in BioPARKIN, the sister package of PARKINcpp, there is a last step to do (which, in principle, can not be handled automagically, due to the splitting of our two packages BioPARKIN and PARKINcpp into two repositories. But that's as it is...) :
 ````
 cp swig/parkin.py [Installation path of BioPARKIN]/BioPARKIN/src/parkincpp
 cp swig/_parkin.so [Installation path of BioPARKIN]/BioPARKIN/src/parkincpp
