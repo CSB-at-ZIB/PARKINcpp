@@ -45,7 +45,7 @@ cp swig/parkin.py [Installation path of BioPARKIN]/BioPARKIN/src/parkincpp
 cp swig/_parkin.so [Installation path of BioPARKIN]/BioPARKIN/src/parkincpp
 ````
 
-Alternatively, it is possible to set symbolic links, as well :
+Alternatively, it is possible to set symbolic links instead :
 ````
 cd [Installation path of BioPARKIN]/BioPARKIN/src/parkincpp
 ln -s [Installation path of PARKINcpp]/PARKINcpp/build/swig/parkin.py .
